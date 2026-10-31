@@ -33,7 +33,8 @@ git tag "$TAG_ATUAL"
 
 # 3. Envia código e tag para o GitHub
 echo "📤 Enviando código e tag $TAG_ATUAL para o GitHub..."
-git push origin main --follow-tags
+git push origin main
+git push origin "$TAG_ATUAL"
 
 # 4. Empacota localmente para Mac (.dmg e .zip)
 echo "📦 Gerando instaladores atualizados ($TAG_ATUAL)..."
