@@ -1,9 +1,6 @@
-name: Build & Auto-Update Release (Mac & Windows)
+name: Build & Auto-Update Release (Windows / Manual)
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
 
 permissions:
@@ -14,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [windows-latest]
 
     runs-on: ${{ matrix.os }}
 
