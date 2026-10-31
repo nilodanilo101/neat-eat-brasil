@@ -10,9 +10,9 @@
     "dev": "node --no-warnings server/index.js",
     "build": "vite build",
     "electron:start": "vite build && electron .",
-    "dist:mac": "vite build && electron-builder --mac --publish never",
+    "dist:mac": "vite build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac --publish never",
     "dist:win": "vite build && electron-builder --win --publish never",
-    "release": "vite build && electron-builder --publish always"
+    "release": "vite build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --publish always"
   },
   "build": {
     "appId": "br.com.neateat.app",
