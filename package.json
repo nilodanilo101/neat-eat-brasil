@@ -1,0 +1,67 @@
+{
+  "name": "neat-eat-br",
+  "private": true,
+  "version": "1.0.0",
+  "description": "NeatEat Brasil — Planejador de Refeições & Orçamento Inteligente",
+  "author": "Danilo de Almeida Silva <nilodanilo101@gmail.com>",
+  "type": "module",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "node --no-warnings server/index.js",
+    "build": "vite build",
+    "electron:start": "vite build && electron .",
+    "dist:mac": "vite build && electron-builder --mac --publish never",
+    "dist:win": "vite build && electron-builder --win --publish never",
+    "release": "vite build && electron-builder --publish always"
+  },
+  "build": {
+    "appId": "br.com.neateat.app",
+    "productName": "NeatEat Brasil",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "server/db.js",
+      "server/index.js",
+      "electron/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.food-and-drink",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "nilodanilo101",
+        "repo": "neat-eat-brasil"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.11",
+    "express": "^5.1.0",
+    "lucide-react": "^1.16.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.4",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "electron": "^45.2.1",
+    "electron-builder": "^26.18.0",
+    "tailwindcss": "^4.1.4",
+    "vite": "^6.3.2"
+  }
+}
