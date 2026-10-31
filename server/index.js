@@ -1,12 +1,12 @@
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { db, initDb, SUPERMARKETS, getAllRecipes, generateSmartMealPlan } from './db.js';
+import { db, initDb, getAllRecipes, generateSmartMealPlan } from './db.js';
 import { CURRENT_VERSION, RELEASE_NOTES } from './changelog.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-function buildShoppingList(mealPlan, allRecipes, supermarket, householdSize, fridgeItems, checkedMap) {
+function buildShoppingList(mealPlan, allRecipes, householdSize, fridgeItems, checkedMap) {
   const recipeMap = new Map(allRecipes.map((r) => [r.id, r]));
   const fridgeSet = new Set(fridgeItems.map((f) => f.name.toLowerCase().trim()));
   const aggregated = new Map();
@@ -20,7 +20,7 @@ function buildShoppingList(mealPlan, allRecipes, supermarket, householdSize, fri
       const key = ing.name.toLowerCase().trim();
       const existing = aggregated.get(key);
       const scaledAmount = ing.amount * scale;
-      const scaledPrice = ing.basePrice * scale * supermarket.multiplier;
+      const scaledPrice = ing.basePrice * scale;
 
       if (existing) {
         existing.amount = Number((existing.amount + scaledAmount).toFixed(1));
@@ -53,7 +53,6 @@ function buildShoppingList(mealPlan, allRecipes, supermarket, householdSize, fri
 function getFullState() {
   const user = db.prepare('SELECT * FROM users ORDER BY id ASC LIMIT 1').get();
   const allUsers = db.prepare('SELECT id, name, email, household_code FROM users ORDER BY id ASC').all();
-  const supermarket = SUPERMARKETS.find((m) => m.id === user.supermarket_id) || SUPERMARKETS[0];
   const recipes = getAllRecipes();
   const mealPlan = db.prepare('SELECT day, slot, recipe_id FROM meal_plans').all();
   const fridgeItems = db.prepare('SELECT id, name, category FROM fridge_items ORDER BY name ASC').all();
@@ -63,7 +62,6 @@ function getFullState() {
   const shoppingList = buildShoppingList(
     mealPlan,
     recipes,
-    supermarket,
     user.household_size,
     fridgeItems,
     checkedMap
@@ -78,8 +76,6 @@ function getFullState() {
   return {
     user,
     allUsers,
-    supermarkets: SUPERMARKETS,
-    currentSupermarket: supermarket,
     recipes,
     mealPlan,
     fridgeItems,
@@ -103,8 +99,6 @@ export async function startServer(options = {}) {
     isPackaged = false,
     distPath = path.join(__dirname, '..', 'dist'),
     appVersion = CURRENT_VERSION,
-    onCheckUpdates = null,
-    getUpdateStatus = () => ({ status: 'idle', message: 'App atualizado', version: appVersion }),
   } = options;
 
   const app = express();
@@ -114,7 +108,6 @@ export async function startServer(options = {}) {
     res.json({
       ...getFullState(),
       currentVersion: appVersion || CURRENT_VERSION,
-      updater: getUpdateStatus(),
     });
   });
 
@@ -125,56 +118,45 @@ export async function startServer(options = {}) {
     res.json({
       ...getFullState(),
       currentVersion: appVersion || CURRENT_VERSION,
-      updater: getUpdateStatus(),
     });
   });
 
-  app.post('/api/updater/check', async (_req, res) => {
-    if (onCheckUpdates) {
-      await onCheckUpdates();
-    }
-    res.json(getUpdateStatus());
-  });
-
   app.post('/api/profile', (req, res) => {
-    const { weekly_budget, supermarket_id, dietary_filter, household_size, name } = req.body;
+    const { weekly_budget, dietary_filter, household_size, name } = req.body;
     const current = db.prepare('SELECT * FROM users ORDER BY id ASC LIMIT 1').get();
 
     db.prepare(`
       UPDATE users
       SET weekly_budget = ?,
-          supermarket_id = ?,
           dietary_filter = ?,
           household_size = ?,
           name = ?
       WHERE id = ?
     `).run(
       weekly_budget ?? current.weekly_budget,
-      supermarket_id ?? current.supermarket_id,
       dietary_filter ?? current.dietary_filter,
       household_size ?? current.household_size,
       name ?? current.name,
       current.id
     );
 
-    res.json({ ...getFullState(), updater: getUpdateStatus() });
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
   app.post('/api/plan/generate', (req, res) => {
     const current = db.prepare('SELECT * FROM users ORDER BY id ASC LIMIT 1').get();
     const budget = req.body.weekly_budget ?? current.weekly_budget;
-    const market = req.body.supermarket_id ?? current.supermarket_id;
     const diet = req.body.dietary_filter ?? current.dietary_filter;
     const size = req.body.household_size ?? current.household_size;
 
     db.prepare(`
       UPDATE users
-      SET weekly_budget = ?, supermarket_id = ?, dietary_filter = ?, household_size = ?
+      SET weekly_budget = ?, dietary_filter = ?, household_size = ?
       WHERE id = ?
-    `).run(budget, market, diet, size, current.id);
+    `).run(budget, diet, size, current.id);
 
-    generateSmartMealPlan(Number(budget), market, diet, Number(size));
-    res.json({ ...getFullState(), updater: getUpdateStatus() });
+    generateSmartMealPlan(Number(budget), diet, Number(size));
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
   app.post('/api/plan/slot', (req, res) => {
@@ -185,7 +167,7 @@ export async function startServer(options = {}) {
       ON CONFLICT(day, slot) DO UPDATE SET recipe_id = excluded.recipe_id
     `).run(day, slot, recipe_id);
 
-    res.json({ ...getFullState(), updater: getUpdateStatus() });
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
   app.post('/api/fridge/toggle', (req, res) => {
@@ -200,7 +182,7 @@ export async function startServer(options = {}) {
       db.prepare('INSERT INTO fridge_items (name, category) VALUES (?, ?)').run(trimmed, category);
     }
 
-    res.json({ ...getFullState(), updater: getUpdateStatus() });
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
   app.post('/api/shopping/toggle', (req, res) => {
@@ -213,7 +195,7 @@ export async function startServer(options = {}) {
       ON CONFLICT(item_key) DO UPDATE SET checked = excluded.checked
     `).run(itemKey, nextVal);
 
-    res.json({ ...getFullState(), updater: getUpdateStatus() });
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
   app.post('/api/recipes/import', (req, res) => {
@@ -308,7 +290,7 @@ export async function startServer(options = {}) {
       ])
     );
 
-    res.json({ ...getFullState(), updater: getUpdateStatus() });
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
   app.post('/api/auth/register', (req, res) => {
@@ -324,7 +306,7 @@ export async function startServer(options = {}) {
       code,
       current.id
     );
-    res.json({ ...getFullState(), updater: getUpdateStatus() });
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
   if (isPackaged || process.env.NODE_ENV === 'production') {

@@ -529,7 +529,7 @@ export function initDb() {
 
   const planCount = db.prepare('SELECT COUNT(*) as count FROM meal_plans').get().count;
   if (planCount === 0) {
-    generateSmartMealPlan(250.0, 'atacadao', 'Todas', 2);
+    generateSmartMealPlan(250.0, 'Todas', 2);
   }
 }
 
@@ -560,10 +560,9 @@ export function getAllRecipes() {
   });
 }
 
-export function generateSmartMealPlan(weeklyBudget, supermarketId, dietaryFilter, householdSize = 2) {
+export function generateSmartMealPlan(weeklyBudget, dietaryFilter, householdSize = 2) {
   const days = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
   const slots = ['Café da Manhã', 'Almoço', 'Jantar'];
-  const market = SUPERMARKETS.find((m) => m.id === supermarketId) || SUPERMARKETS[0];
   const allRecipes = getAllRecipes();
 
   const matchesDiet = (r) => {
@@ -586,7 +585,7 @@ export function generateSmartMealPlan(weeklyBudget, supermarketId, dietaryFilter
       if (pool.length === 0) pool = eligible;
 
       const scored = pool.map((r) => {
-        const slotCost = r.costPerServing * householdSize * market.multiplier;
+        const slotCost = r.costPerServing * householdSize;
         return { recipe: r, slotCost };
       });
 

@@ -5,12 +5,10 @@ import {
   Refrigerator,
   BookOpen,
   Sparkles,
-  Store,
   Users,
   Wallet,
   Check,
   Plus,
-  RefreshCw,
   Clock,
   Flame,
   ChefHat,
@@ -20,7 +18,6 @@ import {
   UserCheck,
   ArrowRightLeft,
   X,
-  TrendingDown,
   Link2,
   CheckCircle2,
   AlertTriangle,
@@ -102,6 +99,7 @@ export default function App() {
       setAuthName(json.user.name);
       setAuthEmail(json.user.email);
       setAuthCode(json.user.household_code);
+      // Exibe o modal de Novidades da Versão apenas na abertura quando há versão nova
       if (json.currentVersion && json.user.last_seen_version !== json.currentVersion) {
         setChangelogModalOpen(true);
       }
@@ -133,7 +131,6 @@ export default function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         weekly_budget: Number(budgetDraft),
-        supermarket_id: data.user.supermarket_id,
         dietary_filter: data.user.dietary_filter,
         household_size: data.user.household_size,
       }),
@@ -213,16 +210,6 @@ export default function App() {
     setAuthModalOpen(false);
   }
 
-  async function handleCheckUpdates() {
-    try {
-      const res = await fetch('/api/updater/check', { method: 'POST' });
-      const updaterStatus = await res.json();
-      setData((prev) => ({ ...prev, updater: updaterStatus }));
-    } catch (err) {
-      console.error('Erro ao verificar atualizações:', err);
-    }
-  }
-
   async function handleDismissChangelog() {
     setChangelogModalOpen(false);
     try {
@@ -246,7 +233,6 @@ export default function App() {
   const fridgeMatches = useMemo(() => {
     if (!data) return [];
     const fridgeSet = new Set(data.fridgeItems.map((f) => f.name.toLowerCase().trim()));
-    const mult = data.currentSupermarket.multiplier;
     const scale = data.user.household_size;
 
     return data.recipes
@@ -259,7 +245,7 @@ export default function App() {
           (ing) => !fridgeSet.has(ing.name.toLowerCase().trim())
         );
         const missingCost = missingIngs.reduce(
-          (acc, ing) => acc + (ing.basePrice * (scale / r.servings) * mult),
+          (acc, ing) => acc + ing.basePrice * (scale / r.servings),
           0
         );
         const matchPct = totalIngs > 0 ? Math.round((matchedIngs.length / totalIngs) * 100) : 0;
@@ -288,18 +274,18 @@ export default function App() {
     );
   }
 
-  const { user, supermarkets, currentSupermarket, recipes, mealPlan, fridgeItems, shoppingList, totals } = data;
+  const { user, recipes, mealPlan, fridgeItems, shoppingList, totals } = data;
   const isOverBudget = totals.netToBuyTotal > user.weekly_budget;
   const budgetPct = Math.min(100, Math.round((totals.netToBuyTotal / Math.max(1, user.weekly_budget)) * 100));
 
   function getRecipeMealCost(recipe) {
     if (!recipe) return 0;
-    return Number((recipe.costPerServing * user.household_size * currentSupermarket.multiplier).toFixed(2));
+    return Number((recipe.costPerServing * user.household_size).toFixed(2));
   }
 
   function getRecipeServingCost(recipe) {
     if (!recipe) return 0;
-    return Number((recipe.costPerServing * currentSupermarket.multiplier).toFixed(2));
+    return Number(recipe.costPerServing.toFixed(2));
   }
 
   const filteredCatalog = recipes.filter((r) => {
@@ -318,6 +304,8 @@ export default function App() {
     acc[item.aisle].push(item);
     return acc;
   }, {});
+
+  const latestRelease = data.releaseNotes?.[0];
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
@@ -339,7 +327,7 @@ export default function App() {
                 </span>
               </div>
               <p className="text-xs text-slate-500 hidden sm:block">
-                Planejador Semanal por Orçamento & Supermercado
+                Planejador Semanal de Refeições & Orçamento Inteligente
               </p>
             </div>
           </div>
@@ -349,7 +337,7 @@ export default function App() {
             <div>
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
                 <Wallet className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Custo da Lista ({currentSupermarket.name}):</span>
+                <span>Custo Médio da Lista:</span>
               </div>
               <div className="flex items-baseline gap-1.5 mt-0.5">
                 <span
@@ -384,20 +372,6 @@ export default function App() {
 
           {/* Household & Auth Button */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setChangelogModalOpen(true)}
-              title="Ver Novidades da Versão e buscar atualizações"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold transition cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              <span>v{data.currentVersion || data.updater?.version || '1.0.1'} • Novidades</span>
-              {data.updater?.status === 'ready' && (
-                <span className="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold">
-                  Atualização Pronta!
-                </span>
-              )}
-            </button>
-
             <button
               onClick={() => {
                 navigator.clipboard?.writeText(user.household_code);
@@ -467,15 +441,15 @@ export default function App() {
         {/* TAB 1: PLANEJADOR SEMANAL */}
         {activeTab === 'planner' && (
           <div className="space-y-6">
-            {/* Control Deck: Budget Slider + Supermarket Picker + Household + Auto-Generate */}
+            {/* Control Deck: Budget Slider + Household + Diet + Auto-Generate */}
             <section className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200/80">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
                 {/* Budget Slider */}
-                <div className="lg:col-span-4 space-y-2">
+                <div className="lg:col-span-5 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                       <Wallet className="w-4 h-4 text-emerald-600" />
-                      Orçamento Semanal
+                      Orçamento Semanal (Preço Médio)
                     </label>
                     <span className="text-xl font-extrabold text-emerald-700">
                       {formatBRL(budgetDraft)}
@@ -499,85 +473,55 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Supermarket Selector */}
-                <div className="lg:col-span-4 space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                    <Store className="w-4 h-4 text-emerald-600" />
-                    Supermercado de Referência
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {supermarkets.map((market) => {
-                      const selected = user.supermarket_id === market.id;
-                      return (
-                        <button
-                          key={market.id}
-                          onClick={() => updateProfile({ supermarket_id: market.id })}
-                          className={`px-3 py-2 rounded-xl text-left border transition cursor-pointer ${
-                            selected
-                              ? 'border-emerald-600 bg-emerald-50/70 ring-2 ring-emerald-500/20'
-                              : 'border-slate-200 hover:border-slate-300 bg-white'
-                          }`}
-                        >
-                          <div className="text-xs font-bold text-slate-900 truncate">
-                            {market.name}
-                          </div>
-                          <div className="text-[10px] font-semibold text-emerald-700 truncate">
-                            {market.badge}
-                          </div>
-                        </button>
-                      );
-                    })}
+                {/* Household Size + Diet */}
+                <div className="lg:col-span-4 grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 mb-1">
+                      <Users className="w-3.5 h-3.5 text-emerald-600" />
+                      Pessoas na Casa
+                    </label>
+                    <select
+                      value={user.household_size}
+                      onChange={(e) =>
+                        updateProfile({ household_size: Number(e.target.value) })
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold bg-slate-50 focus:outline-none focus:border-emerald-500"
+                    >
+                      {[1, 2, 3, 4, 5, 6].map((n) => (
+                        <option key={n} value={n}>
+                          {n} {n === 1 ? 'pessoa' : 'pessoas'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 mb-1">
+                      <Filter className="w-3.5 h-3.5 text-emerald-600" />
+                      Preferência
+                    </label>
+                    <select
+                      value={user.dietary_filter}
+                      onChange={(e) => updateProfile({ dietary_filter: e.target.value })}
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold bg-slate-50 focus:outline-none focus:border-emerald-500"
+                    >
+                      {DIETARY_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
-                {/* Household Size + Diet + Smart Generator */}
-                <div className="lg:col-span-4 flex flex-col gap-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 mb-1">
-                        <Users className="w-3.5 h-3.5 text-emerald-600" />
-                        Pessoas na Casa
-                      </label>
-                      <select
-                        value={user.household_size}
-                        onChange={(e) =>
-                          updateProfile({ household_size: Number(e.target.value) })
-                        }
-                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold bg-slate-50 focus:outline-none focus:border-emerald-500"
-                      >
-                        {[1, 2, 3, 4, 5, 6].map((n) => (
-                          <option key={n} value={n}>
-                            {n} {n === 1 ? 'pessoa' : 'pessoas'}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 mb-1">
-                        <Filter className="w-3.5 h-3.5 text-emerald-600" />
-                        Preferência
-                      </label>
-                      <select
-                        value={user.dietary_filter}
-                        onChange={(e) => updateProfile({ dietary_filter: e.target.value })}
-                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold bg-slate-50 focus:outline-none focus:border-emerald-500"
-                      >
-                        {DIETARY_OPTIONS.map((opt) => (
-                          <option key={opt} value={opt}>
-                            {opt}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
+                {/* Smart Generator */}
+                <div className="lg:col-span-3">
                   <button
                     onClick={handleGenerateSmartPlan}
-                    className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition cursor-pointer"
+                    className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition cursor-pointer"
                   >
                     <Sparkles className="w-4 h-4" />
-                    <span>Recalcular Cardápio para {formatBRL(budgetDraft)}</span>
+                    <span>Recalcular para {formatBRL(budgetDraft)}</span>
                   </button>
                 </div>
               </div>
@@ -602,12 +546,12 @@ export default function App() {
                           Math.abs(totals.budgetRemaining)
                         )} do orçamento de ${formatBRL(
                           user.weekly_budget
-                        )}. Clique em "Recalcular Cardápio" ou escolha um atacadista!`
+                        )}. Clique em "Recalcular" para ajustar automaticamente!`
                       : `Ótimo! Seu plano de 21 refeições para ${user.household_size} ${
                           user.household_size === 1 ? 'pessoa' : 'pessoas'
-                        } no ${currentSupermarket.name} deixa ${formatBRL(
+                        } pelo preço médio estimado deixa ${formatBRL(
                           totals.budgetRemaining
-                        )} livres no seu orçamento semanal.`}
+                        )} livres no orçamento semanal.`}
                   </span>
                 </div>
                 <button
@@ -712,63 +656,13 @@ export default function App() {
         {/* TAB 2: LISTA DE COMPRAS INTELIGENTE */}
         {activeTab === 'shopping' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left Column: Supermarket Price Comparison & Budget Breakdown */}
+            {/* Left Column: Financial Summary Card */}
             <div className="lg:col-span-4 space-y-5">
-              <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-xs space-y-4">
-                <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
-                  <TrendingDown className="w-5 h-5 text-emerald-600" />
-                  Comparador de Supermercados
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Veja quanto esta exata lista de compras da semana custa em cada rede:
-                </p>
-
-                <div className="space-y-2.5">
-                  {supermarkets.map((m) => {
-                    const active = m.id === currentSupermarket.id;
-                    const baseNet = totals.netToBuyTotal / currentSupermarket.multiplier;
-                    const estimatedAtMarket = baseNet * m.multiplier;
-                    return (
-                      <button
-                        key={m.id}
-                        onClick={() => updateProfile({ supermarket_id: m.id })}
-                        className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition cursor-pointer ${
-                          active
-                            ? 'border-emerald-600 bg-emerald-50/70 ring-2 ring-emerald-500/20'
-                            : 'border-slate-200 hover:border-slate-300'
-                        }`}
-                      >
-                        <div>
-                          <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
-                            <span>{m.name}</span>
-                            {active && (
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-600 text-white font-bold">
-                                Selecionado
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-slate-500">{m.tagline}</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-extrabold text-sm text-slate-900">
-                            {formatBRL(estimatedAtMarket)}
-                          </div>
-                          <div className="text-[11px] font-semibold text-emerald-700">
-                            {m.badge}
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Financial Summary Card */}
-              <div className="bg-slate-900 text-white rounded-3xl p-5 space-y-3">
+              <div className="bg-slate-900 text-white rounded-3xl p-6 space-y-4">
                 <h4 className="font-bold text-sm text-slate-300 uppercase tracking-wider">
-                  Resumo Financeiro da Semana
+                  Resumo Financeiro (Preço Médio)
                 </h4>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2.5 text-sm">
                   <div className="flex justify-between">
                     <span className="text-slate-400">Custo Bruto dos Ingredientes:</span>
                     <span className="font-semibold">{formatBRL(totals.grossTotal)}</span>
@@ -777,11 +671,15 @@ export default function App() {
                     <span>Já tenho em casa (Geladeira):</span>
                     <span className="font-bold">- {formatBRL(totals.fridgeSavings)}</span>
                   </div>
-                  <div className="pt-2 border-t border-slate-800 flex justify-between text-base font-extrabold">
-                    <span>Total a Pagar no Mercado:</span>
+                  <div className="pt-3 border-t border-slate-800 flex justify-between text-base font-extrabold">
+                    <span>Total Estimado a Comprar:</span>
                     <span className="text-emerald-400">{formatBRL(totals.netToBuyTotal)}</span>
                   </div>
                 </div>
+                <p className="text-xs text-slate-400 pt-2 border-t border-slate-800">
+                  Valores calculados considerando o preço médio dos produtos para{' '}
+                  <strong>{user.household_size} pessoa(s)</strong>.
+                </p>
               </div>
             </div>
 
@@ -972,7 +870,7 @@ export default function App() {
                       Importador de Receitas com IA
                     </h3>
                     <p className="text-xs text-slate-300">
-                      Cole um link do TikTok, Instagram, TudoGostoso ou descreva um prato para calcular o preço no Brasil!
+                      Cole um link do TikTok, Instagram, TudoGostoso ou descreva um prato para estimar o preço médio!
                     </p>
                   </div>
                 </div>
@@ -1028,8 +926,7 @@ export default function App() {
                     Sugestões da IA com o que você já tem em casa
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Receitas ordenadas pela maior compatibilidade com sua geladeira e menor custo adicional no{' '}
-                    <strong>{currentSupermarket.name}</strong>:
+                    Receitas ordenadas pela maior compatibilidade com sua geladeira e menor custo médio adicional:
                   </p>
                 </div>
 
@@ -1154,7 +1051,7 @@ export default function App() {
 
               <div>
                 <div className="flex justify-between text-xs font-bold uppercase text-slate-500 mb-1">
-                  <span>Preço Máx / Porção</span>
+                  <span>Preço Médio Máx / Porção</span>
                   <span className="text-emerald-700">{formatBRL(maxPricePerServing)}</span>
                 </div>
                 <input
@@ -1259,7 +1156,7 @@ export default function App() {
                 </span>
                 <span className="px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white text-sm font-extrabold shadow">
                   {formatBRL(getRecipeMealCost(selectedRecipeModal))} ({user.household_size}{' '}
-                  pessoas no {currentSupermarket.name})
+                  pessoas • Preço Médio)
                 </span>
               </div>
             </div>
@@ -1282,12 +1179,12 @@ export default function App() {
               <div>
                 <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-500 mb-2.5">
                   Ingredientes para {user.household_size}{' '}
-                  {user.household_size === 1 ? 'pessoa' : 'pessoas'}
+                  {user.household_size === 1 ? 'pessoa' : 'pessoas'} (Preço Médio)
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {selectedRecipeModal.ingredients.map((ing, i) => {
                     const scale = user.household_size / (selectedRecipeModal.servings || 1);
-                    const price = ing.basePrice * scale * currentSupermarket.multiplier;
+                    const price = ing.basePrice * scale;
                     return (
                       <div
                         key={i}
@@ -1345,8 +1242,7 @@ export default function App() {
                   Trocar Refeição: {swapSlotTarget.day} ({swapSlotTarget.slot})
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Preços calculados para {user.household_size} pessoas no{' '}
-                  {currentSupermarket.name}
+                  Preço médio estimado para {user.household_size} pessoas
                 </p>
               </div>
               <button
@@ -1461,15 +1357,15 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 4: NOVIDADES DA VERSÃO (WHAT'S NEW) */}
-      {changelogModalOpen && (
+      {/* MODAL 4: NOVIDADES DA VERSÃO (APARECE APENAS NA ABERTURA QUANDO ATUALIZADO) */}
+      {changelogModalOpen && latestRelease && (
         <div
           onClick={handleDismissChangelog}
           className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl max-w-lg w-full max-h-[88vh] overflow-y-auto shadow-2xl border border-slate-200 overflow-hidden"
+            className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden"
           >
             {/* Top Banner */}
             <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white relative">
@@ -1481,65 +1377,30 @@ export default function App() {
               </button>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/20 text-xs font-extrabold uppercase tracking-wider mb-2">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Novidades da Versão v{data.currentVersion || '1.0.1'}</span>
+                <span>Novidades da Versão v{latestRelease.version}</span>
               </div>
-              <h3 className="text-xl font-extrabold">
-                {(data.releaseNotes && data.releaseNotes[0]?.title) ||
-                  'O que há de novo no NeatEat Brasil'}
-              </h3>
+              <h3 className="text-xl font-extrabold">{latestRelease.title}</h3>
               <p className="text-xs text-emerald-50 mt-1 leading-relaxed">
-                {(data.releaseNotes && data.releaseNotes[0]?.summary) ||
-                  'Confira as melhorias aplicadas automaticamente no seu aplicativo.'}
+                {latestRelease.summary}
               </p>
             </div>
 
-            {/* Body: Latest Release Highlights + Previous Releases */}
+            {/* Body: Only Current Version Summary */}
             <div className="p-6 space-y-5">
-              {(data.releaseNotes || []).map((rel, idx) => (
-                <div
-                  key={rel.version}
-                  className={`rounded-2xl p-4 border ${
-                    idx === 0
-                      ? 'bg-emerald-50/60 border-emerald-200'
-                      : 'bg-slate-50 border-slate-200/80'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-600 text-white">
-                      Versão {rel.version} {idx === 0 ? '(Atual)' : ''}
-                    </span>
-                    <span className="text-xs text-slate-400 font-semibold">{rel.date}</span>
-                  </div>
-                  <h4 className="font-bold text-sm text-slate-900 mb-2">{rel.title}</h4>
-                  <ul className="space-y-1.5">
-                    {rel.items.map((item, i) => (
-                      <li key={i} className="text-xs text-slate-700 leading-relaxed flex gap-2">
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+              <div className="rounded-2xl p-4 bg-emerald-50/60 border border-emerald-200">
+                <ul className="space-y-2">
+                  {latestRelease.items.map((item, i) => (
+                    <li key={i} className="text-sm text-slate-800 leading-relaxed flex gap-2">
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-              {/* Auto-Updater Status & Check Action */}
-              <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-                <button
-                  onClick={handleCheckUpdates}
-                  className="text-xs font-bold text-slate-600 hover:text-emerald-700 flex items-center gap-1.5 cursor-pointer"
-                >
-                  <RefreshCw
-                    className={`w-3.5 h-3.5 ${
-                      data.updater?.status === 'checking' ? 'animate-spin text-emerald-600' : ''
-                    }`}
-                  />
-                  <span>
-                    {data.updater?.message || 'Buscar novas atualizações no GitHub'}
-                  </span>
-                </button>
-
+              <div className="flex justify-end">
                 <button
                   onClick={handleDismissChangelog}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs cursor-pointer transition"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xs cursor-pointer transition"
                 >
                   Entendi, vamos lá!
                 </button>
