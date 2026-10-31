@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { db, initDb, SUPERMARKETS, getAllRecipes, generateSmartMealPlan } from './db.js';
+import { CURRENT_VERSION, RELEASE_NOTES } from './changelog.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -83,6 +84,8 @@ function getFullState() {
     mealPlan,
     fridgeItems,
     shoppingList,
+    releaseNotes: RELEASE_NOTES,
+    currentVersion: CURRENT_VERSION,
     totals: {
       grossTotal: Number(grossTotal.toFixed(2)),
       fridgeSavings: Number(fridgeSavings.toFixed(2)),
@@ -99,7 +102,7 @@ export async function startServer(options = {}) {
     port = process.env.PORT || 3000,
     isPackaged = false,
     distPath = path.join(__dirname, '..', 'dist'),
-    appVersion = '1.0.0',
+    appVersion = CURRENT_VERSION,
     onCheckUpdates = null,
     getUpdateStatus = () => ({ status: 'idle', message: 'App atualizado', version: appVersion }),
   } = options;
@@ -110,6 +113,18 @@ export async function startServer(options = {}) {
   app.get('/api/state', (_req, res) => {
     res.json({
       ...getFullState(),
+      currentVersion: appVersion || CURRENT_VERSION,
+      updater: getUpdateStatus(),
+    });
+  });
+
+  app.post('/api/changelog/seen', (req, res) => {
+    const version = req.body.version || appVersion || CURRENT_VERSION;
+    const current = db.prepare('SELECT * FROM users ORDER BY id ASC LIMIT 1').get();
+    db.prepare('UPDATE users SET last_seen_version = ? WHERE id = ?').run(version, current.id);
+    res.json({
+      ...getFullState(),
+      currentVersion: appVersion || CURRENT_VERSION,
       updater: getUpdateStatus(),
     });
   });

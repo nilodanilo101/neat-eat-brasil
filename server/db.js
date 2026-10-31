@@ -437,7 +437,8 @@ export function initDb() {
       weekly_budget REAL NOT NULL DEFAULT 250.0,
       supermarket_id TEXT NOT NULL DEFAULT 'atacadao',
       dietary_filter TEXT NOT NULL DEFAULT 'Todas',
-      household_size INTEGER NOT NULL DEFAULT 2
+      household_size INTEGER NOT NULL DEFAULT 2,
+      last_seen_version TEXT NOT NULL DEFAULT ''
     );
 
     CREATE TABLE IF NOT EXISTS recipes (
@@ -476,6 +477,12 @@ export function initDb() {
       checked INTEGER NOT NULL DEFAULT 0
     );
   `);
+
+  try {
+    db.exec(`ALTER TABLE users ADD COLUMN last_seen_version TEXT NOT NULL DEFAULT ''`);
+  } catch {
+    // Column already exists
+  }
 
   const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get().count;
   if (userCount === 0) {

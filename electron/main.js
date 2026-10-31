@@ -53,20 +53,30 @@ function setupAutoUpdater() {
   });
 
   autoUpdater.on('update-downloaded', (info) => {
+    const rawNotes =
+      typeof info.releaseNotes === 'string'
+        ? info.releaseNotes.replace(/<[^>]*>?/gm, '').trim()
+        : '';
+
     updateState = {
       status: 'ready',
       message: `Nova versão v${info.version} pronta para instalar!`,
       version: app.getVersion(),
+      nextVersion: info.version,
+      releaseNotes: rawNotes,
     };
+
+    const notesSection = rawNotes
+      ? `\n📋 Novidades da versão v${info.version}:\n${rawNotes}\n\n`
+      : '\n';
 
     dialog
       .showMessageBox(mainWindow, {
         type: 'info',
-        title: 'Atualização do NeatEat Brasil Pronta',
-        message: `A nova versão v${info.version} foi baixada automaticamente.`,
-        detail:
-          'Seus dados, cardápio e geladeira continuarão salvos. Deseja reiniciar o aplicativo agora para aplicar a atualização?',
-        buttons: ['Reiniciar e Atualizar Agora', 'Mais Tarde'],
+        title: `Novidades da Versão v${info.version} — NeatEat Brasil`,
+        message: `A nova versão v${info.version} foi baixada automaticamente!`,
+        detail: `${notesSection}Seus dados, cardápio e geladeira continuarão salvos. Ao reiniciar, você também verá o resumo completo de novidades na tela.`,
+        buttons: ['Reiniciar e Ver Novidades', 'Mais Tarde'],
         defaultId: 0,
       })
       .then(({ response }) => {

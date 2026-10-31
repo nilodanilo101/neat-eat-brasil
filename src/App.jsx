@@ -73,6 +73,7 @@ export default function App() {
   const [selectedRecipeModal, setSelectedRecipeModal] = useState(null);
   const [swapSlotTarget, setSwapSlotTarget] = useState(null); // { day, slot }
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [changelogModalOpen, setChangelogModalOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
 
   // Recipe catalog filters
@@ -101,6 +102,9 @@ export default function App() {
       setAuthName(json.user.name);
       setAuthEmail(json.user.email);
       setAuthCode(json.user.household_code);
+      if (json.currentVersion && json.user.last_seen_version !== json.currentVersion) {
+        setChangelogModalOpen(true);
+      }
     } catch (err) {
       console.error('Erro ao carregar estado:', err);
     } finally {
@@ -216,6 +220,21 @@ export default function App() {
       setData((prev) => ({ ...prev, updater: updaterStatus }));
     } catch (err) {
       console.error('Erro ao verificar atualizações:', err);
+    }
+  }
+
+  async function handleDismissChangelog() {
+    setChangelogModalOpen(false);
+    try {
+      const res = await fetch('/api/changelog/seen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ version: data?.currentVersion }),
+      });
+      const json = await res.json();
+      setData(json);
+    } catch (err) {
+      console.error('Erro ao salvar versão vista:', err);
     }
   }
 
@@ -366,12 +385,12 @@ export default function App() {
           {/* Household & Auth Button */}
           <div className="flex items-center gap-2">
             <button
-              onClick={handleCheckUpdates}
-              title={data.updater?.message || 'Verificar atualizações automáticas'}
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold transition cursor-pointer"
+              onClick={() => setChangelogModalOpen(true)}
+              title="Ver Novidades da Versão e buscar atualizações"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold transition cursor-pointer"
             >
-              <RefreshCw className={`w-3.5 h-3.5 text-emerald-600 ${data.updater?.status === 'checking' || data.updater?.status === 'downloading' ? 'animate-spin' : ''}`} />
-              <span>v{data.updater?.version || '1.0.0'}</span>
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <span>v{data.currentVersion || data.updater?.version || '1.0.1'} • Novidades</span>
               {data.updater?.status === 'ready' && (
                 <span className="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold">
                   Atualização Pronta!
@@ -1438,6 +1457,94 @@ export default function App() {
                 Salvar Dados no SQLite
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: NOVIDADES DA VERSÃO (WHAT'S NEW) */}
+      {changelogModalOpen && (
+        <div
+          onClick={handleDismissChangelog}
+          className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl max-w-lg w-full max-h-[88vh] overflow-y-auto shadow-2xl border border-slate-200 overflow-hidden"
+          >
+            {/* Top Banner */}
+            <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white relative">
+              <button
+                onClick={handleDismissChangelog}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/20 text-xs font-extrabold uppercase tracking-wider mb-2">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Novidades da Versão v{data.currentVersion || '1.0.1'}</span>
+              </div>
+              <h3 className="text-xl font-extrabold">
+                {(data.releaseNotes && data.releaseNotes[0]?.title) ||
+                  'O que há de novo no NeatEat Brasil'}
+              </h3>
+              <p className="text-xs text-emerald-50 mt-1 leading-relaxed">
+                {(data.releaseNotes && data.releaseNotes[0]?.summary) ||
+                  'Confira as melhorias aplicadas automaticamente no seu aplicativo.'}
+              </p>
+            </div>
+
+            {/* Body: Latest Release Highlights + Previous Releases */}
+            <div className="p-6 space-y-5">
+              {(data.releaseNotes || []).map((rel, idx) => (
+                <div
+                  key={rel.version}
+                  className={`rounded-2xl p-4 border ${
+                    idx === 0
+                      ? 'bg-emerald-50/60 border-emerald-200'
+                      : 'bg-slate-50 border-slate-200/80'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-600 text-white">
+                      Versão {rel.version} {idx === 0 ? '(Atual)' : ''}
+                    </span>
+                    <span className="text-xs text-slate-400 font-semibold">{rel.date}</span>
+                  </div>
+                  <h4 className="font-bold text-sm text-slate-900 mb-2">{rel.title}</h4>
+                  <ul className="space-y-1.5">
+                    {rel.items.map((item, i) => (
+                      <li key={i} className="text-xs text-slate-700 leading-relaxed flex gap-2">
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+
+              {/* Auto-Updater Status & Check Action */}
+              <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                <button
+                  onClick={handleCheckUpdates}
+                  className="text-xs font-bold text-slate-600 hover:text-emerald-700 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <RefreshCw
+                    className={`w-3.5 h-3.5 ${
+                      data.updater?.status === 'checking' ? 'animate-spin text-emerald-600' : ''
+                    }`}
+                  />
+                  <span>
+                    {data.updater?.message || 'Buscar novas atualizações no GitHub'}
+                  </span>
+                </button>
+
+                <button
+                  onClick={handleDismissChangelog}
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-xs cursor-pointer transition"
+                >
+                  Entendi, vamos lá!
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
