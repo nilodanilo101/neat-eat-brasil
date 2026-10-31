@@ -69,12 +69,22 @@ async function createWindow() {
 
   serverInstance = server;
 
+  const iconPath = path.join(__dirname, '..', 'build', 'icon.png');
+  if (process.platform === 'darwin' && app.dock) {
+    try {
+      app.dock.setIcon(iconPath);
+    } catch {
+      // Ignore if icon missing
+    }
+  }
+
   mainWindow = new BrowserWindow({
     width: 1360,
     height: 880,
     minWidth: 960,
     minHeight: 640,
-    title: 'NeatEat Brasil — Planejador de Refeições & Orçamento',
+    icon: iconPath,
+    title: 'NeatEat Brasil — Planejador de Refeições & Ficha Técnica',
     backgroundColor: '#F8FAFC',
     titleBarStyle: 'default',
     webPreferences: {

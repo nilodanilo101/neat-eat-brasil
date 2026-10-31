@@ -2,7 +2,7 @@
   "name": "neat-eat-br",
   "private": true,
   "version": "1.0.2",
-  "description": "NeatEat Brasil — Planejador de Refeições & Orçamento Inteligente",
+  "description": "NeatEat Brasil — Planejador de Refeições & Ficha Técnica",
   "author": "Danilo de Almeida Silva <nilodanilo101@gmail.com>",
   "type": "module",
   "main": "electron/main.js",
@@ -18,10 +18,12 @@
     "appId": "br.com.neateat.app",
     "productName": "NeatEat Brasil",
     "directories": {
-      "output": "release"
+      "output": "release",
+      "buildResources": "build"
     },
     "files": [
       "dist/**/*",
+      "build/icon.png",
       "server/db.js",
       "server/index.js",
       "server/changelog.js",
@@ -29,6 +31,7 @@
       "package.json"
     ],
     "mac": {
+      "icon": "build/icon.icns",
       "category": "public.app-category.food-and-drink",
       "target": [
         "dmg",
@@ -36,6 +39,7 @@
       ]
     },
     "win": {
+      "icon": "build/icon.png",
       "target": [
         "nsis"
       ]

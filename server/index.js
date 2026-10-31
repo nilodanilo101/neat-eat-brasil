@@ -6,6 +6,41 @@ import { CURRENT_VERSION, RELEASE_NOTES } from './changelog.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+async function searchExactDishPhotos(dishTitle, ingredients = []) {
+  try {
+    const ingNames = ingredients
+      .slice(0, 3)
+      .map((i) => i.name)
+      .join(' ');
+    const query = `${dishTitle} ${ingNames} prato comida receita`.trim();
+    const res = await fetch(
+      'https://www.bing.com/images/search?q=' + encodeURIComponent(query),
+      {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        },
+      }
+    );
+    const html = await res.text();
+    const matches = [
+      ...html.matchAll(
+        /https:\/\/th\.bing\.com\/th\/id\/OIP\.[A-Za-z0-9_-]+Ha[A-Za-z0-9_-]+/g
+      ),
+    ].map((m) => `${m[0]}?w=700&c=7&r=0&o=5`);
+
+    const unique = [...new Set(matches)];
+    if (unique.length > 0) {
+      return unique.slice(0, 6);
+    }
+  } catch (err) {
+    console.error('Erro ao buscar foto específica do prato:', err);
+  }
+  return [
+    'https://th.bing.com/th/id/OIP.OGSvey-eGn5SZZvJ7gAY_wHaHa?w=700&c=7&r=0&o=5',
+  ];
+}
+
 function buildShoppingList(mealPlan, allRecipes, householdSize, fridgeItems, checkedMap) {
   const recipeMap = new Map(allRecipes.map((r) => [r.id, r]));
   const fridgeSet = new Set(fridgeItems.map((f) => f.name.toLowerCase().trim()));
@@ -19,8 +54,8 @@ function buildShoppingList(mealPlan, allRecipes, householdSize, fridgeItems, che
     for (const ing of recipe.ingredients) {
       const key = ing.name.toLowerCase().trim();
       const existing = aggregated.get(key);
-      const scaledAmount = ing.amount * scale;
-      const scaledPrice = ing.basePrice * scale;
+      const scaledAmount = Number(ing.amount || 0) * scale;
+      const scaledPrice = Number(ing.basePrice || 0) * scale;
 
       if (existing) {
         existing.amount = Number((existing.amount + scaledAmount).toFixed(1));
@@ -35,7 +70,7 @@ function buildShoppingList(mealPlan, allRecipes, householdSize, fridgeItems, che
           key,
           name: ing.name,
           amount: Number(scaledAmount.toFixed(1)),
-          unit: ing.unit,
+          unit: ing.unit || 'g',
           aisle: ing.aisle || 'Mercearia',
           estimatedPrice: Number(scaledPrice.toFixed(2)),
           inFridge,
@@ -47,7 +82,9 @@ function buildShoppingList(mealPlan, allRecipes, householdSize, fridgeItems, che
     }
   }
 
-  return Array.from(aggregated.values()).sort((a, b) => a.aisle.localeCompare(b.aisle) || a.name.localeCompare(b.name));
+  return Array.from(aggregated.values()).sort(
+    (a, b) => a.aisle.localeCompare(b.aisle) || a.name.localeCompare(b.name)
+  );
 }
 
 function getFullState() {
@@ -102,13 +139,20 @@ export async function startServer(options = {}) {
   } = options;
 
   const app = express();
-  app.use(express.json());
+  app.use(express.json({ limit: '10mb' }));
 
   app.get('/api/state', (_req, res) => {
     res.json({
       ...getFullState(),
       currentVersion: appVersion || CURRENT_VERSION,
     });
+  });
+
+  app.get('/api/recipes/search-image', async (req, res) => {
+    const q = String(req.query.q || '').trim();
+    if (!q) return res.json({ images: [] });
+    const images = await searchExactDishPhotos(q);
+    res.json({ images });
   });
 
   app.post('/api/changelog/seen', (req, res) => {
@@ -198,7 +242,190 @@ export async function startServer(options = {}) {
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
-  app.post('/api/recipes/import', (req, res) => {
+  // CREATE NEW RECIPE (FICHA TÉCNICA DE RESTAURANTE)
+  app.post('/api/recipes', async (req, res) => {
+    const {
+      title,
+      category = 'Almoço',
+      prepTime = 20,
+      servings = 2,
+      calories = 420,
+      protein = 25,
+      carbs = 40,
+      fat = 14,
+      tags = ['Econômico'],
+      image = '',
+      source = 'Ficha Técnica Própria',
+      portionWeight = '350g por porção',
+      platingInstructions = '',
+      specificInstructions = '',
+      ingredients = [],
+      steps = [],
+    } = req.body;
+
+    if (!title || !title.trim()) {
+      return res.status(400).json({ error: 'O nome do prato é obrigatório.' });
+    }
+
+    let finalImage = image ? image.trim() : '';
+    if (!finalImage) {
+      const foundPhotos = await searchExactDishPhotos(title.trim(), ingredients);
+      finalImage = foundPhotos[0];
+    }
+
+    const id = 'rec-ft-' + Date.now();
+    const validIngredients = Array.isArray(ingredients) && ingredients.length > 0
+      ? ingredients.map((ing) => ({
+          name: String(ing.name || 'Ingrediente').trim(),
+          amount: Number(ing.amount) || 100,
+          unit: String(ing.unit || 'g').trim(),
+          aisle: String(ing.aisle || 'Mercearia').trim(),
+          basePrice: Number(ing.basePrice) || 1.0,
+        }))
+      : [{ name: 'Ingrediente principal', amount: 200, unit: 'g', aisle: 'Mercearia', basePrice: 5.0 }];
+
+    const validSteps = Array.isArray(steps) && steps.length > 0
+      ? steps.map((s) => String(s).trim()).filter(Boolean)
+      : ['Prepare os insumos conforme a ficha técnica e finalize o prato.'];
+
+    db.prepare(`
+      INSERT INTO recipes (
+        id, title, category, prep_time, servings, calories, protein, carbs, fat,
+        tags_json, image, source, ingredients_json, steps_json,
+        portion_weight, plating_instructions, specific_instructions
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      id,
+      title.trim(),
+      category,
+      Number(prepTime) || 20,
+      Math.max(1, Number(servings) || 1),
+      Number(calories) || 0,
+      Number(protein) || 0,
+      Number(carbs) || 0,
+      Number(fat) || 0,
+      JSON.stringify(Array.isArray(tags) ? tags : ['Econômico']),
+      finalImage,
+      source || 'Ficha Técnica Própria',
+      JSON.stringify(validIngredients),
+      JSON.stringify(validSteps),
+      portionWeight || '350g por porção',
+      platingInstructions || 'Servir em prato aquecido com montagem centralizada.',
+      specificInstructions || 'Respeitar as gramaturas e temperaturas da ficha técnica.'
+    );
+
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
+  });
+
+  // UPDATE EXISTING RECIPE (FICHA TÉCNICA DE RESTAURANTE)
+  app.put('/api/recipes/:id', async (req, res) => {
+    const { id } = req.params;
+    const existing = db.prepare('SELECT * FROM recipes WHERE id = ?').get(id);
+    if (!existing) {
+      return res.status(404).json({ error: 'Receita não encontrada.' });
+    }
+
+    const {
+      title,
+      category,
+      prepTime,
+      servings,
+      calories,
+      protein,
+      carbs,
+      fat,
+      tags,
+      image,
+      source,
+      portionWeight,
+      platingInstructions,
+      specificInstructions,
+      ingredients,
+      steps,
+    } = req.body;
+
+    const nextTitle = title ? title.trim() : existing.title;
+    const nextIngredients = Array.isArray(ingredients)
+      ? ingredients.map((ing) => ({
+          name: String(ing.name || 'Ingrediente').trim(),
+          amount: Number(ing.amount) || 0,
+          unit: String(ing.unit || 'g').trim(),
+          aisle: String(ing.aisle || 'Mercearia').trim(),
+          basePrice: Number(ing.basePrice) || 0,
+        }))
+      : JSON.parse(existing.ingredients_json);
+
+    let finalImage = image !== undefined ? String(image).trim() : existing.image;
+    if (!finalImage) {
+      const foundPhotos = await searchExactDishPhotos(nextTitle, nextIngredients);
+      finalImage = foundPhotos[0];
+    }
+
+    const nextSteps = Array.isArray(steps)
+      ? steps.map((s) => String(s).trim()).filter(Boolean)
+      : JSON.parse(existing.steps_json);
+
+    db.prepare(`
+      UPDATE recipes
+      SET title = ?,
+          category = ?,
+          prep_time = ?,
+          servings = ?,
+          calories = ?,
+          protein = ?,
+          carbs = ?,
+          fat = ?,
+          tags_json = ?,
+          image = ?,
+          source = ?,
+          ingredients_json = ?,
+          steps_json = ?,
+          portion_weight = ?,
+          plating_instructions = ?,
+          specific_instructions = ?
+      WHERE id = ?
+    `).run(
+      nextTitle,
+      category ?? existing.category,
+      Number(prepTime ?? existing.prep_time),
+      Math.max(1, Number(servings ?? existing.servings)),
+      Number(calories ?? existing.calories),
+      Number(protein ?? existing.protein),
+      Number(carbs ?? existing.carbs),
+      Number(fat ?? existing.fat),
+      JSON.stringify(Array.isArray(tags) ? tags : JSON.parse(existing.tags_json)),
+      finalImage,
+      source ?? existing.source,
+      JSON.stringify(nextIngredients),
+      JSON.stringify(nextSteps),
+      portionWeight ?? existing.portion_weight,
+      platingInstructions ?? existing.plating_instructions,
+      specificInstructions ?? existing.specific_instructions,
+      id
+    );
+
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
+  });
+
+  // DELETE RECIPE
+  app.delete('/api/recipes/:id', (req, res) => {
+    const { id } = req.params;
+    db.prepare('DELETE FROM recipes WHERE id = ?').run(id);
+
+    // If any meal plan slot used this recipe, replace with another available recipe
+    const fallback = db.prepare('SELECT id FROM recipes LIMIT 1').get();
+    if (fallback) {
+      db.prepare('UPDATE meal_plans SET recipe_id = ? WHERE recipe_id = ?').run(fallback.id, id);
+    } else {
+      db.prepare('DELETE FROM meal_plans WHERE recipe_id = ?').run(id);
+    }
+
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
+  });
+
+  // AI IMPORT RECIPE WITH EXACT DISH PHOTO & FICHA TÉCNICA
+  app.post('/api/recipes/import', async (req, res) => {
     const { input, category = 'Almoço' } = req.body;
     if (!input || !input.trim()) {
       return res.status(400).json({ error: 'Informe uma URL ou descrição da receita' });
@@ -207,7 +434,7 @@ export async function startServer(options = {}) {
     const raw = input.trim();
     const isUrl = raw.startsWith('http://') || raw.startsWith('https://');
     let title = raw;
-    let source = 'Importado via IA NeatEat';
+    let source = 'Ficha Técnica Importada via IA';
 
     if (isUrl) {
       try {
@@ -222,13 +449,13 @@ export async function startServer(options = {}) {
       }
     }
 
-    const lower = raw.toLowerCase();
+    const lower = title.toLowerCase();
     const ingredients = [];
 
     if (lower.includes('frango')) {
       ingredients.push({ name: 'Peito de frango', amount: 300, unit: 'g', aisle: 'Açougue', basePrice: 6.90 });
     }
-    if (lower.includes('carne') || lower.includes('bife') || lower.includes('patinho')) {
+    if (lower.includes('carne') || lower.includes('bife') || lower.includes('patinho') || lower.includes('bolonhesa')) {
       ingredients.push({ name: 'Carne moída (patinho ou acém)', amount: 300, unit: 'g', aisle: 'Açougue', basePrice: 10.50 });
     }
     if (lower.includes('ovo') || lower.includes('omelete') || lower.includes('panqueca')) {
@@ -263,15 +490,24 @@ export async function startServer(options = {}) {
       );
     }
 
+    const cleanTitle = title.length > 65 ? title.slice(0, 62) + '...' : title;
+    const exactPhotos = await searchExactDishPhotos(cleanTitle, ingredients);
+    const totalWeightGrams = ingredients.reduce((s, i) => s + (Number(i.amount) || 0), 0);
+    const portionWeight = `${Math.max(180, Math.round(totalWeightGrams / 2))}g por porção`;
+
     const id = 'rec-custom-' + Date.now();
     const tags = ['Econômico', 'Rápido', 'Importada'];
 
     db.prepare(`
-      INSERT INTO recipes (id, title, category, prep_time, servings, calories, protein, carbs, fat, tags_json, image, source, ingredients_json, steps_json)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO recipes (
+        id, title, category, prep_time, servings, calories, protein, carbs, fat,
+        tags_json, image, source, ingredients_json, steps_json,
+        portion_weight, plating_instructions, specific_instructions
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
-      title.length > 65 ? title.slice(0, 62) + '...' : title,
+      cleanTitle,
       category,
       20,
       2,
@@ -280,14 +516,17 @@ export async function startServer(options = {}) {
       42,
       15,
       JSON.stringify(tags),
-      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80',
+      exactPhotos[0],
       source,
       JSON.stringify(ingredients),
       JSON.stringify([
-        'Separe e higienize todos os ingredientes importados pela IA do NeatEat.',
-        'Refogue os temperos base no azeite até dourarem.',
-        'Adicione os ingredientes principais, cozinhe em fogo médio por 15 minutos e sirva quente.'
-      ])
+        'Realize o mise en place pesando todos os insumos conforme a ficha técnica.',
+        'Refogue os aromáticos base no azeite até dourarem.',
+        'Incorpore os insumos principais, cozinhe em fogo médio por 15 minutos e ajuste o sal antes de empratar.'
+      ]),
+      portionWeight,
+      `Dispor a porção (${portionWeight}) no centro de um prato aquecido, garantindo volume e altura, e finalizar com ervas frescas e fio de azeite.`,
+      'Manter os insumos perecíveis refrigerados a 4°C até o preparo. Consumir em até 48h se mantido refrigerado em recipiente hermético.'
     );
 
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
@@ -332,7 +571,6 @@ export async function startServer(options = {}) {
   });
 }
 
-// Run standalone if invoked directly via `node server/index.js`
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
   startServer();
 }

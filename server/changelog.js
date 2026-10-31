@@ -1,16 +1,17 @@
-export const CURRENT_VERSION = '1.0.2';
+export const CURRENT_VERSION = '1.0.3';
 
 export const RELEASE_NOTES = [
   {
-    version: '1.0.2',
+    version: '1.0.3',
     date: '31/10/2026',
-    title: 'Novidades da Versão — Interface Simplificada & Preço Médio',
+    title: 'Novidades da Versão — Ficha Técnica de Restaurante & Novo Ícone Menu',
     summary:
-      'Simplificamos o planejamento semanal para focar diretamente no seu orçamento utilizando o preço médio nacional dos alimentos.',
+      'Agora o catálogo segue o padrão profissional de Ficha Técnica de Restaurante, permitindo criar, editar e excluir receitas com foto exata do prato.',
     items: [
-      '💰 Cálculo direto pelo Preço Médio dos ingredientes em todas as receitas e na lista de compras.',
-      '✨ Exibição das Novidades da Versão exclusivamente na primeira abertura após atualizar.',
-      '🚀 Verificação automática e silenciosa de atualizações apenas ao iniciar o aplicativo.'
+      '📋 Modelo completo de Ficha Técnica de Restaurante: insumos com quantidades e custo individual, tempo e modo de preparo, peso/montagem/finalização da porção, tabela nutricional e instruções específicas.',
+      '✏️ Opções para Criar, Editar e Excluir receitas diretamente na aba Catálogo de Receitas.',
+      '📸 Busca e vinculação de imagem exata da refeição de cada receita (nunca genérica).',
+      '📖 Novo ícone oficial do aplicativo com símbolo de Menu.'
     ]
   }
 ];
