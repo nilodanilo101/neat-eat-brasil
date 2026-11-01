@@ -32,6 +32,11 @@ import {
   Eye,
   Moon,
   Sun,
+  Play,
+  Pause,
+  ChevronLeft,
+  ChevronRight,
+  Timer,
 } from 'lucide-react';
 
 const DAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
@@ -78,6 +83,121 @@ function formatBRL(value) {
     style: 'currency',
     currency: 'BRL',
   });
+}
+
+function getIngredientEmoji(name = '', aisle = '') {
+  const n = String(name).toLowerCase();
+  if (n.includes('ovo')) return '🥚';
+  if (n.includes('frango')) return '🍗';
+  if (n.includes('linguiça') || n.includes('calabresa') || n.includes('bacon') || n.includes('fiambre')) return '🥓';
+  if (n.includes('carne') || n.includes('patinho') || n.includes('acém') || n.includes('bife')) return '🥩';
+  if (n.includes('tilápia') || n.includes('peixe') || n.includes('salmão') || n.includes('atum') || n.includes('camarão')) return '🐟';
+  if (n.includes('queijo') || n.includes('muçarela') || n.includes('coalho') || n.includes('parmesão') || n.includes('requeijão') || n.includes('ricota')) return '🧀';
+  if (n.includes('manteiga')) return '🧈';
+  if (n.includes('coco')) return '🥥';
+  if (n.includes('leite') || n.includes('iogurte') || n.includes('creme de leite')) return '🥛';
+  if (n.includes('tomate') || n.includes('molho')) return '🍅';
+  if (n.includes('cebola')) return '🧅';
+  if (n.includes('alho-poró') || n.includes('alho poro')) return '🥬';
+  if (n.includes('alho')) return '🧄';
+  if (n.includes('batata-doce') || n.includes('batata doce')) return '🍠';
+  if (n.includes('batata') || n.includes('mandioca') || n.includes('mandioquinha')) return '🥔';
+  if (n.includes('cenoura')) return '🥕';
+  if (n.includes('brócolis') || n.includes('brocolis')) return '🥦';
+  if (n.includes('abobrinha') || n.includes('chuchu') || n.includes('pepino')) return '🥒';
+  if (n.includes('abóbora') || n.includes('abobora') || n.includes('cabotiá')) return '🎃';
+  if (n.includes('pimentão') || n.includes('pimenta')) return '🫑';
+  if (
+    n.includes('couve') ||
+    n.includes('alface') ||
+    n.includes('espinafre') ||
+    n.includes('cheiro-verde') ||
+    n.includes('coentro') ||
+    n.includes('salsinha') ||
+    n.includes('manjericão') ||
+    n.includes('hortelã')
+  )
+    return '🥬';
+  if (n.includes('abacate')) return '🥑';
+  if (n.includes('banana')) return '🍌';
+  if (n.includes('limão') || n.includes('limao')) return '🍋';
+  if (n.includes('shitake') || n.includes('cogumelo') || n.includes('champignon')) return '🍄';
+  if (n.includes('arroz')) return '🍚';
+  if (n.includes('feijão') || n.includes('feijao') || n.includes('grão-de-bico') || n.includes('lentilha')) return '🫘';
+  if (n.includes('macarrão') || n.includes('espaguete') || n.includes('penne') || n.includes('lasanha')) return '🍝';
+  if (n.includes('wrap') || n.includes('pão folha')) return '🌯';
+  if (n.includes('pão') || n.includes('torrada') || n.includes('crouton')) return '🍞';
+  if (
+    n.includes('aveia') ||
+    n.includes('farinha') ||
+    n.includes('polvilho') ||
+    n.includes('tapioca') ||
+    n.includes('flocão') ||
+    n.includes('cuscuz')
+  )
+    return '🌾';
+  if (n.includes('azeite') || n.includes('óleo')) return '🫒';
+  if (n.includes('amendoim') || n.includes('castanha') || n.includes('nozes')) return '🥜';
+  if (n.includes('cacau') || n.includes('chocolate')) return '🍫';
+  if (n.includes('mel')) return '🍯';
+  if (n.includes('gengibre')) return '🫚';
+  if (
+    n.includes('sal') ||
+    n.includes('orégano') ||
+    n.includes('canela') ||
+    n.includes('açafrão') ||
+    n.includes('cúrcuma') ||
+    n.includes('shoyu') ||
+    n.includes('tempero')
+  )
+    return '🧂';
+
+  if (aisle === 'Açougue') return '🥩';
+  if (aisle === 'Peixaria') return '🐟';
+  if (aisle === 'Laticínios e Ovos') return '🧀';
+  if (aisle === 'Hortifruti') return '🥗';
+  if (aisle === 'Padaria') return '🥖';
+  if (aisle === 'Temperos') return '🧂';
+  return '🥣';
+}
+
+function extractStepSeconds(stepText = '') {
+  const text = String(stepText).toLowerCase();
+  const minMatch = text.match(/(\d+)\s*(?:minuto|minutos|min\b)/);
+  const secMatch = text.match(/(\d+)\s*(?:segundo|segundos|seg\b|s\b)/);
+  let total = 0;
+  if (minMatch) total += Number(minMatch[1]) * 60;
+  if (secMatch) total += Number(secMatch[1]);
+  return total > 0 ? total : 0;
+}
+
+function formatTimerMMSS(totalSeconds) {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  const mins = String(Math.floor(s / 60)).padStart(2, '0');
+  const secs = String(s % 60).padStart(2, '0');
+  return `${mins}:${secs}`;
+}
+
+function playTimerChime() {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    [523.25, 659.25, 783.99].forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.16);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.16 + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + idx * 0.16);
+      osc.stop(ctx.currentTime + idx * 0.16 + 0.36);
+    });
+  } catch {
+    // Ignore audio errors
+  }
 }
 
 function createEmptyFichaTecnica() {
@@ -146,6 +266,48 @@ export default function App() {
   const [searchingPhotos, setSearchingPhotos] = useState(false);
   const [candidatePhotos, setCandidatePhotos] = useState([]);
 
+  // Guided Step-by-Step Cooking Mode state (Botão Play)
+  const [cookingSession, setCookingSession] = useState(null);
+
+  useEffect(() => {
+    if (!cookingSession?.timerRunning) return;
+    const interval = setInterval(() => {
+      setCookingSession((prev) => {
+        if (!prev || !prev.timerRunning) return prev;
+        if (prev.timerSeconds <= 1) {
+          playTimerChime();
+          return {
+            ...prev,
+            timerSeconds: 0,
+            timerRunning: false,
+            timerFinished: true,
+          };
+        }
+        return {
+          ...prev,
+          timerSeconds: prev.timerSeconds - 1,
+        };
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cookingSession?.timerRunning]);
+
+  function openCookingMode(recipe, e) {
+    if (e) e.stopPropagation();
+    if (!recipe) return;
+    setSelectedRecipeModal(null);
+    setCookingSession({
+      recipe,
+      stepIndex: 0, // 0 = Mise en Place (Ingredientes), 1..N = Etapas do preparo, N+1 = Montagem e Finalização
+      checkedIngredients: {},
+      completedSteps: {},
+      scaleServings: recipe.servings || 2,
+      timerSeconds: 0,
+      timerRunning: false,
+      timerFinished: false,
+    });
+  }
+
   // Recipe catalog filters
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('Todas');
@@ -207,6 +369,7 @@ export default function App() {
         setRecipeFormModal(null);
         setSwapSlotTarget(null);
         setAuthModalOpen(false);
+        setCookingSession(null);
       }
     }
     window.addEventListener('keydown', handleKeyDown);
@@ -957,13 +1120,23 @@ export default function App() {
                               <span className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" /> {recipe.prepTime}m
                               </span>
-                              <button
-                                onClick={() => setSwapSlotTarget({ day, slot })}
-                                className="text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1 cursor-pointer"
-                              >
-                                <ArrowRightLeft className="w-3 h-3" />
-                                Trocar
-                              </button>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={(e) => openCookingMode(recipe, e)}
+                                  title="Iniciar Modo Cozinhar (Passo a Passo)"
+                                  className="px-2 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1 cursor-pointer transition"
+                                >
+                                  <Play className="w-2.5 h-2.5 fill-white" />
+                                  <span>Cozinhar</span>
+                                </button>
+                                <button
+                                  onClick={() => setSwapSlotTarget({ day, slot })}
+                                  className="text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1 cursor-pointer"
+                                >
+                                  <ArrowRightLeft className="w-3 h-3" />
+                                  Trocar
+                                </button>
+                              </div>
                             </div>
                           </div>
                         );
@@ -1060,6 +1233,9 @@ export default function App() {
                               </div>
                               <div>
                                 <div className="flex items-center gap-2">
+                                  <span className="text-base leading-none">
+                                    {getIngredientEmoji(item.name, item.aisle)}
+                                  </span>
                                   <span
                                     className={`text-sm font-bold ${
                                       item.checked ? 'line-through' : ''
@@ -1168,6 +1344,7 @@ export default function App() {
                           }`}
                         >
                           {active && <Check className="w-3.5 h-3.5" />}
+                          <span>{getIngredientEmoji(sug.name, sug.category)}</span>
                           <span>{sug.name}</span>
                         </button>
                       );
@@ -1286,20 +1463,30 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="text-[11px] text-slate-500 border-t border-slate-200/70 pt-2">
-                        {rec.missingIngs.length === 0 ? (
-                          <span className="text-emerald-700 font-bold">
-                            Você tem 100% dos ingredientes! Custo extra R$ 0,00!
-                          </span>
-                        ) : (
-                          <span>
-                            Faltam:{' '}
-                            {rec.missingIngs
-                              .map((i) => i.name)
-                              .slice(0, 3)
-                              .join(', ')}
-                          </span>
-                        )}
+                      <div className="text-[11px] text-slate-500 border-t border-slate-200/70 pt-2 flex items-center justify-between gap-2">
+                        <div>
+                          {rec.missingIngs.length === 0 ? (
+                            <span className="text-emerald-700 font-bold">
+                              Você tem 100% dos ingredientes! Custo extra R$ 0,00!
+                            </span>
+                          ) : (
+                            <span>
+                              Faltam:{' '}
+                              {rec.missingIngs
+                                .map((i) => `${getIngredientEmoji(i.name, i.aisle)} ${i.name}`)
+                                .slice(0, 3)
+                                .join(', ')}
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => openCookingMode(rec, e)}
+                          className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold flex items-center gap-1 shrink-0 cursor-pointer"
+                        >
+                          <Play className="w-3 h-3 fill-white" />
+                          <span>Cozinhar</span>
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -1423,8 +1610,15 @@ export default function App() {
                           {recipe.category}
                         </div>
 
-                        {/* Edit & Delete Quick Buttons on Card */}
+                        {/* Play, Edit & Delete Quick Buttons on Card */}
                         <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                          <button
+                            onClick={(e) => openCookingMode(recipe, e)}
+                            title="Iniciar Modo Cozinhar (Passo a Passo)"
+                            className="w-8 h-8 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow-sm transition cursor-pointer"
+                          >
+                            <Play className="w-3.5 h-3.5 fill-white ml-0.5" />
+                          </button>
                           <button
                             onClick={(e) => openEditRecipeModal(recipe, e)}
                             title="Editar Ficha Técnica"
@@ -1481,9 +1675,14 @@ export default function App() {
                       <span className="flex items-center gap-1">
                         <Flame className="w-3.5 h-3.5 text-orange-500" /> {recipe.calories} kcal
                       </span>
-                      <span className="font-bold text-slate-700">
-                        CMV Total: {formatBRL(recipe.baseCost)}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => openCookingMode(recipe, e)}
+                        className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 shadow-2xs transition cursor-pointer"
+                      >
+                        <Play className="w-3 h-3 fill-white" />
+                        <span>Cozinhar</span>
+                      </button>
                     </div>
                   </div>
                 );
@@ -1816,6 +2015,7 @@ export default function App() {
                               key={idx}
                               className="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-1.5"
                             >
+                              <span>{getIngredientEmoji(ing.name, ing.aisle)}</span>
                               <span>
                                 {ing.name} ({ing.amount}
                                 {ing.unit})
@@ -1956,6 +2156,13 @@ export default function App() {
                 className="w-full h-full object-cover"
               />
               <div className="absolute top-4 right-4 flex items-center gap-2">
+                <button
+                  onClick={(e) => openCookingMode(selectedRecipeModal, e)}
+                  className="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center gap-1.5 shadow cursor-pointer"
+                >
+                  <Play className="w-3.5 h-3.5 fill-white" />
+                  <span>Cozinhar Agora</span>
+                </button>
                 {recipeMap.has(selectedRecipeModal.id) ? (
                   <>
                     <button
@@ -2094,7 +2301,12 @@ export default function App() {
                     <tbody className="divide-y divide-slate-100">
                       {selectedRecipeModal.ingredients.map((ing, i) => (
                         <tr key={i} className="hover:bg-slate-50">
-                          <td className="py-2.5 px-3 font-bold text-slate-800">{ing.name}</td>
+                          <td className="py-2.5 px-3 font-bold text-slate-800">
+                            <span className="mr-1.5">
+                              {getIngredientEmoji(ing.name, ing.aisle)}
+                            </span>
+                            {ing.name}
+                          </td>
                           <td className="py-2.5 px-3 text-slate-500">{ing.aisle}</td>
                           <td className="py-2.5 px-3 font-semibold text-slate-700">
                             {ing.amount} {ing.unit}
@@ -2892,6 +3104,598 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* MODAL 6: MODO COZINHAR PASSO A PASSO (BOTÃO PLAY) */}
+      {cookingSession && (() => {
+        const rec = cookingSession.recipe;
+        const steps = Array.isArray(rec.steps) ? rec.steps : [];
+        const totalStages = steps.length + 2; // 0 = Mise en Place, 1..N = Passos, N+1 = Montagem e Finalização
+        const currentIdx = cookingSession.stepIndex;
+        const isMiseEnPlace = currentIdx === 0;
+        const isFinalPlating = currentIdx === steps.length + 1;
+        const currentStepText = !isMiseEnPlace && !isFinalPlating ? steps[currentIdx - 1] : '';
+        const suggestedSeconds = currentStepText ? extractStepSeconds(currentStepText) : 0;
+        const baseServings = rec.servings || 2;
+        const scaleRatio = (cookingSession.scaleServings || baseServings) / baseServings;
+        const progressPercent = Math.round(((currentIdx + 1) / totalStages) * 100);
+
+        // Identify ingredients mentioned in the current step
+        const stepIngredients = !isMiseEnPlace && !isFinalPlating
+          ? (rec.ingredients || []).filter((ing) => {
+              const words = String(ing.name || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .split(/\s+/)
+                .filter((w) => w.length >= 4);
+              const stepNorm = String(currentStepText)
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+              return words.some((w) => stepNorm.includes(w));
+            })
+          : [];
+
+        return (
+          <div
+            onClick={() => setCookingSession(null)}
+            className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]"
+            >
+              {/* TOP HEADER */}
+              <div className="bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 p-5 sm:p-6 text-white relative">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <img
+                      src={resolveRecipeImage(rec.image)}
+                      alt={rec.title}
+                      onError={handleRecipeImgError}
+                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-white/30 shadow-md shrink-0"
+                    />
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-[11px] font-extrabold uppercase tracking-wider mb-1">
+                        <Play className="w-3 h-3 fill-current" />
+                        <span>Modo Cozinhar Guiado • Etapa {currentIdx + 1} de {totalStages}</span>
+                      </div>
+                      <h2 className="text-lg sm:text-xl font-extrabold leading-tight">
+                        {rec.title}
+                      </h2>
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-emerald-50 mt-1">
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" /> {rec.prepTime} min total
+                        </span>
+                        <span>•</span>
+                        <span>Rendimento ajustado: <strong>{cookingSession.scaleServings} porções</strong></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setCookingSession(null)}
+                    className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer shrink-0 transition"
+                    title="Sair do Modo Cozinhar"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* PROGRESS BAR & STEP PILLS */}
+                <div className="mt-4">
+                  <div className="w-full h-2 rounded-full bg-black/20 overflow-hidden">
+                    <div
+                      className="h-full bg-white rounded-full transition-all duration-300"
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-2.5 overflow-x-auto pb-1">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCookingSession((prev) => ({ ...prev, stepIndex: 0 }))
+                      }
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap cursor-pointer transition ${
+                        isMiseEnPlace
+                          ? 'bg-white text-emerald-800 shadow-xs'
+                          : 'bg-white/15 text-white hover:bg-white/25'
+                      }`}
+                    >
+                      🥗 1. Mise en Place
+                    </button>
+                    {steps.map((_, idx) => {
+                      const stepNum = idx + 1;
+                      const isCurrent = currentIdx === stepNum;
+                      const isDone = !!cookingSession.completedSteps[idx];
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            const nextSec = extractStepSeconds(steps[idx]);
+                            setCookingSession((prev) => ({
+                              ...prev,
+                              stepIndex: stepNum,
+                              timerSeconds: prev.timerRunning ? prev.timerSeconds : nextSec,
+                              timerFinished: false,
+                            }));
+                          }}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap cursor-pointer transition flex items-center gap-1 ${
+                            isCurrent
+                              ? 'bg-white text-emerald-800 shadow-xs'
+                              : isDone
+                              ? 'bg-emerald-900/50 text-emerald-100 border border-white/20'
+                              : 'bg-white/15 text-white hover:bg-white/25'
+                          }`}
+                        >
+                          {isDone ? '✓' : '🍳'} Passo {stepNum}
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCookingSession((prev) => ({
+                          ...prev,
+                          stepIndex: steps.length + 1,
+                        }))
+                      }
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap cursor-pointer transition ${
+                        isFinalPlating
+                          ? 'bg-white text-emerald-800 shadow-xs'
+                          : 'bg-white/15 text-white hover:bg-white/25'
+                      }`}
+                    >
+                      🍽️ Empratamento
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* PERSISTENT TIMER BAR (WHEN ACTIVE OR SUGGESTED) */}
+              {(cookingSession.timerRunning || cookingSession.timerSeconds > 0 || cookingSession.timerFinished || suggestedSeconds > 0) && (
+                <div
+                  className={`px-5 py-3 border-b flex flex-wrap items-center justify-between gap-3 transition ${
+                    cookingSession.timerFinished
+                      ? 'bg-amber-50 border-amber-200 text-amber-900'
+                      : 'bg-slate-50 border-slate-200 text-slate-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center font-extrabold ${
+                        cookingSession.timerFinished
+                          ? 'bg-amber-500 text-white animate-bounce'
+                          : cookingSession.timerRunning
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-slate-200 text-slate-700'
+                      }`}
+                    >
+                      <Timer className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        {cookingSession.timerFinished
+                          ? '🔔 Tempo Concluído!'
+                          : cookingSession.timerRunning
+                          ? 'Cronômetro em andamento'
+                          : 'Cronômetro da Etapa'}
+                      </div>
+                      <div className="text-xl font-black font-mono tracking-tight">
+                        {formatTimerMMSS(
+                          cookingSession.timerSeconds > 0
+                            ? cookingSession.timerSeconds
+                            : suggestedSeconds
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    {!cookingSession.timerRunning ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCookingSession((prev) => ({
+                            ...prev,
+                            timerSeconds:
+                              prev.timerSeconds > 0
+                                ? prev.timerSeconds
+                                : suggestedSeconds > 0
+                                ? suggestedSeconds
+                                : 60,
+                            timerRunning: true,
+                            timerFinished: false,
+                          }))
+                        }
+                        className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span>
+                          {cookingSession.timerSeconds > 0
+                            ? 'Retomar Timer'
+                            : suggestedSeconds > 0
+                            ? `Iniciar Timer (${formatTimerMMSS(suggestedSeconds)})`
+                            : 'Iniciar 1 min'}
+                        </span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCookingSession((prev) => ({
+                            ...prev,
+                            timerRunning: false,
+                          }))
+                        }
+                        className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs"
+                      >
+                        <Pause className="w-3.5 h-3.5" />
+                        <span>Pausar</span>
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCookingSession((prev) => ({
+                          ...prev,
+                          timerSeconds: (prev.timerSeconds || 0) + 60,
+                          timerFinished: false,
+                        }))
+                      }
+                      className="px-2.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200 cursor-pointer"
+                    >
+                      +1 min
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCookingSession((prev) => ({
+                          ...prev,
+                          timerSeconds: (prev.timerSeconds || 0) + 300,
+                          timerFinished: false,
+                        }))
+                      }
+                      className="px-2.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200 cursor-pointer"
+                    >
+                      +5 min
+                    </button>
+                    {(cookingSession.timerSeconds > 0 || cookingSession.timerFinished) && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCookingSession((prev) => ({
+                            ...prev,
+                            timerSeconds: 0,
+                            timerRunning: false,
+                            timerFinished: false,
+                          }))
+                        }
+                        className="px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-500 font-bold text-xs cursor-pointer"
+                      >
+                        Zerar
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* MAIN STAGE CONTENT */}
+              <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6">
+                {isMiseEnPlace && (
+                  <div className="space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4">
+                      <div>
+                        <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
+                          Etapa Inicial • Mise en Place
+                        </span>
+                        <h3 className="text-lg font-extrabold text-slate-900 mt-0.5">
+                          Separe e pese os ingredientes na bancada
+                        </h3>
+                        <p className="text-xs text-slate-600">
+                          Marque cada insumo abaixo conforme for separando para cozinhar sem imprevistos.
+                        </p>
+                      </div>
+
+                      {/* PORTION SCALER */}
+                      <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-emerald-200 shrink-0 self-start sm:self-center">
+                        <span className="text-xs font-bold text-slate-500">Porções:</span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCookingSession((prev) => ({
+                              ...prev,
+                              scaleServings: Math.max(1, (prev.scaleServings || 2) - 1),
+                            }))
+                          }
+                          className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-sm flex items-center justify-center cursor-pointer"
+                        >
+                          -
+                        </button>
+                        <span className="text-sm font-extrabold text-emerald-700 min-w-[2ch] text-center">
+                          {cookingSession.scaleServings}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCookingSession((prev) => ({
+                              ...prev,
+                              scaleServings: Math.min(20, (prev.scaleServings || 2) + 1),
+                            }))
+                          }
+                          className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-sm flex items-center justify-center cursor-pointer"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {(rec.ingredients || []).map((ing, idx) => {
+                        const checked = !!cookingSession.checkedIngredients[idx];
+                        const scaledAmt = Number((ing.amount * scaleRatio).toFixed(2));
+                        return (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() =>
+                              setCookingSession((prev) => ({
+                                ...prev,
+                                checkedIngredients: {
+                                  ...prev.checkedIngredients,
+                                  [idx]: !prev.checkedIngredients[idx],
+                                },
+                              }))
+                            }
+                            className={`p-3.5 rounded-2xl border text-left flex items-center justify-between gap-3 cursor-pointer transition ${
+                              checked
+                                ? 'bg-emerald-50/70 border-emerald-300 text-slate-400 line-through'
+                                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800 shadow-2xs'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className="text-2xl shrink-0">
+                                {getIngredientEmoji(ing.name, ing.aisle)}
+                              </span>
+                              <div className="min-w-0">
+                                <div className="font-bold text-sm truncate">{ing.name}</div>
+                                <div className="text-xs text-slate-500">
+                                  {scaledAmt} {ing.unit}
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                                checked
+                                  ? 'bg-emerald-600 text-white'
+                                  : 'border-2 border-slate-300 text-transparent'
+                              }`}
+                            >
+                              ✓
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {!isMiseEnPlace && !isFinalPlating && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold uppercase tracking-wider">
+                        🍳 Passo {currentIdx} de {steps.length}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCookingSession((prev) => ({
+                            ...prev,
+                            completedSteps: {
+                              ...prev.completedSteps,
+                              [currentIdx - 1]: !prev.completedSteps[currentIdx - 1],
+                            },
+                          }))
+                        }
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition ${
+                          cookingSession.completedSteps[currentIdx - 1]
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                        }`}
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>
+                          {cookingSession.completedSteps[currentIdx - 1]
+                            ? 'Passo Concluído'
+                            : 'Marcar como Concluído'}
+                        </span>
+                      </button>
+                    </div>
+
+                    {/* LARGE READABLE STEP CARD */}
+                    <div className="p-6 sm:p-8 rounded-3xl bg-slate-50 border-2 border-slate-200/80 shadow-inner">
+                      <p className="text-xl sm:text-2xl font-bold text-slate-900 leading-relaxed">
+                        {currentStepText}
+                      </p>
+                    </div>
+
+                    {/* INGREDIENTS MENTIONED IN THIS STEP */}
+                    {stepIngredients.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                          Insumos utilizados neste passo:
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {stepIngredients.map((ing, i) => (
+                            <span
+                              key={i}
+                              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs font-bold"
+                            >
+                              <span className="text-base">
+                                {getIngredientEmoji(ing.name, ing.aisle)}
+                              </span>
+                              <span>{ing.name}:</span>
+                              <strong className="text-emerald-700">
+                                {Number((ing.amount * scaleRatio).toFixed(2))} {ing.unit}
+                              </strong>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* NEXT STEP PREVIEW */}
+                    {currentIdx < steps.length && (
+                      <div className="p-4 rounded-2xl bg-slate-100/70 border border-slate-200/70 flex items-start gap-3">
+                        <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 shrink-0 mt-0.5">
+                          A seguir (Passo {currentIdx + 1}):
+                        </span>
+                        <p className="text-xs text-slate-600 line-clamp-2">
+                          {steps[currentIdx]}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {isFinalPlating && (
+                  <div className="space-y-5">
+                    <div className="p-6 rounded-3xl bg-emerald-50/80 border-2 border-emerald-200 text-center space-y-2">
+                      <div className="text-4xl">👨‍🍳🍽️</div>
+                      <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
+                        Etapa Final • Padrão de Serviço
+                      </div>
+                      <h3 className="text-2xl font-extrabold text-slate-900">
+                        Montagem, Peso da Porção e Finalização
+                      </h3>
+                      <p className="text-xs text-slate-600 max-w-md mx-auto">
+                        Siga as instruções da ficha técnica abaixo para empratar e servir sua refeição com padrão de restaurante.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div className="text-[11px] font-bold uppercase text-slate-400">
+                          Peso Recomendado por Porção
+                        </div>
+                        <div className="text-lg font-extrabold text-slate-900 mt-1">
+                          ⚖️ {rec.portionWeight || '300g por porção'}
+                        </div>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div className="text-[11px] font-bold uppercase text-slate-400">
+                          Valor Nutricional por Porção
+                        </div>
+                        <div className="text-sm font-extrabold text-emerald-700 mt-1">
+                          🔥 {rec.calories} kcal • 💪 {rec.protein}g Prot • 🌾 {rec.carbs || 30}g Carb • 🥑 {rec.fat || 10}g Gord
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-5 rounded-2xl bg-white border border-slate-200 space-y-2">
+                      <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
+                        🍽️ Instruções de Montagem e Finalização
+                      </div>
+                      <p className="text-sm text-slate-800 leading-relaxed">
+                        {rec.platingInstructions || 'Sirva imediatamente após o preparo em prato aquecido.'}
+                      </p>
+                    </div>
+
+                    {rec.specificInstructions && (
+                      <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-1">
+                        <div className="text-xs font-extrabold uppercase tracking-wider text-amber-800">
+                          📌 Dica do Chef & Conservação
+                        </div>
+                        <p className="text-xs text-amber-950 leading-relaxed">
+                          {rec.specificInstructions}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* BOTTOM NAVIGATION FOOTER */}
+              <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  disabled={currentIdx === 0}
+                  onClick={() => {
+                    const prevIdx = Math.max(0, currentIdx - 1);
+                    const nextSec =
+                      prevIdx >= 1 && prevIdx <= steps.length
+                        ? extractStepSeconds(steps[prevIdx - 1])
+                        : 0;
+                    setCookingSession((prev) => ({
+                      ...prev,
+                      stepIndex: prevIdx,
+                      timerSeconds: prev.timerRunning ? prev.timerSeconds : nextSec,
+                      timerFinished: false,
+                    }));
+                  }}
+                  className="px-4 py-3 rounded-2xl bg-white hover:bg-slate-100 disabled:opacity-40 text-slate-700 font-bold text-sm border border-slate-200 flex items-center gap-2 cursor-pointer transition"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Etapa Anterior</span>
+                </button>
+
+                <div className="text-xs font-bold text-slate-400 hidden sm:block">
+                  {isMiseEnPlace
+                    ? 'Separe os ingredientes para começar'
+                    : isFinalPlating
+                    ? 'Prato pronto para servir!'
+                    : `Passo ${currentIdx} de ${steps.length}`}
+                </div>
+
+                {!isFinalPlating ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextIdx = Math.min(totalStages - 1, currentIdx + 1);
+                      const nextSec =
+                        nextIdx >= 1 && nextIdx <= steps.length
+                          ? extractStepSeconds(steps[nextIdx - 1])
+                          : 0;
+                      setCookingSession((prev) => ({
+                        ...prev,
+                        stepIndex: nextIdx,
+                        completedSteps:
+                          currentIdx >= 1
+                            ? { ...prev.completedSteps, [currentIdx - 1]: true }
+                            : prev.completedSteps,
+                        timerSeconds: prev.timerRunning ? prev.timerSeconds : nextSec,
+                        timerFinished: false,
+                      }));
+                    }}
+                    className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm flex items-center gap-2 cursor-pointer shadow-md shadow-emerald-600/20 transition"
+                  >
+                    <span>
+                      {isMiseEnPlace
+                        ? 'Começar Passo 1'
+                        : currentIdx === steps.length
+                        ? 'Ir para Empratamento'
+                        : 'Próximo Passo'}
+                    </span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setCookingSession(null)}
+                    className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm flex items-center gap-2 cursor-pointer shadow-md shadow-emerald-600/20 transition"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Concluir Receita!</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
