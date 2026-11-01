@@ -24,7 +24,7 @@ const INITIAL_RECIPES = [
     carbs: 24,
     fat: 14,
     tags: ['Rápido', 'Sem Glúten', 'Vegetariano', 'Alta Proteína', 'Econômico'],
-    image: 'https://th.bing.com/th/id/OIP.TMYbE-IzytLDO1SqPwbVFAHaHa?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/crepioca-de-queijo-com-tomate-e-oregano-capa.png',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '210g por porção',
     platingInstructions:
@@ -56,7 +56,7 @@ const INITIAL_RECIPES = [
     carbs: 52,
     fat: 12,
     tags: ['Vegetariano', 'Econômico', 'Rápido'],
-    image: 'https://th.bing.com/th/id/OIP.WfyZvp1dgPebtAYnoy64NAHaFj?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/overnight-oats-1.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '310g por porção',
     platingInstructions:
@@ -88,7 +88,7 @@ const INITIAL_RECIPES = [
     carbs: 38,
     fat: 14,
     tags: ['Vegetariano', 'Econômico', 'Rápido'],
-    image: 'https://th.bing.com/th/id/OIP.-vFSInopfgf7QeNbmgWzPAHaE8?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/ovos-mexidos-perfeitos.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '260g por porção',
     platingInstructions:
@@ -119,7 +119,7 @@ const INITIAL_RECIPES = [
     carbs: 45,
     fat: 11,
     tags: ['Sem Glúten', 'Sem Lactose', 'Vegetariano', 'Econômico'],
-    image: 'https://th.bing.com/th/id/OIP.xtm8aXo8iRE6RfhK4LVP4AHaE-?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/cuscuz-com-ovo.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '240g por porção',
     platingInstructions:
@@ -152,7 +152,7 @@ const INITIAL_RECIPES = [
     carbs: 58,
     fat: 12,
     tags: ['Sem Glúten', 'Sem Lactose', 'Alta Proteína', 'Econômico'],
-    image: 'https://th.bing.com/th/id/OIP.OGSvey-eGn5SZZvJ7gAY_wHaHa?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/file-de-frango-grelhado.jpeg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '420g por porção',
     platingInstructions:
@@ -185,7 +185,7 @@ const INITIAL_RECIPES = [
     carbs: 48,
     fat: 16,
     tags: ['Sem Glúten', 'Sem Lactose', 'Alta Proteína', 'Econômico'],
-    image: 'https://th.bing.com/th/id/OIP.8z2LUFxECcMBcbDIPOxwXgHaHa?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/carne-moida-com-abobora-capa.png',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '390g por porção',
     platingInstructions:
@@ -218,7 +218,7 @@ const INITIAL_RECIPES = [
     carbs: 54,
     fat: 18,
     tags: ['Sem Glúten', 'Alta Proteína', 'Econômico'],
-    image: 'https://th.bing.com/th/id/OIP.v9zkV6Q0tp0d9WhgKaPZUAHaEN?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/escondidinho-de-frango-capa.png',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '380g por porção',
     platingInstructions:
@@ -250,7 +250,7 @@ const INITIAL_RECIPES = [
     carbs: 62,
     fat: 14,
     tags: ['Vegetariano', 'Sem Glúten', 'Econômico'],
-    image: 'https://th.bing.com/th/id/OIP.Er2Yunq5GlWbgonkTXIAbgHaGd?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/strogonoff-de-grao-de-bico-com-shitake.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '400g por porção',
     platingInstructions:
@@ -283,7 +283,7 @@ const INITIAL_RECIPES = [
     carbs: 42,
     fat: 12,
     tags: ['Sem Glúten', 'Alta Proteína', 'Rápido'],
-    image: 'https://th.bing.com/th/id/OIP.vM1HfJqIlvSocG1umxRJawHaHa?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/file-de-tilapia-grelhado-na-manteiga.jpeg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '380g por porção',
     platingInstructions:
@@ -317,7 +317,7 @@ const INITIAL_RECIPES = [
     carbs: 11,
     fat: 19,
     tags: ['Low Carb', 'Vegetariano', 'Sem Glúten', 'Econômico', 'Rápido'],
-    image: 'https://th.bing.com/th/id/OIP.Smdv4ZPfOzuyeU8i1IxSGwHaEK?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/omelete-de-forno-com-legumes.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '240g por porção',
     platingInstructions:
@@ -349,7 +349,7 @@ const INITIAL_RECIPES = [
     carbs: 40,
     fat: 9,
     tags: ['Sem Glúten', 'Sem Lactose', 'Alta Proteína', 'Econômico'],
-    image: 'https://th.bing.com/th/id/OIP.d-SBS1yHh-X4j3RIYDzfOgHaFN?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/sopa-de-mandioquinha-0.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '350ml (340g) por porção',
     platingInstructions:
@@ -381,7 +381,7 @@ const INITIAL_RECIPES = [
     carbs: 58,
     fat: 13,
     tags: ['Sem Lactose', 'Alta Proteína', 'Econômico', 'Rápido'],
-    image: 'https://th.bing.com/th/id/OIP.jatZttBqmWTSWd2rm0HN1wHaHa?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/macarrao-com-brocolis-00-1.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '340g por porção',
     platingInstructions:
@@ -413,7 +413,7 @@ const INITIAL_RECIPES = [
     carbs: 49,
     fat: 20,
     tags: ['Sem Glúten', 'Sem Lactose', 'Alta Proteína'],
-    image: 'https://th.bing.com/th/id/OIP._3Js5gVhPw1gb7PEJiw2KAHaHa?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/lomo-saltado.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '370g por porção',
     platingInstructions:
@@ -445,7 +445,7 @@ const INITIAL_RECIPES = [
     carbs: 12,
     fat: 14,
     tags: ['Low Carb', 'Sem Glúten', 'Sem Lactose', 'Alta Proteína', 'Rápido', 'Econômico'],
-    image: 'https://th.bing.com/th/id/OIP.GTNIA4wwPJ1X2M5c21AjwAHaEK?w=700&c=7&r=0&o=5',
+    image: 'https://www.receiteria.com.br/wp-content/uploads/abobrinha-recheada-com-frango.jpeg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '310g por porção',
     platingInstructions:
@@ -577,7 +577,7 @@ export function initDb() {
       );
     }
   } else {
-    // Upgrade existing built-in recipes with Ficha Técnica fields & exact dish images if still using old Unsplash URLs
+    // Upgrade existing built-in recipes with Ficha Técnica fields & exact dish images if still using old Unsplash or Bing URLs
     const updateBuiltIn = db.prepare(`
       UPDATE recipes
       SET image = ?,
@@ -585,7 +585,7 @@ export function initDb() {
           portion_weight = ?,
           plating_instructions = ?,
           specific_instructions = ?
-      WHERE id = ? AND (plating_instructions = '' OR image LIKE '%unsplash.com%')
+      WHERE id = ? AND (plating_instructions = '' OR image LIKE '%unsplash.com%' OR image LIKE '%bing.com%')
     `);
     for (const r of INITIAL_RECIPES) {
       updateBuiltIn.run(

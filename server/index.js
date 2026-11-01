@@ -6,15 +6,10 @@ import { CURRENT_VERSION, RELEASE_NOTES } from './changelog.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-async function searchExactDishPhotos(dishTitle, ingredients = []) {
-  try {
-    const ingNames = ingredients
-      .slice(0, 3)
-      .map((i) => i.name)
-      .join(' ');
-    const query = `${dishTitle} ${ingNames} prato comida receita`.trim();
+async function searchExactDishPhotos(dishTitle, _ingredients = []) {
+  const fetchFromReceiteria = async (q) => {
     const res = await fetch(
-      'https://www.bing.com/images/search?q=' + encodeURIComponent(query),
+      'https://www.receiteria.com.br/?s=' + encodeURIComponent(q),
       {
         headers: {
           'User-Agent':
@@ -25,19 +20,39 @@ async function searchExactDishPhotos(dishTitle, ingredients = []) {
     const html = await res.text();
     const matches = [
       ...html.matchAll(
-        /https:\/\/th\.bing\.com\/th\/id\/OIP\.[A-Za-z0-9_-]+Ha[A-Za-z0-9_-]+/g
+        /https:\/\/www\.receiteria\.com\.br\/wp-content\/uploads\/[^"'\s>]+\.(?:jpg|jpeg|png)/gi
       ),
-    ].map((m) => `${m[0]}?w=700&c=7&r=0&o=5`);
+    ]
+      .map((m) => m[0].replace(/-\d+x\d+\.(jpg|jpeg|png)$/i, '.$1'))
+      .filter(
+        (u) =>
+          !u.includes('logo') &&
+          !u.includes('icon') &&
+          !u.includes('avatar') &&
+          !u.includes('banner')
+      );
+    return [...new Set(matches)];
+  };
 
-    const unique = [...new Set(matches)];
-    if (unique.length > 0) {
-      return unique.slice(0, 6);
+  try {
+    const clean = String(dishTitle || '')
+      .replace(/\([^)]*\)/g, ' ')
+      .trim();
+    let results = await fetchFromReceiteria(clean);
+    if (results.length === 0) {
+      const firstWords = clean.split(/\s+/).slice(0, 2).join(' ');
+      if (firstWords) {
+        results = await fetchFromReceiteria(firstWords);
+      }
+    }
+    if (results.length > 0) {
+      return results.slice(0, 6);
     }
   } catch (err) {
-    console.error('Erro ao buscar foto específica do prato:', err);
+    console.error('Erro ao buscar foto culinária do prato:', err);
   }
   return [
-    'https://th.bing.com/th/id/OIP.OGSvey-eGn5SZZvJ7gAY_wHaHa?w=700&c=7&r=0&o=5',
+    'https://www.receiteria.com.br/wp-content/uploads/file-de-frango-grelhado.jpeg',
   ];
 }
 
