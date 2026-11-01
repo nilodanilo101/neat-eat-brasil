@@ -560,7 +560,14 @@ export async function startServer(options = {}) {
       } else if (html && html.trim()) {
         invoice = parseSefazHtml(html.trim());
       } else if (rawText && rawText.trim()) {
-        invoice = parseSefazText(rawText.trim());
+        const trimmed = rawText.trim();
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+          invoice = await parseSefazUrl(trimmed);
+        } else if (trimmed.startsWith('<html') || trimmed.startsWith('<!DOCTYPE') || (trimmed.includes('<span') && trimmed.includes('</span>')) || trimmed.includes('<tr')) {
+          invoice = parseSefazHtml(trimmed);
+        } else {
+          invoice = parseSefazText(trimmed);
+        }
       } else {
         return res.status(400).json({ error: 'Nenhum dado fornecido (informe URL, HTML ou Texto da nota fiscal).' });
       }

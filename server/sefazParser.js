@@ -41,6 +41,17 @@ export function parseSefazHtml(html) {
     throw new Error('Conteúdo HTML da SEFAZ vazio ou inválido.');
   }
 
+  // Verifica se o HTML é uma mensagem de rejeição do firewall da Fazenda (F5 BIG-IP)
+  if (
+    html.includes('Request Rejected') ||
+    html.includes('The requested URL was rejected') ||
+    html.includes('support ID is')
+  ) {
+    throw new Error(
+      'O portal da Fazenda bloqueou a conexão direta com firewall (F5 BIG-IP). Abra o link no seu navegador ou celular, copie o texto dos produtos da nota fiscal e cole na aba "Colar Texto do Cupom".'
+    );
+  }
+
   // 1. Extração do Supermercado / Razão Social
   let supermarket = 'Supermercado';
   const supMatch =
@@ -169,21 +180,39 @@ export function parseSefazText(text) {
     throw new Error('Texto da nota fiscal não informado.');
   }
 
-  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+  // Verifica se o texto é uma mensagem de rejeição de WAF / Firewall da Fazenda
+  if (
+    text.includes('Request Rejected') ||
+    text.includes('The requested URL was rejected') ||
+    text.includes('support ID is')
+  ) {
+    throw new Error(
+      'A página da SEFAZ foi bloqueada pelo firewall do governo estadual (F5 BIG-IP). Abra o link no seu navegador ou celular, copie o texto dos produtos da nota fiscal e cole aqui diretamente.'
+    );
+  }
+
+  const rawLines = text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
 
   let supermarket = 'Supermercado';
   let purchaseDate = new Date().toISOString().split('T')[0];
 
-  // Tenta extrair razão social nas primeiras linhas
-  for (let i = 0; i < Math.min(5, lines.length); i++) {
-    const l = lines[i];
-    if (l.length > 3 && !l.includes('NFC-e') && !l.includes('DANFE') && !l.includes('CNPJ') && !l.match(/^\d+$/)) {
+  // Extrair Razão Social nas primeiras linhas
+  for (let i = 0; i < Math.min(8, rawLines.length); i++) {
+    const l = rawLines[i];
+    if (
+      l.length > 3 &&
+      !l.match(/NFC-e|DANFE|CNPJ|IE:|DOCUMENTO|CHAVE|CONSUMIDOR|VIA|ESTRATO|CONSULTA|SEFAZ|FAZENDA/i) &&
+      !l.match(/^\d+$/)
+    ) {
       supermarket = l.replace(/[0-9\.\-\/]/g, '').trim() || supermarket;
       break;
     }
   }
 
-  // Tenta extrair data
+  // Extrair data da compra (dd/mm/aaaa)
   const dateMatch = text.match(/(\d{2}\/\d{2}\/\d{4})/);
   if (dateMatch) {
     const [d, m, y] = dateMatch[1].split('/');
@@ -191,82 +220,220 @@ export function parseSefazText(text) {
   }
 
   const rawItems = [];
+  const consumedLines = new Set();
 
-  // Padrão de linha com quantidade, unidade e valor
-  // Ex: "ARROZ BRANCO T1 CAMIL 1KG Qtde.: 2 UN Vl.Unit.: 5,89 Vl.Total: 11,78"
-  // Ex: "PEITO DE FRANGO KG 1,450 KG X 21,90 = 31,75"
-  const itemLineRegex =
-    /(.*?)(?:Qtde|Qtd|QTD)[\.:]?\s*([\d,\.]+)\s*([A-Za-z]{1,4})?\s*(?:Vl\.\s*Unit|Unit)[\.:]?\s*([\d,\.]+)\s*(?:Vl\.\s*Total|Total)?[\.:]?\s*([\d,\.]+)/i;
+  // ESTRATÉGIA 1: DETECTOR DE BLOCO SEFAZ (na mesma linha ou em linhas separadas)
+  for (let i = 0; i < rawLines.length; i++) {
+    const line = rawLines[i];
+    if (consumedLines.has(i)) continue;
 
-  const altItemRegex =
-    /(.*?)\s+(\d+(?:[\.,]\d+)?)\s*(KG|UN|L|ML|G|CX|PT|DZ|PC)\s*(?:X|\*)\s*([\d,\.]+)\s+([\d,\.]+)/i;
+    // Caso A: Qtde e Vl.Unit na mesma linha
+    const combinedMatch = line.match(
+      /(?:Qtde|Qtd)[\.:\s]*([0-9]+(?:[,\.][0-9]+)?)[,\s]*(?:UN:?\s*([A-Za-z]+))?[,\s]*(?:Vl\.?\s*Unit\.?|Unit)[\.:\s]*([0-9]+(?:[,\.][0-9]+)?)/i
+    );
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+    // Caso B: Qtde na linha i (ex: "Qtde.: 2,000" ou "Qtde: 1")
+    const qtyOnlyMatch = line.match(/^(?:Qtde|Qtd)[\.:\s]*([0-9]+(?:[,\.][0-9]+)?)/i);
 
-    // Testa padrão 1 (linha única detalhada)
-    let m = line.match(itemLineRegex);
-    if (m) {
-      rawItems.push({
-        name: m[1].replace(/^\d+[\s\.\-]+/, '').trim(),
-        quantity: parseBrNumber(m[2]),
-        unit: m[3],
-        unitPrice: parseBrNumber(m[4]),
-        totalPrice: parseBrNumber(m[5]),
-      });
-      continue;
-    }
+    if (combinedMatch || qtyOnlyMatch) {
+      let qty = 0;
+      let unit = 'un';
+      let unitPrice = 0;
+      let totalPrice = 0;
+      const matchedIdxs = [i];
 
-    // Testa padrão 2 (formato comercial compacto: NOME QTD UN X UNIT TOT)
-    m = line.match(altItemRegex);
-    if (m) {
-      rawItems.push({
-        name: m[1].replace(/^\d+[\s\.\-]+/, '').trim(),
-        quantity: parseBrNumber(m[2]),
-        unit: m[3],
-        unitPrice: parseBrNumber(m[4]),
-        totalPrice: parseBrNumber(m[5]),
-      });
-      continue;
-    }
+      if (combinedMatch) {
+        qty = parseBrNumber(combinedMatch[1]);
+        unit = combinedMatch[2] || 'un';
+        unitPrice = parseBrNumber(combinedMatch[3]);
+      } else {
+        qty = parseBrNumber(qtyOnlyMatch[1]);
+        // Tenta achar UN e Vl.Unit nas próximas linhas
+        for (let j = i; j <= Math.min(rawLines.length - 1, i + 4); j++) {
+          const next = rawLines[j];
+          const unM = next.match(/(?:^|\s)UN:?\s*([A-Za-z]+)/i) || next.match(/^UN\s+([A-Za-z]+)$/i);
+          if (unM && unit === 'un') {
+            unit = unM[1];
+            matchedIdxs.push(j);
+          }
+          const vUnitM = next.match(/(?:Vl\.?\s*Unit\.?|Unit)[\.:\s]*([0-9]+(?:[,\.][0-9]+)?)/i);
+          if (vUnitM && !unitPrice) {
+            unitPrice = parseBrNumber(vUnitM[1]);
+            matchedIdxs.push(j);
+          }
+        }
+      }
 
-    // Testa padrão em duas linhas: Linha 1 = Nome, Linha 2 = "1,000 UN X 5,89 = 5,89"
-    if (i < lines.length - 1) {
-      const nextLine = lines[i + 1];
-      const multiMatch = nextLine.match(/([\d,\.]+)\s*(KG|UN|L|ML|G|CX|PT)\s*(?:X|\*)\s*([\d,\.]+)\s*(?:=)?\s*([\d,\.]+)/i);
-      if (multiMatch && line.length > 3 && !line.includes('TOTAL') && !line.includes('SUBTOTAL')) {
+      // Procura o Nome do produto nas 1 a 4 linhas anteriores
+      let name = '';
+      for (let j = i - 1; j >= Math.max(0, i - 4); j--) {
+        const prev = rawLines[j];
+        if (consumedLines.has(j)) break;
+        if (prev.includes('Código') || prev.match(/^[0-9]+$/)) continue;
+        if (prev.match(/Valor total|Total|Qtde|Qtd/i)) break;
+        name = prev;
+        matchedIdxs.push(j);
+        break;
+      }
+
+      // Procura o Valor Total nas 1 a 5 linhas seguintes
+      for (let j = i; j <= Math.min(rawLines.length - 1, i + 5); j++) {
+        const next = rawLines[j];
+        const totM = next.match(/(?:Valor total|Total|Vl\.?\s*Total)[\.:\s]*(?:R\$\s*)?([0-9]+(?:[,\.][0-9]+)?)/i);
+        if (totM) {
+          totalPrice = parseBrNumber(totM[1]);
+          matchedIdxs.push(j);
+          break;
+        }
+        // Se a linha tem apenas "Valor total", o número está na linha seguinte
+        if (next.match(/^Valor total$/i) && j + 1 < rawLines.length) {
+          const numM = rawLines[j + 1].match(/^(?:R\$\s*)?([0-9]+(?:[,\.][0-9]+)?)$/);
+          if (numM) {
+            totalPrice = parseBrNumber(numM[1]);
+            matchedIdxs.push(j);
+            matchedIdxs.push(j + 1);
+            break;
+          }
+        }
+      }
+
+      if (!totalPrice && qty && unitPrice) totalPrice = Number((qty * unitPrice).toFixed(2));
+      if (!unitPrice && qty && totalPrice) unitPrice = Number((totalPrice / qty).toFixed(2));
+
+      if (name && (totalPrice > 0 || qty > 0)) {
         rawItems.push({
-          name: line.replace(/^\d+[\s\.\-]+/, '').trim(),
-          quantity: parseBrNumber(multiMatch[1]),
-          unit: multiMatch[2],
-          unitPrice: parseBrNumber(multiMatch[3]),
-          totalPrice: parseBrNumber(multiMatch[4]),
+          name: name.replace(/^[0-9\.\-\s]+/, '').trim(),
+          quantity: qty || 1,
+          unit,
+          unitPrice,
+          totalPrice,
         });
-        i++; // Pula a linha de detalhe
-        continue;
+        matchedIdxs.forEach((idx) => consumedLines.add(idx));
       }
     }
   }
 
-  // Se não capturou pelos formatos acima, faz um scan por linhas que contenham preços
-  if (rawItems.length === 0) {
-    for (const line of lines) {
-      if (line.includes('TOTAL') || line.includes('TROCO') || line.includes('VALOR PAGO') || line.includes('ICMS')) continue;
-      const priceMatches = line.match(/\b\d{1,3}(?:[\.,]\d{2})\b/g);
-      if (priceMatches && priceMatches.length >= 1 && line.length > 8) {
-        const total = parseBrNumber(priceMatches[priceMatches.length - 1]);
-        const cleanName = line.replace(/[\d,\.]+/g, '').replace(/[R$\*X\-:]/g, '').trim();
-        if (cleanName.length > 3 && total > 0) {
-          rawItems.push({
-            name: cleanName,
-            quantity: 1,
-            unit: 'un',
-            unitPrice: total,
-            totalPrice: total,
-          });
-        }
+  // ESTRATÉGIA 2: LINHA TABULADA / PLANILHA (Ex: "1 78912345 ARROZ CAMIL 1KG 2,000 UN 5,89 11,78" ou com tabs)
+  const tabOrSpaceRegex =
+    /^(?:(?:\d+[\t\s]+)?(?:[0-9]{7,14}[\t\s]+)?)?(.*?)(?:[\t\s]{2,}|\t|\s+)([0-9]{1,4}(?:[,\.][0-9]{1,3})?)[\t\s]*(UN|KG|L|ML|G|CX|PT|DZ|PC|UND|KILO)?(?:[\t\s]+(?:R\$\s*)?([0-9]+(?:[,\.][0-9]{2})))?[\t\s]+(?:R\$\s*)?([0-9]+(?:[,\.][0-9]{2}))\s*$/i;
+
+  for (let i = 0; i < rawLines.length; i++) {
+    if (consumedLines.has(i)) continue;
+    const line = rawLines[i];
+    if (line.match(/^(?:total|subtotal|troco|imposto|tributo|cartao|dinheiro|chave|protocolo)/i)) continue;
+    const m = line.match(tabOrSpaceRegex);
+    if (m) {
+      const name = m[1].replace(/^[0-9\.\-\s]+/, '').trim();
+      const quantity = parseBrNumber(m[2]);
+      const unit = m[3] || 'un';
+      let unitPrice = parseBrNumber(m[4] || '0');
+      const totalPrice = parseBrNumber(m[5]);
+      if (!unitPrice && quantity && totalPrice) unitPrice = Number((totalPrice / quantity).toFixed(2));
+
+      if (name.length > 2 && totalPrice > 0) {
+        rawItems.push({ name, quantity: quantity || 1, unit, unitPrice, totalPrice });
+        consumedLines.add(i);
       }
     }
+  }
+
+  // ESTRATÉGIA 3: MULTIPLICAÇÃO EM 2 LINHAS (Linha 1: Nome, Linha 2: "2 UN X 5,89 = 11,78")
+  const xLineRegex =
+    /^([0-9]+(?:[,\.][0-9]+)?)\s*(UN|KG|L|ML|G|CX|PT|DZ|PC)?\s*(?:X|\*)\s*([0-9]+(?:[,\.][0-9]+)?)\s*(?:=)?\s*([0-9]+(?:[,\.][0-9]+)?)$/i;
+
+  for (let i = 1; i < rawLines.length; i++) {
+    if (consumedLines.has(i)) continue;
+    const line = rawLines[i];
+    const m = line.match(xLineRegex);
+    if (m) {
+      const prevLine = rawLines[i - 1];
+      if (!consumedLines.has(i - 1) && prevLine.length > 2 && !prevLine.match(/total/i)) {
+        const name = prevLine.replace(/^[0-9\.\-\s]+/, '').trim();
+        const quantity = parseBrNumber(m[1]);
+        const unit = m[2] || 'un';
+        const unitPrice = parseBrNumber(m[3]);
+        const totalPrice = parseBrNumber(m[4]);
+        rawItems.push({ name, quantity, unit, unitPrice, totalPrice });
+        consumedLines.add(i);
+        consumedLines.add(i - 1);
+      }
+    }
+  }
+
+  // ESTRATÉGIA 4: NOTAÇÃO NATURAL / LISTA RÁPIDA (Ex: "Tomate 1.5kg 12,00" ou "Ovos 2dz 20,00")
+  const simpleTrailingRegex =
+    /^(.*?)\s+([0-9]+(?:[,\.][0-9]+)?)\s*(KG|UN|L|ML|G|CX|PT|DZ|PC|KILO|UND)?\s+(?:R\$\s*)?([0-9]+(?:[,\.][0-9]+)?)\s*$/i;
+
+  for (let i = 0; i < rawLines.length; i++) {
+    if (consumedLines.has(i)) continue;
+    const line = rawLines[i];
+    if (line.match(/^(?:total|subtotal|troco|cartao|emissao|cnpj|imposto|tributo|cpf|chave|via)/i)) continue;
+    const m = line.match(simpleTrailingRegex);
+    if (m) {
+      const name = m[1].replace(/^[0-9\.\-\s]+/, '').trim();
+      const quantity = parseBrNumber(m[2]);
+      const unit = m[3] || 'un';
+      const totalPrice = parseBrNumber(m[4]);
+      if (name.length > 1 && quantity > 0 && totalPrice > 0) {
+        const unitPrice = Number((totalPrice / quantity).toFixed(2));
+        rawItems.push({ name, quantity, unit, unitPrice, totalPrice });
+        consumedLines.add(i);
+      }
+    }
+  }
+
+  // ESTRATÉGIA 5: QUANTIDADE NA FRENTE (Ex: "1.5kg peito de frango 33,00" ou "2 cx leite 10,00" ou "3x feijão 21,00")
+  const leadingQtyRegex =
+    /^([0-9]+(?:[,\.][0-9]+)?)\s*(KG|UN|L|ML|G|CX|PT|DZ|PC|KILO|UND|X)?\s+(?:de\s+)?(.*?)\s+(?:R\$\s*)?([0-9]+(?:[,\.][0-9]+)?)\s*$/i;
+
+  for (let i = 0; i < rawLines.length; i++) {
+    if (consumedLines.has(i)) continue;
+    const line = rawLines[i];
+    if (line.match(/^(?:total|subtotal|troco|cartao|emissao|cnpj|imposto|tributo)/i)) continue;
+    const m = line.match(leadingQtyRegex);
+    if (m) {
+      const quantity = parseBrNumber(m[1]);
+      let unit = m[2] || 'un';
+      if (unit.toUpperCase() === 'X') unit = 'un';
+      const name = m[3].replace(/^[0-9\.\-\s]+/, '').trim();
+      const totalPrice = parseBrNumber(m[4]);
+      if (name.length > 1 && quantity > 0 && totalPrice > 0) {
+        const unitPrice = Number((totalPrice / quantity).toFixed(2));
+        rawItems.push({ name, quantity, unit, unitPrice, totalPrice });
+        consumedLines.add(i);
+      }
+    }
+  }
+
+  // ESTRATÉGIA 6: NOME E PREÇO APENAS (Ex: "Azeite Borges R$ 46,90" ou "Café Pilão 18,50")
+  const namePriceOnlyRegex =
+    /^(.*?)\s+(?:R\$\s*)?([0-9]+[,\.][0-9]{2})\s*$/i;
+
+  for (let i = 0; i < rawLines.length; i++) {
+    if (consumedLines.has(i)) continue;
+    const line = rawLines[i];
+    if (line.match(/^(?:total|subtotal|troco|cartao|emissao|cnpj|imposto|tributo|chave|consumidor|pagamento|forma)/i)) continue;
+    const m = line.match(namePriceOnlyRegex);
+    if (m) {
+      const name = m[1].replace(/^[0-9\.\-\s]+/, '').trim();
+      const totalPrice = parseBrNumber(m[2]);
+      if (name.length > 2 && totalPrice > 0) {
+        rawItems.push({
+          name,
+          quantity: 1,
+          unit: 'un',
+          unitPrice: totalPrice,
+          totalPrice,
+        });
+        consumedLines.add(i);
+      }
+    }
+  }
+
+  if (rawItems.length === 0) {
+    throw new Error(
+      'Nenhum produto foi reconhecido no texto informado. Cole o texto contendo os nomes dos produtos, quantidades e preços.'
+    );
   }
 
   const items = rawItems.map(enrichScrapedItem);

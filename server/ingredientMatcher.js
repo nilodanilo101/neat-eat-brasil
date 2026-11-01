@@ -153,6 +153,7 @@ export function enrichScrapedItem(rawItem) {
   }
 
   return {
+    name: rawItem.name,
     rawName: rawItem.name,
     code: rawItem.code || '',
     quantity,
@@ -163,6 +164,7 @@ export function enrichScrapedItem(rawItem) {
     stockInFridge: !nonFood, // Sugere guardar na geladeira apenas alimentos
     matchedKey: matched?.key || null,
     matchedName: matched?.name || (nonFood ? 'Não Alimentício (Limpeza/Higiene)' : rawItem.name),
+    canonicalName: matched?.name || rawItem.name,
     aisle: nonFood ? 'Limpeza e Utilidades' : (matched?.aisle || 'Mercearia'),
     stdUnit: matched?.stdUnit || unit,
     pricePerStdUnit: Number(pricePerStdUnit.toFixed(2)),

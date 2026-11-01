@@ -298,7 +298,7 @@ export default function App() {
 
   // SEFAZ / NFC-e Invoice & Price Calibration Modal State
   const [sefazModalOpen, setSefazModalOpen] = useState(false);
-  const [sefazInputMode, setSefazInputMode] = useState('url'); // 'url' | 'text' | 'demo'
+  const [sefazInputMode, setSefazInputMode] = useState('text'); // 'text' | 'demo' | 'url'
   const [sefazUrl, setSefazUrl] = useState('');
   const [sefazText, setSefazText] = useState('');
   const [sefazLoading, setSefazLoading] = useState(false);
@@ -306,6 +306,20 @@ export default function App() {
   const [sefazInvoice, setSefazInvoice] = useState(null);
   const [sefazError, setSefazError] = useState('');
   const [sefazSuccessMsg, setSefazSuccessMsg] = useState('');
+
+  async function handlePasteClipboard() {
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        const text = await navigator.clipboard.readText();
+        if (text && text.trim()) {
+          setSefazText(text);
+          setSefazError('');
+        }
+      }
+    } catch {
+      // Ignora erro se permissão negada
+    }
+  }
 
   async function handleParseSefaz(isDemo = false) {
     setSefazLoading(true);
@@ -2930,28 +2944,28 @@ export default function App() {
 
               {/* Como a Porção Deve Ser Servida: Peso, Montagem e Finalização */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200 space-y-2">
+                <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200/90 dark:border-emerald-500/30 space-y-2">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-                      <Utensils className="w-4 h-4 text-emerald-600" />
+                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                      <Utensils className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                       Serviço da Porção: Peso, Montagem e Finalização
                     </h4>
                   </div>
                   <div className="inline-block px-2.5 py-0.5 rounded-md bg-emerald-600 text-white text-xs font-bold">
                     Peso Padrão: {selectedRecipeModal.portionWeight || '350g por porção'}
                   </div>
-                  <p className="text-xs text-slate-700 leading-relaxed">
+                  <p className="text-xs text-slate-700 dark:text-slate-100 leading-relaxed">
                     {selectedRecipeModal.platingInstructions}
                   </p>
                 </div>
 
                 {/* Outras Instruções Específicas */}
-                <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-2">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
-                    <FileText className="w-4 h-4 text-amber-600" />
+                <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-500/30 space-y-2">
+                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                     Outras Instruções Específicas (Conservação / Chef)
                   </h4>
-                  <p className="text-xs text-slate-700 leading-relaxed">
+                  <p className="text-xs text-slate-700 dark:text-slate-100 leading-relaxed">
                     {selectedRecipeModal.specificInstructions}
                   </p>
                 </div>
@@ -4662,19 +4676,6 @@ export default function App() {
                 <div className="flex p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200/80 dark:border-white/10">
                   <button
                     type="button"
-                    onClick={() => { setSefazInputMode('url'); setSefazError(''); }}
-                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                      sefazInputMode === 'url'
-                        ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                    }`}
-                  >
-                    <Link2 className="w-3.5 h-3.5" />
-                    <span>Link da Fazenda (URL / QR Code)</span>
-                  </button>
-
-                  <button
-                    type="button"
                     onClick={() => { setSefazInputMode('text'); setSefazError(''); }}
                     className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
                       sefazInputMode === 'text'
@@ -4683,7 +4684,7 @@ export default function App() {
                     }`}
                   >
                     <FileText className="w-3.5 h-3.5" />
-                    <span>Colar Texto ou HTML</span>
+                    <span>Colar Texto do Cupom (Recomendado)</span>
                   </button>
 
                   <button
@@ -4698,9 +4699,144 @@ export default function App() {
                     <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                     <span>Testar com Cupom Exemplo</span>
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setSefazInputMode('url'); setSefazError(''); }}
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                      sefazInputMode === 'url'
+                        ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                    }`}
+                  >
+                    <Link2 className="w-3.5 h-3.5" />
+                    <span>Link da Fazenda (Opcional)</span>
+                  </button>
                 </div>
 
-                {/* ABA 1: LINK DA FAZENDA */}
+                {/* ABA PRINCIPAL: COLAR TEXTO */}
+                {sefazInputMode === 'text' && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                          Cole o texto do cupom fiscal, nota da SEFAZ ou lista de compras:
+                        </label>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={handlePasteClipboard}
+                            className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 border border-emerald-300/60 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition shadow-2xs"
+                          >
+                            <Copy className="w-3 h-3" />
+                            <span>Colar da Área de Transferência</span>
+                          </button>
+                          {sefazText && (
+                            <button
+                              type="button"
+                              onClick={() => setSefazText('')}
+                              className="px-2 py-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-[11px] font-bold cursor-pointer"
+                            >
+                              Limpar
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5 pb-1">
+                        <span className="text-[11px] text-slate-400 font-medium">Preencher exemplo rápido:</span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSefazText(
+                              `SUPERMERCADO ATACADÃO\n01/11/2026\n1 78912345 ARROZ BRANCO CAMIL 1KG 2,000 UN 5,89 11,78\n2 78998765 FEIJAO CARIOCA KICALDO 1KG 1,000 UN 7,49 7,49\n3 21098765 PEITO DE FRANGO RESF KG 1,450 KG 21,90 31,75\n4 21011223 CARNE MOIDA ACEM BOV RESF KG 0,820 KG 36,90 30,26\n5 21044556 TOMATE ITALIA KG 0,950 KG 8,90 8,45\n6 21077889 CEBOLA NACIONAL KG 0,650 KG 5,49 3,57\n7 78944556 OVOS BRANCOS GRANDES DZ 2,000 UN 9,80 19,60\n8 78933221 SABAO EM PO OMO 1.6KG 1,000 UN 22,90 22,90`
+                            )
+                          }
+                          className="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold cursor-pointer transition border border-slate-200 dark:border-white/10"
+                        >
+                          Tabela do Cupom (Atacadão)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSefazText(
+                              `Arroz branco 2kg 12,00\nFeijão carioca 1kg 7,50\nPeito de frango 1.5kg 33,00\nCarne moída patinho 1kg 38,00\nTomate 1kg 8,90\nCebola 1kg 5,50\nOvos 30un 24,00\nManteiga 200g 9,90`
+                            )
+                          }
+                          className="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold cursor-pointer transition border border-slate-200 dark:border-white/10"
+                        >
+                          Lista Simples (Qtd + R$)
+                        </button>
+                      </div>
+
+                      <textarea
+                        rows={7}
+                        placeholder={`Cole aqui o texto copiado da tela da SEFAZ, do cupom fiscal ou da sua compra.\n\nExemplo 1 (Tabela do cupom):\n1 78912345 ARROZ BRANCO CAMIL 1KG 2,000 UN 5,89 11,78\n2 21098765 PEITO DE FRANGO KG 1,450 KG 21,90 31,75\n\nExemplo 2 (Bloco da SEFAZ SP):\nARROZ TIPO 1 CAMIL 1KG\nQtde.: 2,000 UN: UN Vl. Unit.: 5,89\nValor total R$ 11,78`}
+                        value={sefazText}
+                        onChange={(e) => setSefazText(e.target.value)}
+                        className="w-full rounded-2xl border border-slate-300 dark:border-white/15 p-4 text-xs font-mono leading-relaxed focus:outline-none focus:border-emerald-500 shadow-inner"
+                      />
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        💡 <strong>Como copiar da SEFAZ:</strong> Abra o link da nota no seu navegador ou celular, selecione o texto da tabela dos produtos (Ctrl+A ou com o dedo), copie e cole aqui. Nosso leitor reconhece automaticamente o nome dos alimentos, quilos, unidades e centavos!
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={!sefazText.trim() || sefazLoading}
+                      onClick={() => handleParseSefaz(false)}
+                      className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition"
+                    >
+                      {sefazLoading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Analisando e normalizando insumos...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ScanLine className="w-4 h-4" />
+                          <span>Processar Texto do Cupom & Identificar Insumos</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {/* ABA: DEMONSTRAÇÃO INSTANTÂNEA */}
+                {sefazInputMode === 'demo' && (
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-500/30 space-y-2">
+                      <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-amber-900 dark:text-amber-300">
+                        <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <span>Cupom Realista de Demonstração</span>
+                      </div>
+                      <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
+                        Experimente a tecnologia imediatamente sem precisar digitar ou escanear agora. Carregaremos um cupom de compras real do <strong>Atacadão Supermercados</strong> com 12 itens (carnes, ovos, arroz, queijo, azeite, tomate e itens de limpeza para testar o filtro inteligente).
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={sefazLoading}
+                      onClick={() => handleParseSefaz(true)}
+                      className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition"
+                    >
+                      {sefazLoading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Carregando cupom demonstrativo...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-4 h-4" />
+                          <span>Carregar Cupom de Demonstração (12 Itens)</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {/* ABA: LINK DA FAZENDA */}
                 {sefazInputMode === 'url' && (
                   <div className="space-y-4">
                     <div className="space-y-2">
@@ -4726,15 +4862,8 @@ export default function App() {
                         )}
                       </div>
                       <p className="text-[11px] text-slate-400">
-                        💡 <strong>Como achar:</strong> Aponte a câmera do celular para o QR Code da nota fiscal do supermercado e copie o link, ou digite o link que aparece impresso logo abaixo do QR Code.
+                        ⚠️ <em>Aviso:</em> Alguns estados (como SP) usam firewall governamental (F5 BIG-IP) que rejeita robôs. Se a URL for rejeitada, abra o link no seu celular ou navegador e cole o texto na aba <strong>"Colar Texto do Cupom"</strong>.
                       </p>
-                    </div>
-
-                    <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-white/10 flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                        <ScanLine className="w-4 h-4 text-emerald-600" />
-                        <span>Suporte a notas de <strong>SP, RJ, MG, RS, PR, BA, DF</strong> e padrão nacional ENCAT.</span>
-                      </div>
                     </div>
 
                     <button
@@ -4751,81 +4880,7 @@ export default function App() {
                       ) : (
                         <>
                           <Search className="w-4 h-4" />
-                          <span>Buscar e Ler Nota Fiscal</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
-
-                {/* ABA 2: COLAR TEXTO OU HTML */}
-                {sefazInputMode === 'text' && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 block">
-                        Cole o texto copiado da página da SEFAZ ou do cupom:
-                      </label>
-                      <textarea
-                        rows={6}
-                        placeholder={`001 ARROZ BRANCO CAMIL 1KG Qtde: 2 UN Vl.Unit: 5,89 Vl.Total: 11,78\n002 PEITO DE FRANGO KG 1,450 KG X 21,90 31,75\n003 QUEIJO MUSSARELA FATIADO 0,350 KG X 48,00 16,80\n004 SABAO EM PO OMO 1.6KG 1 UN X 22,90 22,90`}
-                        value={sefazText}
-                        onChange={(e) => setSefazText(e.target.value)}
-                        className="w-full rounded-2xl border border-slate-300 dark:border-white/15 p-4 text-xs font-mono leading-relaxed focus:outline-none focus:border-emerald-500"
-                      />
-                      <p className="text-[11px] text-slate-400">
-                        💡 Se o portal da Fazenda do seu estado exigir Captcha no navegador, abra a nota no celular ou computador, selecione o texto dos produtos e cole aqui diretamente.
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      disabled={!sefazText.trim() || sefazLoading}
-                      onClick={() => handleParseSefaz(false)}
-                      className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition"
-                    >
-                      {sefazLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Analisando e normalizando insumos...</span>
-                        </>
-                      ) : (
-                        <>
-                          <ScanLine className="w-4 h-4" />
-                          <span>Processar Texto do Cupom</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
-
-                {/* ABA 3: DEMONSTRAÇÃO INSTANTÂNEA */}
-                {sefazInputMode === 'demo' && (
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-500/30 space-y-2">
-                      <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-amber-900 dark:text-amber-300">
-                        <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                        <span>Cupom Realista de Demonstração</span>
-                      </div>
-                      <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
-                        Experimente a tecnologia imediatamente sem precisar escanear um cupom de papel agora. Carregaremos um cupom de compras do <strong>Atacadão Supermercados</strong> com 12 itens (carnes, ovos, arroz, queijo, azeite, tomate e itens de limpeza para testar o filtro inteligente).
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      disabled={sefazLoading}
-                      onClick={() => handleParseSefaz(true)}
-                      className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition"
-                    >
-                      {sefazLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Carregando cupom demonstrativo...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-4 h-4" />
-                          <span>Carregar Cupom de Demonstração (12 Itens)</span>
+                          <span>Tentar Conectar com a SEFAZ</span>
                         </>
                       )}
                     </button>
@@ -4929,7 +4984,7 @@ export default function App() {
                               </span>
                               <span className="text-slate-400">•</span>
                               <span className="text-slate-500 dark:text-slate-400">
-                                {formatBRL(item.unitPrice)}/{item.unit}
+                                {formatBRL(item.unitPrice)} / {item.unit}
                               </span>
                             </div>
                           </div>
@@ -5015,7 +5070,7 @@ export default function App() {
                     }}
                     className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold cursor-pointer transition"
                   >
-                    ← Voltar / Outra Nota
+                    <span>← Voltar ou Outra Nota</span>
                   </button>
 
                   <button
