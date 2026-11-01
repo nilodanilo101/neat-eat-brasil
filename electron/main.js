@@ -85,7 +85,9 @@ async function createWindow() {
     minHeight: 640,
     icon: iconPath,
     title: 'NeatEat Brasil — Planejador de Refeições & Ficha Técnica',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#EEF4F8',
+    vibrancy: 'under-window',
+    visualEffectState: 'active',
     titleBarStyle: 'default',
     webPreferences: {
       nodeIntegration: false,

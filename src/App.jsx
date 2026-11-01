@@ -772,23 +772,35 @@ export default function App() {
     : 0;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
-      {/* HEADER */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+    <div className="min-h-screen flex flex-col liquid-app-bg text-slate-900 relative overflow-x-hidden">
+      {/* AMBIENT APPLE LIQUID GLASS REFRACTIVE ORBS */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+      >
+        <div className="liquid-orb-1 absolute -top-24 -left-24 w-96 h-96 rounded-full bg-emerald-400/20 blur-3xl" />
+        <div className="liquid-orb-2 absolute top-1/4 -right-28 w-[28rem] h-[28rem] rounded-full bg-sky-400/18 blur-3xl" />
+        <div className="liquid-orb-1 absolute -bottom-32 left-1/3 w-[26rem] h-[26rem] rounded-full bg-teal-400/16 blur-3xl" />
+      </div>
+
+      {/* HEADER — APPLE LIQUID GLASS */}
+      <header className="sticky top-0 z-30 liquid-header">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 pb-2.5 flex flex-wrap items-center justify-between gap-4">
           {/* Brand with Menu Icon */}
-          <div className="flex items-center gap-3">
-            <img
-              src="/menu-icon.png"
-              alt="Ícone Menu NeatEat"
-              className="w-11 h-11 rounded-2xl shadow-sm object-cover border border-emerald-600/20"
-            />
+          <div className="flex items-center gap-3.5">
+            <div className="relative p-0.5 rounded-2xl bg-gradient-to-br from-white/80 to-white/20 shadow-md">
+              <img
+                src="/menu-icon.png"
+                alt="Ícone Menu NeatEat"
+                className="w-11 h-11 rounded-[14px] object-cover"
+              />
+            </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-xl tracking-tight text-slate-900">
                   n<span className="text-emerald-600">EAT</span>
                 </span>
-                <span className="text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300/60">
                   Brasil
                 </span>
               </div>
@@ -798,7 +810,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Live Budget Gauge Pill */}
+          {/* Live Budget Gauge Pill (Liquid Glass Capsule) */}
           <div className="flex items-center gap-4 bg-slate-100/90 px-4 py-2 rounded-2xl border border-slate-200/80">
             <div>
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
@@ -841,7 +853,7 @@ export default function App() {
             <button
               onClick={() => setDarkMode((prev) => !prev)}
               title={darkMode ? 'Alternar para Modo Claro' : 'Alternar para Modo Escuro'}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-semibold transition cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-semibold transition cursor-pointer"
             >
               {darkMode ? (
                 <>
@@ -863,7 +875,7 @@ export default function App() {
                 setTimeout(() => setCopiedCode(false), 2000);
               }}
               title="Copiar código de convite da família"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-semibold transition cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-semibold transition cursor-pointer"
             >
               <Copy className="w-3.5 h-3.5 text-amber-600" />
               <span> Casa: {user.household_code}</span>
@@ -872,7 +884,7 @@ export default function App() {
 
             <button
               onClick={() => setAuthModalOpen(true)}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm border border-white/15 transition cursor-pointer"
             >
               <UserCheck className="w-4 h-4 text-emerald-400" />
               <span>{user.name}</span>
@@ -880,53 +892,55 @@ export default function App() {
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex gap-1 overflow-x-auto border-t border-slate-100">
-          {[
-            { id: 'planner', label: 'Planejador Semanal', icon: Calendar },
-            {
-              id: 'shopping',
-              label: `Lista de Compras (${shoppingList.filter((i) => !i.inFridge).length})`,
-              icon: ShoppingCart,
-            },
-            {
-              id: 'fridge',
-              label: `Geladeira & IA (${fridgeItems.length})`,
-              icon: Refrigerator,
-            },
-            {
-              id: 'recipes',
-              label: `Catálogo de Receitas (${recipes.length})`,
-              icon: BookOpen,
-            },
-            {
-              id: 'suggestions',
-              label: `Sugestões (${suggestions.length})`,
-              icon: Flame,
-            },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const active = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 whitespace-nowrap transition cursor-pointer ${
-                  active
-                    ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
-                    : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+        {/* Apple Liquid Glass Segmented Capsule Navigation Bar */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-3 pt-1 flex justify-start sm:justify-center overflow-x-auto">
+          <nav className="liquid-nav-capsule inline-flex items-center gap-1.5 p-1.5 rounded-full">
+            {[
+              { id: 'planner', label: 'Planejador Semanal', icon: Calendar },
+              {
+                id: 'shopping',
+                label: `Lista de Compras (${shoppingList.filter((i) => !i.inFridge).length})`,
+                icon: ShoppingCart,
+              },
+              {
+                id: 'fridge',
+                label: `Geladeira & IA (${fridgeItems.length})`,
+                icon: Refrigerator,
+              },
+              {
+                id: 'recipes',
+                label: `Catálogo de Receitas (${recipes.length})`,
+                icon: BookOpen,
+              },
+              {
+                id: 'suggestions',
+                label: `Sugestões (${suggestions.length})`,
+                icon: Flame,
+              },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const active = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                    active
+                      ? 'liquid-nav-tab-active'
+                      : 'border border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/40'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </nav>
         </div>
       </header>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
         {/* TAB 1: PLANEJADOR SEMANAL */}
         {activeTab === 'planner' && (
           <div className="space-y-6">

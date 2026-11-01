@@ -1,6 +1,18 @@
-export const CURRENT_VERSION = '1.0.9';
+export const CURRENT_VERSION = '1.0.10';
 
 export const RELEASE_NOTES = [
+  {
+    version: '1.0.10',
+    date: '01/11/2026',
+    title: 'Novidades da Versão — Visual Apple Liquid Glass',
+    summary:
+      'O NeatEat Brasil agora conta com um novo layout inspirado no estilo visual Apple Liquid Glass, com superfícies translúcidas refrativas, bordas especulares iluminadas e barra de navegação em cápsula flutuante.',
+    items: [
+      '✨ Efeito Apple Liquid Glass: cartões, painéis, cabeçalho e modais com vidro líquido translúcido, desfoque profundo (backdrop blur) e reflexos especulares nas bordas.',
+      '💊 Navegação em Cápsula Estilo Apple: abas redesenhadas em pílula flutuante de vidro líquido, adaptadas tanto para o Modo Claro quanto para o Modo Escuro.',
+      '▶️ Modo Cozinhar Passo a Passo (Play) e 🥕 Emojis de Ingredientes integrados ao novo visual.'
+    ]
+  },
   {
     version: '1.0.9',
     date: '01/11/2026',
@@ -11,18 +23,6 @@ export const RELEASE_NOTES = [
       '▶️ Novo Modo Cozinhar Passo a Passo: acompanhe desde o Mise en Place (com ajuste dinâmico de porções e checklist de insumos) até cada etapa do preparo e empratamento final.',
       '⏱️ Cronômetro Inteligente Integrado: detecta automaticamente os tempos citados em cada passo da receita e emite alerta sonoro ao finalizar.',
       '🥕 Emojis de Ingredientes: identificação visual rápida de carnes, hortifruti, grãos, laticínios e temperos na Lista de Compras, Geladeira, Catálogo, Descoberta de Pratos e Ficha Técnica.'
-    ]
-  },
-  {
-    version: '1.0.8',
-    date: '01/11/2026',
-    title: 'Novidades da Versão — Modo Escuro & Descoberta Diária',
-    summary:
-      'Agora o NeatEat Brasil conta com Modo Escuro completo em todas as telas e fichas técnicas, com alternância rápida no topo e salvamento automático da sua preferência.',
-    items: [
-      '🌙 Novo Modo Escuro (Dark Mode): alterne a qualquer momento pelo botão no topo da tela (com detecção automática do tema do sistema e salvamento da sua escolha).',
-      '🔥 Aba "Descoberta de Pratos" com atualização automática de novas sugestões 1x por dia.',
-      '🏷️ Seleção interativa de etiquetas nutricionais nas Fichas Técnicas e melhorias de performance.'
     ]
   }
 ];
