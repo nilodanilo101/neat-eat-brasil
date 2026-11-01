@@ -923,29 +923,57 @@ export async function startServer(options = {}) {
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
-  // AI IMPORT RECIPE WITH EXACT DISH PHOTO & FICHA TÉCNICA
+  // IMPORT RECIPE VIA DIRECT URL EXCLUSIVELY
   app.post('/api/recipes/import', async (req, res) => {
     const { input, category = 'Almoço' } = req.body;
     if (!input || !input.trim()) {
-      return res.status(400).json({ error: 'Informe uma URL ou descrição da receita' });
+      return res.status(400).json({ error: 'Informe o link da receita.' });
     }
 
     const raw = input.trim();
     const isUrl = raw.startsWith('http://') || raw.startsWith('https://');
-    let title = raw;
-    let source = 'Ficha Técnica Importada via IA';
+    if (!isUrl) {
+      return res.status(400).json({
+        error:
+          'Apenas links válidos são aceitos (iniciando com http:// ou https://). A digitação de texto puro foi desativada para garantir a integridade dos dados e evitar anomalias.',
+      });
+    }
 
-    if (isUrl) {
-      try {
-        const urlObj = new URL(raw);
-        source = urlObj.hostname.replace('www.', '');
-        const slug = urlObj.pathname.split('/').filter(Boolean).pop() || 'receita-especial';
-        title = slug
-          .replace(/[-_]/g, ' ')
-          .replace(/\b\w/g, (l) => l.toUpperCase());
-      } catch {
-        title = 'Receita Importada da Web';
+    let title = 'Receita Importada';
+    let source = 'Web';
+    let heroImage = '';
+
+    try {
+      const urlObj = new URL(raw);
+      source = urlObj.hostname.replace('www.', '');
+      const slug = urlObj.pathname.split('/').filter(Boolean).pop() || 'receita-especial';
+      title = slug
+        .replace(/[-_]/g, ' ')
+        .replace(/\b\w/g, (l) => l.toUpperCase());
+
+      // Tenta baixar a página para extrair o título real do H1 e og:image
+      const pageRes = await fetch(raw, {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        },
+      });
+      if (pageRes.ok) {
+        const pageHtml = await pageRes.text();
+        const ogTitle = pageHtml.match(/<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i);
+        const h1Title = pageHtml.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+        const pageTitle = ogTitle ? ogTitle[1] : (h1Title ? h1Title[1].replace(/<[^>]+>/g, '').trim() : null);
+        if (pageTitle && pageTitle.length > 3) {
+          title = pageTitle.split('|')[0].split('-')[0].trim();
+        }
+        const ogImageM = pageHtml.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i);
+        if (ogImageM && ogImageM[1]) {
+          heroImage = ogImageM[1];
+        }
       }
+    } catch {
+      // continua com slug
     }
 
     const lower = title.toLowerCase();
@@ -991,6 +1019,9 @@ export async function startServer(options = {}) {
 
     const cleanTitle = title.length > 65 ? title.slice(0, 62) + '...' : title;
     const exactPhotos = await searchExactDishPhotos(cleanTitle, ingredients);
+    const finalHero = heroImage
+      ? (heroImage.startsWith('/api') || heroImage.startsWith('/dishes') ? heroImage : `/api/image-proxy?url=${encodeURIComponent(heroImage)}`)
+      : exactPhotos[0];
     const totalWeightGrams = ingredients.reduce((s, i) => s + (Number(i.amount) || 0), 0);
     const portionWeight = `${Math.max(180, Math.round(totalWeightGrams / 2))}g por porção`;
 
@@ -1008,7 +1039,7 @@ export async function startServer(options = {}) {
       importSteps,
       ingredients,
       [],
-      exactPhotos[0]
+      finalHero
     );
 
     const sections = [
@@ -1041,7 +1072,7 @@ export async function startServer(options = {}) {
       42,
       15,
       JSON.stringify(tags),
-      exactPhotos[0],
+      finalHero,
       source,
       JSON.stringify(ingredients),
       JSON.stringify(importSteps),

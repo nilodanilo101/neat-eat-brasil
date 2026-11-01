@@ -562,6 +562,8 @@ export default function App() {
   const [importInput, setImportInput] = useState('');
   const [importCategory, setImportCategory] = useState('Almoço');
   const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState('');
+  const [importSuccess, setImportSuccess] = useState('');
   const [newFridgeItem, setNewFridgeItem] = useState('');
 
   async function fetchState() {
@@ -712,17 +714,35 @@ export default function App() {
 
   async function handleImportRecipe(e) {
     e.preventDefault();
-    if (!importInput.trim()) return;
+    setImportError('');
+    setImportSuccess('');
+    const cleanUrl = importInput.trim();
+    if (!cleanUrl) return;
+
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      setImportError(
+        'Apenas links válidos são aceitos (iniciando com http:// ou https://). A digitação livre de nome do prato foi desativada para garantir a precisão dos dados e evitar anomalias.'
+      );
+      return;
+    }
+
     setImporting(true);
     try {
       const res = await fetch('/api/recipes/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: importInput, category: importCategory }),
+        body: JSON.stringify({ input: cleanUrl, category: importCategory }),
       });
       const json = await res.json();
+      if (!res.ok || json.error) {
+        throw new Error(json.error || 'Falha ao importar receita pelo link');
+      }
       setData(json);
       setImportInput('');
+      setImportSuccess('Receita importada com sucesso com fotos dos passos e ficha técnica calibrada!');
+      setTimeout(() => setImportSuccess(''), 4500);
+    } catch (err) {
+      setImportError(err.message || 'Erro ao importar receita pelo link informado.');
     } finally {
       setImporting(false);
     }
@@ -2168,18 +2188,18 @@ export default function App() {
                 </div>
               </div>
 
-              {/* AI Social / URL Recipe Importer */}
-              <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+              {/* AI Social / URL Recipe Importer (Link Exclusivo) */}
+              <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-5 sm:p-6 shadow-sm space-y-4 border border-slate-700/60">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
-                    <Sparkles className="w-5 h-5" />
+                    <Link2 className="w-5 h-5" />
                   </div>
                   <div>
                     <h3 className="font-extrabold text-base">
-                      Importador de Ficha Técnica com IA
+                      Importador de Ficha Técnica por Link
                     </h3>
                     <p className="text-xs text-slate-300">
-                      Cole um link ou digite o nome do prato: a IA gera os insumos, custos, porcionamento e busca a foto exata do prato!
+                      Cole o link direto da receita (Receiteria, TudoGostoso, Panelinha, etc.): a IA gera os insumos, custos, porcionamento e inclui as fotos de cada passo do preparo!
                     </p>
                   </div>
                 </div>
@@ -2187,25 +2207,46 @@ export default function App() {
                 <form onSubmit={handleImportRecipe} className="space-y-3">
                   <div>
                     <label className="text-xs font-semibold text-slate-300 block mb-1">
-                      URL da Receita ou Nome do Prato
+                      Link Direto da Receita (URL)
                     </label>
                     <div className="relative">
                       <Link2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                       <input
-                        type="text"
-                        placeholder="Ex: Panqueca de frango com queijo ou https://tudogostoso.com.br/..."
+                        type="url"
+                        required
+                        placeholder="Cole aqui o link: https://www.receiteria.com.br/receita/... ou https://..."
                         value={importInput}
-                        onChange={(e) => setImportInput(e.target.value)}
+                        onChange={(e) => {
+                          setImportInput(e.target.value);
+                          if (importError) setImportError('');
+                        }}
                         className="w-full rounded-xl bg-slate-800/90 border border-slate-700 pl-10 pr-3.5 py-2.5 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-400"
                       />
                     </div>
+                    <span className="text-[11px] text-slate-400 mt-1 block">
+                      Apenas links diretos são permitidos para garantir a fidelidade dos insumos e fotos dos passos.
+                    </span>
                   </div>
+
+                  {importError && (
+                    <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-800/60 text-rose-300 text-xs flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                      <span>{importError}</span>
+                    </div>
+                  )}
+
+                  {importSuccess && (
+                    <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-800/60 text-emerald-300 text-xs flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>{importSuccess}</span>
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-3">
                     <select
                       value={importCategory}
                       onChange={(e) => setImportCategory(e.target.value)}
-                      className="rounded-xl bg-slate-800 border border-slate-700 px-3 py-2.5 text-sm font-semibold text-white focus:outline-none"
+                      className="rounded-xl bg-slate-800 border border-slate-700 px-3 py-2.5 text-sm font-semibold text-white focus:outline-none cursor-pointer"
                     >
                       {SLOTS.map((s) => (
                         <option key={s} value={s}>
@@ -2220,7 +2261,7 @@ export default function App() {
                       className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 transition cursor-pointer"
                     >
                       <Sparkles className="w-4 h-4" />
-                      <span>{importing ? 'Gerando Ficha e Foto...' : 'Importar Ficha Técnica'}</span>
+                      <span>{importing ? 'Importando Receita e Fotos...' : 'Importar Ficha Técnica via Link'}</span>
                     </button>
                   </div>
                 </form>
