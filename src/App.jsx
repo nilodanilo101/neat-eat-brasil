@@ -49,7 +49,17 @@ import {
   QrCode,
   TrendingDown,
   TrendingUp,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
+import {
+  playChefServiceBell,
+  playCookingTimerAlarm,
+  playPopCheck,
+  playStockFridgeChime,
+  isSoundEnabled,
+  toggleSound,
+} from './soundEffects.js';
 
 const DAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 const SLOTS = ['Café da Manhã', 'Almoço', 'Jantar'];
@@ -197,25 +207,7 @@ function formatTimerMMSS(totalSeconds) {
 }
 
 function playTimerChime() {
-  try {
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return;
-    const ctx = new Ctx();
-    [523.25, 659.25, 783.99].forEach((freq, idx) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.16);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.16 + 0.35);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(ctx.currentTime + idx * 0.16);
-      osc.stop(ctx.currentTime + idx * 0.16 + 0.36);
-    });
-  } catch {
-    // Ignore audio errors
-  }
+  playCookingTimerAlarm();
 }
 
 function createEmptyFichaTecnica() {
@@ -260,6 +252,7 @@ export default function App() {
       return false;
     }
   });
+  const [soundOn, setSoundOn] = useState(() => isSoundEnabled());
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -367,6 +360,7 @@ export default function App() {
         throw new Error(nextData.error || 'Falha ao confirmar calibração');
       }
       setData(nextData);
+      playStockFridgeChime();
       setSefazSuccessMsg(
         `✅ Compra confirmada com sucesso! ${nextData.calibratedCount} insumos calibrados e ${nextData.stockedCount} itens guardados na sua Geladeira.`
       );
@@ -465,6 +459,9 @@ export default function App() {
         const steps = Array.isArray(cookingSession.recipe.steps) ? cookingSession.recipe.steps : [];
         const totalStages = steps.length + 2;
         const nextIdx = Math.min(totalStages - 1, cookingSession.stepIndex + 1);
+        if (nextIdx === totalStages - 1) {
+          playChefServiceBell();
+        }
         const nextSec =
           nextIdx >= 1 && nextIdx <= steps.length
             ? extractStepSeconds(steps[nextIdx - 1])
@@ -505,7 +502,7 @@ export default function App() {
       setCookingSession((prev) => {
         if (!prev || !prev.timerRunning) return prev;
         if (prev.timerSeconds <= 1) {
-          playTimerChime();
+          playCookingTimerAlarm();
           return {
             ...prev,
             timerSeconds: 0,
@@ -686,6 +683,7 @@ export default function App() {
   }
 
   async function handleToggleFridgeItem(name, category = 'Mercearia') {
+    playPopCheck();
     const res = await fetch('/api/fridge/toggle', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -707,6 +705,7 @@ export default function App() {
   }
 
   async function handleToggleShoppingCheck(itemKey) {
+    playPopCheck();
     const res = await fetch('/api/shopping/toggle', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1146,6 +1145,32 @@ export default function App() {
 
           {/* Dark Mode Toggle, Household & Auth Button */}
           <div className="flex items-center gap-2">
+            {/* Sound Effects Toggle */}
+            <button
+              onClick={() => {
+                const next = toggleSound();
+                setSoundOn(next);
+              }}
+              title={soundOn ? 'Sons de alta gastronomia ativados (clique para silenciar)' : 'Sons desativados (clique para ativar)'}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs font-semibold transition cursor-pointer ${
+                soundOn
+                  ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-600/30'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-white/10'
+              }`}
+            >
+              {soundOn ? (
+                <>
+                  <Volume2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span className="hidden md:inline">Sons Ativos</span>
+                </>
+              ) : (
+                <>
+                  <VolumeX className="w-4 h-4 text-slate-400" />
+                  <span className="hidden md:inline">Mudo</span>
+                </>
+              )}
+            </button>
+
             <button
               onClick={() => setDarkMode((prev) => !prev)}
               title={darkMode ? 'Alternar para Modo Claro' : 'Alternar para Modo Escuro'}
@@ -4564,6 +4589,9 @@ export default function App() {
                     type="button"
                     onClick={() => {
                       const nextIdx = Math.min(totalStages - 1, currentIdx + 1);
+                      if (nextIdx === totalStages - 1) {
+                        playChefServiceBell();
+                      }
                       const nextSec =
                         nextIdx >= 1 && nextIdx <= steps.length
                           ? extractStepSeconds(steps[nextIdx - 1])
@@ -4593,7 +4621,10 @@ export default function App() {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => setCookingSession(null)}
+                    onClick={() => {
+                      playChefServiceBell();
+                      setCookingSession(null);
+                    }}
                     className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm flex items-center gap-2 cursor-pointer shadow-md shadow-emerald-600/20 transition"
                   >
                     <CheckCircle2 className="w-4 h-4" />
