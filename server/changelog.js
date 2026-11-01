@@ -8,6 +8,7 @@ export const RELEASE_NOTES = [
     summary:
       'Uma grande revolução no NeatEat Brasil! Apresentamos a versão 2.0 com Modo Cozinha com fotos de marcos visuais (padrão Receiteria), bloco "Anote aí..." com dicas de ouro e conservação, ingredientes e passos organizados em seções, gaveta de ingredientes durante o preparo, nova arquitetura leve de memória em WebP e o novíssimo ícone nativo squircle para macOS.',
     items: [
+      '📸 100% dos Pratos com Passo a Passo Ilustrado: Todas as 15 receitas cadastradas contam agora com fotos de alta definição em cada etapa do preparo (58 etapas ilustradas), com padrão estendido a qualquer nova receita cadastrada ou importada.',
       '📸 Modo Cozinha com Fotos Reais dos Passos: fotos em alta definição dos momentos culinários essenciais (ponto do refogado, textura do molho, montagem em camadas e gratinado) com suporte a zoom em tela cheia.',
       '📝 Seção "Anote aí...": dicas do Chef de variações, conservação e congelamento inteligente (❄️) para evitar desperdício, e segredos do ponto exato (🔥).',
       '🍳 Ingredientes e Passos Modularizados por Seção: receitas divididas em etapas lógicas (ex: refogado, molho, montagem e forno) facilitando o acompanhamento.',

@@ -71,6 +71,54 @@ async function searchExactDishPhotos(dishTitle, _ingredients = []) {
   return ['/dishes/rec-5.jpg'];
 }
 
+async function ensureRecipeStepDetails(title, steps, ingredients, providedStepDetails = [], dishImage = '') {
+  let photoPool = [];
+  try {
+    const found = await searchExactDishPhotos(title, ingredients);
+    if (Array.isArray(found) && found.length > 0) {
+      photoPool.push(...found);
+    }
+  } catch {
+    // fallback
+  }
+  if (dishImage) photoPool.push(dishImage);
+  if (photoPool.length === 0) photoPool.push('/dishes/rec-5.jpg');
+
+  return (steps || []).map((stepText, idx) => {
+    const existing = Array.isArray(providedStepDetails) ? providedStepDetails[idx] : null;
+    if (existing && existing.image && String(existing.image).trim()) {
+      return {
+        ...existing,
+        stepNumber: idx + 1,
+        text: stepText,
+      };
+    }
+    const photo = photoPool[idx % photoPool.length];
+    return {
+      stepNumber: idx + 1,
+      section:
+        existing?.section ||
+        (idx === 0
+          ? 'Mise en Place'
+          : idx === steps.length - 1
+          ? 'Finalização & Empratamento'
+          : 'Preparo e Cocção'),
+      text: stepText,
+      image: photo,
+      alt: existing?.alt || `Passo ${idx + 1}: ${stepText.slice(0, 60)}...`,
+      tip:
+        existing?.tip ||
+        (idx === 0
+          ? 'Pese e prepare todos os insumos antes de ligar o fogo.'
+          : idx === steps.length - 1
+          ? 'Verifique a temperatura e o sal antes de empratar.'
+          : 'Mantenha o fogo constante para cozinhar de forma homogênea.'),
+      isKeyFrame: true,
+      timerSeconds: existing?.timerSeconds || 120,
+    };
+  });
+}
+
 function isItemInFridge(ingName, fridgeItems) {
   const target = (ingName || '').toLowerCase().trim();
   for (const f of fridgeItems) {
@@ -700,6 +748,19 @@ export async function startServer(options = {}) {
       ? steps.map((s) => String(s).trim()).filter(Boolean)
       : ['Prepare os insumos conforme a ficha técnica e finalize o prato.'];
 
+    const finalStepDetails = await ensureRecipeStepDetails(
+      title.trim(),
+      validSteps,
+      validIngredients,
+      stepDetails,
+      finalImage
+    );
+
+    const finalTags = Array.isArray(tags) ? [...tags] : ['Econômico'];
+    if (!finalTags.includes('Passo a Passo com Fotos')) {
+      finalTags.push('Passo a Passo com Fotos');
+    }
+
     db.prepare(`
       INSERT INTO recipes (
         id, title, category, prep_time, servings, calories, protein, carbs, fat,
@@ -718,7 +779,7 @@ export async function startServer(options = {}) {
       Number(protein) || 0,
       Number(carbs) || 0,
       Number(fat) || 0,
-      JSON.stringify(Array.isArray(tags) ? tags : ['Econômico']),
+      JSON.stringify(finalTags),
       finalImage,
       source || 'Ficha Técnica Própria',
       JSON.stringify(validIngredients),
@@ -727,7 +788,7 @@ export async function startServer(options = {}) {
       platingInstructions || 'Servir em prato aquecido com montagem centralizada.',
       specificInstructions || 'Respeitar as gramaturas e temperaturas da ficha técnica.',
       JSON.stringify(Array.isArray(sections) ? sections : []),
-      JSON.stringify(Array.isArray(stepDetails) ? stepDetails : []),
+      JSON.stringify(finalStepDetails),
       JSON.stringify(typeof chefTips === 'object' && chefTips !== null ? chefTips : {})
     );
 
@@ -785,6 +846,19 @@ export async function startServer(options = {}) {
       ? steps.map((s) => String(s).trim()).filter(Boolean)
       : JSON.parse(existing.steps_json);
 
+    const finalStepDetails = await ensureRecipeStepDetails(
+      nextTitle,
+      nextSteps,
+      nextIngredients,
+      stepDetails,
+      finalImage
+    );
+
+    const finalTags = Array.isArray(tags) ? [...tags] : JSON.parse(existing.tags_json);
+    if (!finalTags.includes('Passo a Passo com Fotos')) {
+      finalTags.push('Passo a Passo com Fotos');
+    }
+
     db.prepare(`
       UPDATE recipes
       SET title = ?,
@@ -816,7 +890,7 @@ export async function startServer(options = {}) {
       Number(protein ?? existing.protein),
       Number(carbs ?? existing.carbs),
       Number(fat ?? existing.fat),
-      JSON.stringify(Array.isArray(tags) ? tags : JSON.parse(existing.tags_json)),
+      JSON.stringify(finalTags),
       finalImage,
       source ?? existing.source,
       JSON.stringify(nextIngredients),
@@ -825,7 +899,7 @@ export async function startServer(options = {}) {
       platingInstructions ?? existing.plating_instructions,
       specificInstructions ?? existing.specific_instructions,
       JSON.stringify(Array.isArray(sections) ? sections : JSON.parse(existing.sections_json || '[]')),
-      JSON.stringify(Array.isArray(stepDetails) ? stepDetails : JSON.parse(existing.step_details_json || '[]')),
+      JSON.stringify(finalStepDetails),
       JSON.stringify(typeof chefTips === 'object' && chefTips !== null ? chefTips : JSON.parse(existing.chef_tips_json || '{}')),
       id
     );
@@ -921,15 +995,41 @@ export async function startServer(options = {}) {
     const portionWeight = `${Math.max(180, Math.round(totalWeightGrams / 2))}g por porção`;
 
     const id = 'rec-custom-' + Date.now();
-    const tags = ['Econômico', 'Rápido', 'Importada'];
+    const tags = ['Econômico', 'Rápido', 'Importada', 'Passo a Passo com Fotos'];
+
+    const importSteps = [
+      'Realize o mise en place pesando e higienizando todos os insumos conforme a ficha técnica.',
+      'Aqueça a frigideira ou panela no fogo médio com o azeite e refogue os ingredientes principais até dourarem.',
+      'Cozinhe até o ponto ideal, ajuste o sal e os temperos, e finalize a montagem do prato com ervas frescas.'
+    ];
+
+    const finalStepDetails = await ensureRecipeStepDetails(
+      cleanTitle,
+      importSteps,
+      ingredients,
+      [],
+      exactPhotos[0]
+    );
+
+    const sections = [
+      { name: 'Mise en Place & Pré-preparo', stepRange: [1, 1] },
+      { name: 'Cocção & Finalização', stepRange: [2, 3] },
+    ];
+
+    const chefTips = {
+      intro: `Receita prática de ${cleanTitle} otimizada com foco em rendimento e sabor autêntico brasileiro.`,
+      storage: 'Manter refrigerado em pote hermético de vidro por até 3 dias. Reaquecer em fogo baixo com gotas de água ou azeite.',
+      secret: 'O mise en place antecipado garante que todos os ingredientes atinjam o ponto exato de cocção sem ressecar.',
+    };
 
     db.prepare(`
       INSERT INTO recipes (
         id, title, category, prep_time, servings, calories, protein, carbs, fat,
         tags_json, image, source, ingredients_json, steps_json,
-        portion_weight, plating_instructions, specific_instructions
+        portion_weight, plating_instructions, specific_instructions,
+        sections_json, step_details_json, chef_tips_json
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       cleanTitle,
@@ -944,14 +1044,13 @@ export async function startServer(options = {}) {
       exactPhotos[0],
       source,
       JSON.stringify(ingredients),
-      JSON.stringify([
-        'Realize o mise en place pesando todos os insumos conforme a ficha técnica.',
-        'Refogue os aromáticos base no azeite até dourarem.',
-        'Incorpore os insumos principais, cozinhe em fogo médio por 15 minutos e ajuste o sal antes de empratar.'
-      ]),
+      JSON.stringify(importSteps),
       portionWeight,
       `Dispor a porção (${portionWeight}) no centro de um prato aquecido, garantindo volume e altura, e finalizar com ervas frescas e fio de azeite.`,
-      'Manter os insumos perecíveis refrigerados a 4°C até o preparo. Consumir em até 48h se mantido refrigerado em recipiente hermético.'
+      'Manter os insumos perecíveis refrigerados a 4°C até o preparo. Consumir em até 48h se mantido refrigerado em recipiente hermético.',
+      JSON.stringify(sections),
+      JSON.stringify(finalStepDetails),
+      JSON.stringify(chefTips)
     );
 
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });

@@ -3681,6 +3681,10 @@ export default function App() {
                   placeholder="Descreva cada passo do preparo em uma linha..."
                   className="w-full rounded-xl border border-slate-200 p-3 text-xs leading-relaxed"
                 />
+                <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span>Padrão Gastronômico: Cada etapa do preparo recebe automaticamente fotos ilustrativas de alta resolução com zoom no Modo Cozinha.</span>
+                </div>
               </div>
 
               {/* 5. Como a Porção Deve Ser Servida: Peso, Montagem e Finalização + Instruções Específicas */}

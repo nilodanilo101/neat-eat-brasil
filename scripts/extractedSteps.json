@@ -1,0 +1,654 @@
+{
+  "rec-1": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/crepioca/step-1.webp",
+      "alt": "Uma bancada contendo os ingredientes separados.",
+      "originalText": "O ideal é utilizar goma de tapioca, pois já vem hidratada. Não é possível fazer crepioca com tapioca granulada, pérolas ou a farinha seca. Fatie o tomate-cereja bem fininho;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/crepioca/step-2.webp",
+      "alt": "Um prato contendo a mistura de ovo, tapioca e sal.",
+      "originalText": "Em um recipiente, coloque o ovo (verifique se ele não está estragado), a tapioca e o sal. Misture bem para incorporar todos os ingredientes;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/crepioca/step-3.webp",
+      "alt": "Uma frigideira com a massa da crepioca.",
+      "originalText": "Em uma frigideira de fundo largo, aqueça um fio de azeite (deixe o fundo bem untado). Despeje a massa de crepioca e cozinhe em fogo abaixo até começar a soltar do fundo da frigideira (cerca de 1 minuto). Vire e doure o outro lado;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/crepioca/step-4.webp",
+      "alt": "Uma frigideira com a massa da crepioca recheada com queijo, tomate e orégano.",
+      "originalText": "Em um dos lados da crepioca, coloque as duas fatias de queijo frescal (uma do lado do outro). Por cima do queijo, disponhas as fatias de tomatinho-cereja. Polvilhe o orégano (se quiser, adicione uma pitada de sal). Tampe a frigideira e cozinhe por 1 ou 2 minutos;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/crepioca/step-5.webp",
+      "alt": "Um prato contendo uma crepioca de queijo com tomate e orégano.",
+      "originalText": "Assim que os tomatinhos derem uma boa murchada, desligue o fogo e dobre a crepioca ao meio (o lado sem recheio por cima do lado com recheio). Está prontinha!"
+    }
+  ],
+  "rec-2": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/overnight-oats/step-1.webp",
+      "alt": "Ingredientes de overnight oats com cacau e banana reunidos na bancada.",
+      "originalText": "Reúna todos os ingredientes;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/overnight-oats/step-2.webp",
+      "alt": "Aveia, chia e cacau em pó sendo despejados em um recipiente.",
+      "originalText": "Em um recipiente comum, despeje primeiramente os secos: aveia, a chia e o cacau em pó;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/overnight-oats/step-3.webp",
+      "alt": "Mistura de aveia, chia e cacau com mel e leite vegetal sendo mexida no recipiente.",
+      "originalText": "Acrescente o mel e o leite vegetal. Misture bem até a aveia e a chia absorveram o leite;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/overnight-oats/step-4.webp",
+      "alt": "Mistura de aveia, chia e cacau sendo transferida para pote de vidro com tampa.",
+      "originalText": "Transfira a mistura para um pote, preferencialmente de vidro, com tampa. Deixe na geladeira durante a noite ou por no mínimo 3 horas;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/overnight-oats/step-5.webp",
+      "alt": "Banana sendo cortada em rodelas na tábua para cobrir a aveia.",
+      "originalText": "No dia seguinte, pegue uma banana e pique em rodelas para o topping;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/overnight-oats/step-6.webp",
+      "alt": "Overnight oats com cacau finalizado com rodelas de banana por cima, pronto para servir.",
+      "originalText": "Adicione os pedaços na receita e pronto! É só saborear esta delícia."
+    }
+  ],
+  "rec-3": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/ovos-mexidos/step-1.webp",
+      "alt": "Ingredientes dos ovos mexidos reunidos na bancada.",
+      "originalText": "Reúna os ingredientes dos ovos mexidos;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/ovos-mexidos/step-2.webp",
+      "alt": "Ovos colocados em uma tigela e fouet ao lado.",
+      "originalText": "Quebre os ovos em uma tigela e bata levemente com um garfo ou fouet;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/ovos-mexidos/step-3.webp",
+      "alt": "Manteiga sendo derretida em uma frigideira.",
+      "originalText": "Derreta a manteiga em uma frigideira no fogo baixo;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/ovos-mexidos/step-4.webp",
+      "alt": "Panela com os ingredientes dos ovos mexidos sendo misturados com o fouet.",
+      "originalText": "Adicione os ovos batidos e o requeijão. Comece a mexer sem parar no fogo mínimo e retire algumas vezes do fogo para não cozinhar muito (continue mexendo sem parar);"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/ovos-mexidos/step-5.webp",
+      "alt": "Ovos mexidos sendo temperados com sal e pimenta-do-reino.",
+      "originalText": "Assim que ficar bem cremoso, desligue e tempere com sal e pimenta;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/ovos-mexidos/step-6.webp",
+      "alt": "Ovos mexidos servidos em um recipiente redondo.",
+      "originalText": "Agora é só servir esse preparo delicioso. Bom apetite!"
+    }
+  ],
+  "rec-4": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/cuscuz/step-1.webp",
+      "alt": "Uma bancada com os ingredientes separados.",
+      "originalText": "Reúna os ingredientes e venha aprender a fazer o cuscuz nordestino, receita tradicional e direto ao ponto;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/cuscuz/step-2.webp",
+      "alt": "Um prato com flocão de milho hidratando.",
+      "originalText": "Em uma tigela grande, coloque o flocão, o sal e a água aos poucos (adicione-a em 3 partes). Misture até a farinha absorver a água;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/cuscuz/step-3.webp",
+      "alt": "Um prato com flocão de milho hidratando.",
+      "originalText": "Adicione mais um pouco de água e misture, até ele absorver a água novamente;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/cuscuz/step-4.webp",
+      "alt": "Um prato com flocão de milho hidratando.",
+      "originalText": "Após colocar toda a água, continue mexendo de baixo para cima, deixando-o bem soltinho e macio. Reserve para hidratar por cerca de 10 minutos;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/cuscuz/step-5.webp",
+      "alt": "Uma cuscuzeira com cuscuz para cozinhar.",
+      "originalText": "Preencha a parte de cima da cuscuzeira com uma colher, sem apertar. Se quiser, recheie com queijo e complete com mais cuscuz. Tampe a cuscuzeira, coloque água na parte de baixo e encaixe as duas partes. Leve ao fogo baixo por cerca de 8-15 minutos. Depois, deixe descansar por mais 5 minutos;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/cuscuz/step-6.webp",
+      "alt": "Um recipiente com cuscuz nordestino.",
+      "originalText": "Sirva o cuscuz nordestino com o acompanhamento de sua preferência. Bom apetite!"
+    }
+  ],
+  "rec-5": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/frango-grelhado/step-1.webp",
+      "alt": "Todos os ingredientes do frango grelhado em uma bancada.",
+      "originalText": "Reúna todos os ingredientes;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/frango-grelhado/step-2.webp",
+      "alt": "Filés de frango temperados em uma vasilha transparente.",
+      "originalText": "Em um recipiente, tempere o frango com açúcar, o sal, o coentro, a páprica, o alho e misture bem para o tempero pegar em toda a carne;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/frango-grelhado/step-3.webp",
+      "alt": "Filés de frango marinando em uma vasilha com água.",
+      "originalText": "Adicione água até cobrir o filé, cubra o recipiente e deixe marinar por 20 minutos na geladeira;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/frango-grelhado/step-4.webp",
+      "alt": "Filé de frango em uma frigideira preta com óleo.",
+      "originalText": "Em seguida, esquente uma frigideira de fundo triplo em fogo médio. Depois, coloque o azeite, adicione o frango com a parte lisa para baixo e deixe grelhar por 2 minutos;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/frango-grelhado/step-5.webp",
+      "alt": "Filé de frango grelhado em uma frigideira.",
+      "originalText": "Salpique um pouco de pimenta, sal, vire e deixe selar o outro lado por mais 2 minutos;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/frango-grelhado/step-6.webp",
+      "alt": "Filé de frango grelhado e temperado.",
+      "originalText": "Vire de novo, tempere apenas com pimenta e deixe mais 3 minutos. Mais uma vez, vire a carne, salpique pimenta e deixe mais 3 minutos."
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/frango-grelhado/step-7.webp",
+      "alt": "Filés de frango grelhados finalizados em um prato.",
+      "originalText": "Agora é só servir. Bom apetite!"
+    }
+  ],
+  "rec-6": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/carne-abobora/step-1.webp",
+      "alt": "Ingredientes de carne moída com abóbora reunidos na bancada.",
+      "originalText": "Reúna todos os ingredientes;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/carne-abobora/step-2.webp",
+      "alt": "Carne moída e cebola sendo refogadas na panela, sem óleo.",
+      "originalText": "Leve uma panela ao fogo médio, e, sem óleo, refogue a carne e a cebola;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/carne-abobora/step-3.webp",
+      "alt": "Abóbora, tomate e molho de tomate cozinhando com a carne moída refogada na panela.",
+      "originalText": "Adicione o tomate, a abóbora, o molho de tomate, tampe a panela, e deixe tudo cozinhar por cerca de 15 minutos, ou até a abóbora ficar macia. Se precisar, acrescente um pouco de água para que os ingredientes não grudem na panela;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/carne-abobora/step-4.webp",
+      "alt": "Carne moída com abóbora cozida na panela sendo temperada com salsinha, sal e pimenta.",
+      "originalText": "Tempere com salsinha, sal e pimenta;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/carne-abobora/step-5.webp",
+      "alt": "Carne moída com abóbora pronta para servir, finalizada com salsinha.",
+      "originalText": "Agora é só servir. Bom apetite!"
+    }
+  ],
+  "rec-7": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/escondidinho/step-1.webp",
+      "alt": "Ingredientes de escondidinho de frango reunidos na bancada.",
+      "originalText": "Reúna todos os ingredientes;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/escondidinho/step-2.webp",
+      "alt": "Frango desfiado refogado com cebola, ervilha e milho na panela.",
+      "originalText": "Em uma panela, aqueça o óleo e refogue a cebola. Depois, acrescente o frango, a ervilha e o milho. Tempere com orégano, pimenta, tempero para frango, sal e misture bem;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/escondidinho/step-3.webp",
+      "alt": "Frango desfiado com ervilha e milho cozinhando no molho de tomate na panela.",
+      "originalText": "Acrescente o molho de tomate; misture novamente; tampe e deixe cozinhar por 5 minutos. Feito isso, desligue o fogo e reserve;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/escondidinho/step-4.webp",
+      "alt": "Purê de batatas com creme de leite e parmesão ralado sendo misturado na tigela.",
+      "originalText": "Em uma tigela, misture as batatas com o creme de leite e o queijo parmesão ralado. Acerte o sal;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/escondidinho/step-5.webp",
+      "alt": "Travessa refratária sendo untada com azeite para montar o escondidinho.",
+      "originalText": "Selecione uma travessa que possa ir ao forno e unte-a com azeite;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/escondidinho/step-6.webp",
+      "alt": "Travessa untada com camada uniforme de purê de batata espalhada no fundo.",
+      "originalText": "Faça uma camada generosa e uniforme de purê de batata;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/escondidinho/step-7.webp",
+      "alt": "Frango sendo espalhado em camada sobre o purê de batata.",
+      "originalText": "Faça outra camada com todo o frango;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/escondidinho/step-8.webp",
+      "alt": "Purê de batata sendo espalhado sobre a camada de frango no refratário.",
+      "originalText": "E mais uma camada com o restante do purê;"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/escondidinho/step-9.webp",
+      "alt": "Queijo parmesão sendo ralado sobre a camada de purê no refratário.",
+      "originalText": "Para finalizar, rale o queijo parmesão fresco por cima;"
+    },
+    {
+      "stepNumber": 10,
+      "image": "/dishes/steps/escondidinho/step-10.webp",
+      "alt": "Escondidinho de frango gratinado com parmesão, pronto para servir.",
+      "originalText": "Leve o escondidinho para assar em forno pré-aquecido a 180° graus por 15 minutos. Passado o tempo, retire do forno e está pronto para servir."
+    }
+  ],
+  "rec-8": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/strogonoff/step-1.webp",
+      "alt": "Ingredientes reunidos na bancada.",
+      "originalText": "Para começar, organize sua bancada e separe todos os ingredientes. Pique a cebola em cubinhos, corte a cenoura em quartos, higienize os cogumelos e corte-os em fatias e depois em terços, se forem muito grandes;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/strogonoff/step-2.webp",
+      "alt": "Manteiga e azeite na panela.",
+      "originalText": "Em uma frigideira grande, coloque o azeite e a manteiga. Leve ao fogo médio e aqueça até a manteiga derreter;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/strogonoff/step-3.webp",
+      "alt": "Cebola dourada na panela.",
+      "originalText": "Adicione a cebola e refogue por cerca de 5 minutos, até murchar e ficar levemente transparente;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/strogonoff/step-4.webp",
+      "alt": "Cenoura adicionada na panela.",
+      "originalText": "Acrescente a cenoura e refogue por 10 minutos, mexendo de vez em quando, até começar a ficar mais macia;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/strogonoff/step-5.webp",
+      "alt": "Cogumelos fatiados adicionados na panela.",
+      "originalText": "Junte os cogumelos fatiados e misture bem, refogando até reduzirem de volume, soltarem parte da água e ficarem macios cerca de 10 minutos;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/strogonoff/step-6.webp",
+      "alt": "Conhaque sendo despejado na panela.",
+      "originalText": "Com cuidado, adicione o conhaque e mexa bem, raspando o fundo da frigideira para incorporar os sabores do refogado. Cozinhe por mais 5 minutos, até o álcool evaporar e o aroma ficar mais suave;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/strogonoff/step-7.webp",
+      "alt": "Molho de tomate e molho inglês adicionados na panela.",
+      "originalText": "Entre com o molho inglês, o molho de tomate, misture bem e deixe cozinhar até o molho aquecer e ficar mais encorpado, cerca de 5 minutos;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/strogonoff/step-8.webp",
+      "alt": "Creme de leite adicionado ao preparo.",
+      "originalText": "Despeje o creme de leite, misture até incorporar ao molho e cozinhe por cerca de 2 minutos, apenas para aquecer e deixar o preparo mais cremoso, sem ferver demais;"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/strogonoff/step-9.webp",
+      "alt": "Strogonoff pronto e servido com arroz e batata palha.",
+      "originalText": "Desligue o fogo e sirva ainda quente, acompanhado de arroz branco, batata palha, purê de batatas ou uma salada simples. Bom apetite!"
+    }
+  ],
+  "rec-9": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/tilapia/step-1.webp",
+      "alt": "Ingredientes organizados na bancada.",
+      "originalText": "Organize sua bancada e separe todos os ingredientes! Corte as batatas em cubos médios, a cebola em 4 partes, limpe os cogumelos e corte-os ao meio;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/tilapia/step-2.webp",
+      "alt": "Batatas sendo temperadas com azeite e ervas.",
+      "originalText": "Em uma tigela, tempere as batatas com azeite, alecrim e sal, misturando bem para envolver todos os pedaços;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/tilapia/step-3.webp",
+      "alt": "Cebola e cogumelos sendo temperados.",
+      "originalText": "Em outro recipiente, tempere a cebola e os cogumelos com azeite, tomilho fresco e sal;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/tilapia/step-4.webp",
+      "alt": "Filés sendo temperados com limão e especiarias.",
+      "originalText": "Agora, em outra tigela, tempere os filés com as raspas de limão, pimenta-do-reino e o alho em pó, deixe-os marinando por cerca de 20 minutos para absorver os temperos;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/tilapia/step-5.webp",
+      "alt": "Batatas distribuídas na forma para assar.",
+      "originalText": "Enquanto isso, transfira as batatas para uma forma forrada com papel antiaderente, espalhando bem para assarem por igual. Leve ao forno preaquecido a 200 °C por 30 minutos até começarem a dourar;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/tilapia/step-6.webp",
+      "alt": "Legumes sendo adicionados à forma.",
+      "originalText": "Retire a forma do forno, adicione a cebola e os cogumelos, distribuindo entre as batatas. Retorne ao forno e asse por 20 minutos, até que todos os legumes estejam macios e dourados;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/tilapia/step-7.webp",
+      "alt": "Tilápia sendo grelhada na frigideira.",
+      "originalText": "Feito isso, aqueça uma frigideira com o azeite de oliva em fogo médio-alto. Coloque os filés na frigideira, tempere com sal, e grelhe por cerca de 3 minutos cada lado, sem mexer, para formar uma crosta dourada;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/tilapia/step-8.webp",
+      "alt": "Filés recebendo suco de limão após grelhar.",
+      "originalText": "Assim que estiverem dourados, desligue o fogo, regue com suco de limão;"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/tilapia/step-9.webp",
+      "alt": "Tilápia grelhada servida.",
+      "originalText": "Sirva a tilápia grelhada acompanhada dos legumes assados. Boom apetite!"
+    }
+  ],
+  "rec-10": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/omelete/step-1.webp",
+      "alt": "Ingredientes reunidos na bancada.",
+      "originalText": "Separe todos os ingredientes, pique a cebola, o tomate, o queijo e as ervas e preaqueça o forno a 180 ºC;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/omelete/step-2.webp",
+      "alt": "Ingredientes reunidos na tigela.",
+      "originalText": "Em uma tigela, adicione os ovos, o sal, a cebola, a cenoura, o tomate, a pimenta e o orégano;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/omelete/step-3.webp",
+      "alt": "Ingredientes misturadas com fouet.",
+      "originalText": "Feito isso, misture bem e acrescente a farinha de aveia, mexendo até incorporar;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/omelete/step-4.webp",
+      "alt": "Restante dos ingredientes adicionados.",
+      "originalText": "Por último, adicione o queijo, a salsinha e a cebolinha;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/omelete/step-5.webp",
+      "alt": "Mistura transferida para refratário untado.",
+      "originalText": "Despeje a mistura em um refratário (20cm) untado com azeite e farinha e leve ao forno a 180 ºC por 25 minutos ou até firmar e dourar levemente;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/omelete/step-6.webp",
+      "alt": "Omelete saída do forno pronta, decorada com tomate-cereja.",
+      "originalText": "Pronto! Retire do forno e sirva quente, bom apetite!"
+    }
+  ],
+  "rec-11": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/caldo-verde/step-1.webp",
+      "alt": "Ingredientes reunidos na bancada.",
+      "originalText": "Vamos começar! Separe todos os ingredientes. Higienize as mandioquinhas, descasque-as e corte-as em rodelas médias. Aproveite e picar finamente a cebola, amassar o dente de alho e cortar a linguiça calabresa e a couve em fatias finas;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/caldo-verde/step-2.webp",
+      "alt": "Mandioquinha cozidas na panela.",
+      "originalText": "Em uma panela média, coloque as mandioquinhas cortadas, cubra com água e leve ao fogo alto até que fiquem bem macias e fáceis de espetar com um garfo, cerca de 10 minutos;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/caldo-verde/step-3.webp",
+      "alt": "Mandioquinha batendo no liquidificador.",
+      "originalText": "Transfira as mandioquinhas cozidas para o copo do liquidificador com o auxílio de uma escumadeira, adicione uma parte da água do próprio cozimento e bata tudo até formar um creme liso e homogêneo;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/caldo-verde/step-4.webp",
+      "alt": "Numa panela, cebola refogando no azeite.",
+      "originalText": "Em outra panela grande, adicione a colher de sopa de azeite e leve ao fogo médio para esquentar. Coloque a cebola picada na panela e mexa até que ela fique bem murcha e levemente dourada;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/caldo-verde/step-5.webp",
+      "alt": "Calabresa e alho adicionados na panela com a cebola.",
+      "originalText": "Adicione o alho amassado junto com as fatias de linguiça calabresa e continue refogando, mexendo de vez em quando, até que a calabresa fique bem douradinha;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/caldo-verde/step-6.webp",
+      "alt": "Creme de mandioquinha adicionado na panela.",
+      "originalText": "Feito isso, despeje o creme de mandioquinha batido diretamente na panela com o refogado de calabresa e misture bem para agregar os sabores;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/caldo-verde/step-7.webp",
+      "alt": "Couve fatiada adicionada na panela.",
+      "originalText": "Adicione a couve fatiada à panela e mexa delicadamente para que ela murchar no próprio calor do caldo. Mantenha a panela no fogo até que o caldo verde comece a levantar fervura;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/caldo-verde/step-8.webp",
+      "alt": "Sal adicionado ao caldo.",
+      "originalText": "Quando estiver encorpado, tempere com sal e pimenta-do-reino a gosto, dando uma última mistura bem caprichada;"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/caldo-verde/step-9.webp",
+      "alt": "Caldo pronto e porção servida em prato.",
+      "originalText": "Prontinho! Desligue o fogo e sirva o caldo verde imediatamente enquanto estiver bem quentinho."
+    }
+  ],
+  "rec-12": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/macarrao-alho-oleo/step-1.webp",
+      "alt": "Todos os ingredientes do macarrão alho e óleo reunidos.",
+      "originalText": "Reúna todos os ingredientes;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/macarrao-alho-oleo/step-2.webp",
+      "alt": "Macarrão cozido e escorrido.",
+      "originalText": "Cozinhe o macarrão em água fervente com sal, conforme as instruções da embalagem ou até o ponto de sua preferência. Reserve;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/macarrao-alho-oleo/step-3.webp",
+      "alt": "Bacon cortadinho em uma panela.",
+      "originalText": "Em uma panela, coloque o bacon picado e frite até ficar douradinho;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/macarrao-alho-oleo/step-4.webp",
+      "alt": "Alho e páprica sendo adicionada na panela com bacon fritinho.",
+      "originalText": "Adicione o alho, a páprica, o sal e refogue bem;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/macarrao-alho-oleo/step-5.webp",
+      "alt": "Macarrão misturado com o bacon e temperos.",
+      "originalText": "Acrescente o macarrão escorrido, misture e coloque o cheiro-verde por cima;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/macarrao-alho-oleo/step-6.webp",
+      "alt": "Macarrão ao alho e óleo finalizado.",
+      "originalText": "Agora é só servir. Bom apetite!"
+    }
+  ],
+  "rec-13": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/bowl-mexicano/step-1.webp",
+      "alt": "Ingredientes do burrito de carne reunidos em uma bancada.",
+      "originalText": "Reúna os ingredientes para fazer o burrito de carne, ideia legal para fugir da rotina durante a semana;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/bowl-mexicano/step-2.webp",
+      "alt": "Frigideira de ferro com temperos sendo refogados.",
+      "originalText": "Descasque a cebola e pique em brunnoise (cubinhos de cerca de 0,3 mm). Leve uma frigideira ao fogo médio e aqueça o azeite. Quando ele estiver aquecido, adicione a cebola picada com a folha de louro. Refogue até ela ficar transparente;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/bowl-mexicano/step-3.webp",
+      "alt": "Panela de ferro com temperos e legumes refogados.",
+      "originalText": "Enquanto isso, descasque e pique a cenoura em cubos pequenos também. Quando a cebola estiver refogada, junte a cenoura na panela e cozinhe por aproximadamente 2 minutos;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/bowl-mexicano/step-4.webp",
+      "alt": "Panela de ferro com legumes e temperos refogados.",
+      "originalText": "Com papel-toalha, limpe os cogumelos e, em seguida, fatie eles e adicione na panela com os demais ingredientes. Continue misturando por mais 2 minutos ou até dourar;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/bowl-mexicano/step-5.webp",
+      "alt": "Frigideira de ferro com carne moída com legumes e temperos.",
+      "originalText": "Acrescente a carne moída e misture até os pedaços grandes se desfazerem na panela. Refogue por cerca de 15 a 20 minutos e tempere com sal, pimenta-do-reino e orégano;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/bowl-mexicano/step-6.webp",
+      "alt": "Frigideira de ferro com carne moída temperada.",
+      "originalText": "Junte o molho de pimenta e o molho de tomate. Mexa novamente e cozinhe por cerca de 5 minutos, ou até o molho reduzir. Desligue o fogo e reserve;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/bowl-mexicano/step-7.webp",
+      "alt": "Frigideira com tortilha com alguns pontos tostados.",
+      "originalText": "Depois, esquente as tortilhas em uma frigideira no fogo baixo por cerca de 2 minutos, até ela ficar crocante. Vire para o outro lado e repita o mesmo processo;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/bowl-mexicano/step-8.webp",
+      "alt": "Um prato com uma tortilha, com o recheio de carne moída temperada junto com queijo ralado no meio.",
+      "originalText": "Para montar, coloque a carne moída no meio e salpique queijo ralado;"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/bowl-mexicano/step-9.webp",
+      "alt": "Burrito recheado com carne e queijo sendo fechado.",
+      "originalText": "Dobre as laterais e feche as bordas das extremidades e comece a enrolar que nem rocambole. Repita o processo com o restante dos ingredientes;"
+    },
+    {
+      "stepNumber": 10,
+      "image": "/dishes/steps/bowl-mexicano/step-10.webp",
+      "alt": "Quatro burritos recheados e pronto em um prato.",
+      "originalText": "Sirva o burrito de carne com o molho de sua preferência e aproveite. Bom apetite!"
+    }
+  ],
+  "rec-14": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/frango-legumes/step-1.webp",
+      "alt": "Ingredientes de frango com legumes reunidos na bancada.",
+      "originalText": "Reúna todos os ingredientes;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/frango-legumes/step-2.webp",
+      "alt": "Pimentões, cebola e cenoura cortados em tiras sobre a tábua.",
+      "originalText": "Fatie em tiras os pimentões, a cebola e a cenoura;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/frango-legumes/step-3.webp",
+      "alt": "Cebola em tiras e alho refogando no azeite em frigideira grande.",
+      "originalText": "Em uma frigideira ou em uma panela grande, coloque o azeite, a cebola e o alho e refogue em fogo baixo;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/frango-legumes/step-4.webp",
+      "alt": "Pimentões, cenoura, couve-flor e brócolis sendo adicionados ao refogado de cebola na frigideira.",
+      "originalText": "Quando a cebola ficar transparente, adicione os pimentões, a cenoura, a couve-flor e o brócolis;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/frango-legumes/step-5.webp",
+      "alt": "Frango cortado em cubos e tiras sendo temperado em um recipiente.",
+      "originalText": "Corte o frango em cubos ou em pequenas tiras e tempere à sua maneira;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/frango-legumes/step-6.webp",
+      "alt": "Cubos de frango temperados dourando na panela até ficarem cozidos.",
+      "originalText": "Em outra panela, refogue o frango até que fique completamente cozido/frito;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/frango-legumes/step-7.webp",
+      "alt": "Pedaços de frango dourados na panela recebendo shoyu.",
+      "originalText": "Deixe dourar e adicione o shoyu;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/frango-legumes/step-8.webp",
+      "alt": "Frango e legumes juntos na panela recebendo vinagre de maçã e mel.",
+      "originalText": "Junte o frango com os legumes, adicione o vinagre de maçã e o mel"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/frango-legumes/step-9.webp",
+      "alt": "Frango e legumes dourando com vinagre de maçã e mel na frigideira.",
+      "originalText": "Misture bem, deixe dourar e desligue o fogo;"
+    },
+    {
+      "stepNumber": 10,
+      "image": "/dishes/steps/frango-legumes/step-10.webp",
+      "alt": "Frango com legumes pronto para servir.",
+      "originalText": "Sirva e bom apetite!"
+    }
+  ]
+}
