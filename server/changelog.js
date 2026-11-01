@@ -1,17 +1,17 @@
-export const CURRENT_VERSION = '1.0.4';
+export const CURRENT_VERSION = '1.0.5';
 
 export const RELEASE_NOTES = [
   {
-    version: '1.0.4',
+    version: '1.0.5',
     date: '31/10/2026',
-    title: 'Novidades da Versão — Fotos Culinárias Reais & Ficha Técnica',
+    title: 'Novidades da Versão — Aba Sugestões (Tinder de Receitas)',
     summary:
-      'Correção completa do catálogo fotográfico com fotos 100% gastronômicas verificadas para cada prato e modelo de Ficha Técnica de Restaurante.',
+      'Agora você pode descobrir novos pratos brasileiros com Ficha Técnica completa deslizando para a esquerda ou para a direita!',
     items: [
-      '📸 Correção das fotos das receitas: todas as refeições agora utilizam fotografias reais e verificadas de gastronomia brasileira (eliminando miniaturas incorretas de buscadores genéricos).',
-      '📋 Ficha Técnica de Restaurante completa: insumos com quantidades e custo individual, tempo e modo de preparo, peso/montagem/finalização da porção e tabela nutricional.',
-      '✏️ Opções para Criar, Editar e Excluir receitas diretamente no Catálogo de Receitas.',
-      '📖 Novo ícone oficial do aplicativo com símbolo de Menu.'
+      '🔥 Nova Aba "Sugestões" estilo Tinder: arraste o card para a direita (💚 Adicionar) para incluir a receita no seu Catálogo de Receitas ou para a esquerda (❌ Passar) para recusar.',
+      '📋 Espie a Ficha Técnica completa (insumos, custos, montagem e nutrição) antes de decidir.',
+      '↩️ Botões para "Desfazer último swipe", "Rever descartadas" e filtros rápidos por Café da Manhã, Almoço e Jantar.',
+      '📸 Acervo curado com fotografias culinárias reais e verificadas de cada prato.'
     ]
   }
 ];

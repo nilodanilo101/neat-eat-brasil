@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { db, initDb, getAllRecipes, generateSmartMealPlan } from './db.js';
+import { db, initDb, getAllRecipes, generateSmartMealPlan, getSuggestionsState } from './db.js';
 import { CURRENT_VERSION, RELEASE_NOTES } from './changelog.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -124,6 +124,7 @@ function getFullState() {
     .filter((item) => item.inFridge)
     .reduce((acc, item) => acc + item.estimatedPrice, 0);
   const netToBuyTotal = Math.max(0, grossTotal - fridgeSavings);
+  const suggestionsState = getSuggestionsState();
 
   return {
     user,
@@ -132,6 +133,9 @@ function getFullState() {
     mealPlan,
     fridgeItems,
     shoppingList,
+    suggestions: suggestionsState.suggestions,
+    dismissedSuggestionsCount: suggestionsState.dismissedCount,
+    lastSuggestionSwipe: suggestionsState.lastSwipe,
     releaseNotes: RELEASE_NOTES,
     currentVersion: CURRENT_VERSION,
     totals: {
@@ -168,6 +172,72 @@ export async function startServer(options = {}) {
     if (!q) return res.json({ images: [] });
     const images = await searchExactDishPhotos(q);
     res.json({ images });
+  });
+
+  // TINDER-STYLE SUGGESTION SWIPE (LEFT = PASS, RIGHT = ADD TO CATALOG)
+  app.post('/api/suggestions/swipe', (req, res) => {
+    const { suggestion, direction } = req.body;
+    if (!suggestion || !suggestion.id || !['left', 'right'].includes(direction)) {
+      return res.status(400).json({ error: 'Dados de swipe inválidos.' });
+    }
+
+    db.prepare(`
+      INSERT INTO suggestion_swipes (suggestion_id, action, recipe_json, swiped_at)
+      VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT(suggestion_id) DO UPDATE SET
+        action = excluded.action,
+        recipe_json = excluded.recipe_json,
+        swiped_at = CURRENT_TIMESTAMP
+    `).run(suggestion.id, direction, JSON.stringify(suggestion));
+
+    if (direction === 'right') {
+      db.prepare(`
+        INSERT OR REPLACE INTO recipes (
+          id, title, category, prep_time, servings, calories, protein, carbs, fat,
+          tags_json, image, source, ingredients_json, steps_json,
+          portion_weight, plating_instructions, specific_instructions
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        suggestion.id,
+        suggestion.title,
+        suggestion.category || 'Almoço',
+        Number(suggestion.prepTime) || 20,
+        Math.max(1, Number(suggestion.servings) || 1),
+        Number(suggestion.calories) || 0,
+        Number(suggestion.protein) || 0,
+        Number(suggestion.carbs) || 0,
+        Number(suggestion.fat) || 0,
+        JSON.stringify(Array.isArray(suggestion.tags) ? suggestion.tags : ['Econômico']),
+        suggestion.image,
+        suggestion.source || 'Ficha Técnica — Sugestão Aprovada',
+        JSON.stringify(suggestion.ingredients || []),
+        JSON.stringify(suggestion.steps || []),
+        suggestion.portionWeight || '350g por porção',
+        suggestion.platingInstructions || 'Servir em prato aquecido com montagem centralizada.',
+        suggestion.specificInstructions || 'Respeitar as gramaturas e temperaturas da ficha técnica.'
+      );
+    }
+
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
+  });
+
+  // UNDO LAST SUGGESTION SWIPE
+  app.post('/api/suggestions/undo', (_req, res) => {
+    const lastRow = db.prepare('SELECT * FROM suggestion_swipes ORDER BY id DESC LIMIT 1').get();
+    if (lastRow) {
+      db.prepare('DELETE FROM suggestion_swipes WHERE id = ?').run(lastRow.id);
+      if (lastRow.action === 'right') {
+        db.prepare('DELETE FROM recipes WHERE id = ?').run(lastRow.suggestion_id);
+      }
+    }
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
+  });
+
+  // RESET DISMISSED SUGGESTIONS (REVER DESCARTADAS)
+  app.post('/api/suggestions/reset-dismissed', (_req, res) => {
+    db.prepare("DELETE FROM suggestion_swipes WHERE action = 'left'").run();
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
   app.post('/api/changelog/seen', (req, res) => {

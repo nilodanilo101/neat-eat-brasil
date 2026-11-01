@@ -27,6 +27,9 @@ import {
   FileText,
   Image as ImageIcon,
   Upload,
+  Heart,
+  RotateCcw,
+  Eye,
 } from 'lucide-react';
 
 const DAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
@@ -127,6 +130,19 @@ export default function App() {
   const [categoryFilter, setCategoryFilter] = useState('Todas');
   const [tagFilter, setTagFilter] = useState('Todas');
   const [maxPricePerServing, setMaxPricePerServing] = useState(35);
+
+  // Tinder Suggestions tab state
+  const [suggestionCatFilter, setSuggestionCatFilter] = useState('Todas');
+  const [suggestionSearch, setSuggestionSearch] = useState('');
+  const [dragState, setDragState] = useState({
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    dx: 0,
+    dy: 0,
+  });
+  const [swipeAnim, setSwipeAnim] = useState(null); // 'left' | 'right' | null
+  const [swipeFeedback, setSwipeFeedback] = useState(null);
 
   // AI Import & Fridge state
   const [importInput, setImportInput] = useState('');
@@ -395,6 +411,55 @@ export default function App() {
     }
   }
 
+  async function handleSwipeSuggestion(suggestion, direction) {
+    if (!suggestion || swipeAnim) return;
+    setSwipeAnim(direction);
+    setDragState({ isDragging: false, startX: 0, startY: 0, dx: 0, dy: 0 });
+    if (selectedRecipeModal?.id === suggestion.id) {
+      setSelectedRecipeModal(null);
+    }
+
+    setTimeout(async () => {
+      try {
+        const res = await fetch('/api/suggestions/swipe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ suggestion, direction }),
+        });
+        const json = await res.json();
+        setData(json);
+        setSwipeFeedback({
+          direction,
+          title: suggestion.title,
+        });
+        setTimeout(() => setSwipeFeedback(null), 3200);
+      } finally {
+        setSwipeAnim(null);
+      }
+    }, 240);
+  }
+
+  async function handleUndoLastSwipe() {
+    const res = await fetch('/api/suggestions/undo', {
+      method: 'POST',
+    });
+    const json = await res.json();
+    setData(json);
+    setSwipeFeedback({
+      direction: 'undo',
+      title: 'Última escolha desfeita!',
+    });
+    setTimeout(() => setSwipeFeedback(null), 2500);
+  }
+
+  async function handleResetDismissedSuggestions() {
+    const res = await fetch('/api/suggestions/reset-dismissed', {
+      method: 'POST',
+    });
+    const json = await res.json();
+    setData(json);
+  }
+
   const recipeMap = useMemo(() => {
     if (!data) return new Map();
     return new Map(data.recipes.map((r) => [r.id, r]));
@@ -446,7 +511,17 @@ export default function App() {
     );
   }
 
-  const { user, recipes, mealPlan, fridgeItems, shoppingList, totals } = data;
+  const {
+    user,
+    recipes,
+    mealPlan,
+    fridgeItems,
+    shoppingList,
+    totals,
+    suggestions = [],
+    dismissedSuggestionsCount = 0,
+    lastSuggestionSwipe = null,
+  } = data;
   const isOverBudget = totals.netToBuyTotal > user.weekly_budget;
   const budgetPct = Math.min(100, Math.round((totals.netToBuyTotal / Math.max(1, user.weekly_budget)) * 100));
 
@@ -469,6 +544,17 @@ export default function App() {
     const matchesPrice = getRecipeServingCost(r) <= maxPricePerServing;
     return matchesSearch && matchesCat && matchesTag && matchesPrice;
   });
+
+  const filteredSuggestions = suggestions.filter((s) => {
+    const matchesCat = suggestionCatFilter === 'Todas' || s.category === suggestionCatFilter;
+    const matchesSearch =
+      !suggestionSearch.trim() ||
+      s.title.toLowerCase().includes(suggestionSearch.toLowerCase()) ||
+      s.ingredients.some((i) => i.name.toLowerCase().includes(suggestionSearch.toLowerCase()));
+    return matchesCat && matchesSearch;
+  });
+  const activeSuggestion = filteredSuggestions[0] || null;
+  const nextSuggestion = filteredSuggestions[1] || null;
 
   // Group shopping list by aisle
   const shoppingByAisle = shoppingList.reduce((acc, item) => {
@@ -596,6 +682,11 @@ export default function App() {
               id: 'recipes',
               label: `Catálogo de Receitas (${recipes.length})`,
               icon: BookOpen,
+            },
+            {
+              id: 'suggestions',
+              label: `Sugestões (${suggestions.length})`,
+              icon: Flame,
             },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -1347,6 +1438,435 @@ export default function App() {
             </div>
           </div>
         )}
+
+        {/* TAB 5: SUGESTÕES (ESTILO TINDER DE RECEITAS) */}
+        {activeTab === 'suggestions' && (
+          <div className="max-w-3xl mx-auto space-y-6">
+            {/* Top Bar: Instructions, Filters, Undo & Reset */}
+            <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-xs space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                    <Flame className="w-5 h-5 text-rose-500" />
+                    Descoberta de Pratos — Estilo Tinder
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    Arraste o card para a <strong className="text-rose-600">esquerda (❌ Passar)</strong> ou para a{' '}
+                    <strong className="text-emerald-600">direita (💚 Adicionar)</strong> para incluir a Ficha Técnica no seu Catálogo de Receitas!
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {lastSuggestionSwipe && (
+                    <button
+                      onClick={handleUndoLastSwipe}
+                      className="px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                      title="Desfazer último swipe"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Desfazer último swipe</span>
+                    </button>
+                  )}
+
+                  {dismissedSuggestionsCount > 0 && (
+                    <button
+                      onClick={handleResetDismissedSuggestions}
+                      className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Rever descartadas ({dismissedSuggestionsCount})</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Filter Pills & Search */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+                <div className="flex flex-wrap gap-1.5">
+                  {['Todas', ...SLOTS].map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setSuggestionCatFilter(cat)}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                        suggestionCatFilter === cat
+                          ? 'bg-slate-900 text-white shadow-xs'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="relative flex-1 min-w-[200px] max-w-xs">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    placeholder="Filtrar por ingrediente ou prato..."
+                    value={suggestionSearch}
+                    onChange={(e) => setSuggestionSearch(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Live Toast Feedback on Swipe */}
+            {swipeFeedback && (
+              <div
+                className={`p-3.5 rounded-2xl border text-xs font-bold flex items-center justify-between transition ${
+                  swipeFeedback.direction === 'right'
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                    : swipeFeedback.direction === 'left'
+                    ? 'bg-rose-50 border-rose-200 text-rose-900'
+                    : 'bg-amber-50 border-amber-200 text-amber-900'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {swipeFeedback.direction === 'right' ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  ) : swipeFeedback.direction === 'left' ? (
+                    <X className="w-4 h-4 text-rose-600 shrink-0" />
+                  ) : (
+                    <RotateCcw className="w-4 h-4 text-amber-600 shrink-0" />
+                  )}
+                  <span>
+                    {swipeFeedback.direction === 'right'
+                      ? `Adicionada ao Catálogo de Receitas: "${swipeFeedback.title}"!`
+                      : swipeFeedback.direction === 'left'
+                      ? `Você passou a receita "${swipeFeedback.title}".`
+                      : swipeFeedback.title}
+                  </span>
+                </div>
+                {swipeFeedback.direction === 'right' && (
+                  <button
+                    onClick={() => setActiveTab('recipes')}
+                    className="underline font-extrabold hover:opacity-80 cursor-pointer"
+                  >
+                    Ver no Catálogo →
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* TINDER DECK CONTAINER */}
+            {activeSuggestion ? (
+              <div className="flex flex-col items-center space-y-5">
+                <div className="relative w-full max-w-xl min-h-[560px] flex items-center justify-center select-none">
+                  {/* Background Next Card Preview */}
+                  {nextSuggestion && (
+                    <div
+                      key={nextSuggestion.id}
+                      className="absolute inset-x-4 top-4 bottom-0 bg-white rounded-3xl border border-slate-200 shadow-sm scale-[0.95] translate-y-3 opacity-60 pointer-events-none overflow-hidden"
+                    >
+                      <div className="h-64 bg-slate-200">
+                        <img
+                          src={nextSuggestion.image}
+                          alt={nextSuggestion.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="p-5">
+                        <h3 className="font-extrabold text-lg text-slate-800">
+                          {nextSuggestion.title}
+                        </h3>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Active Foreground Swipeable Card */}
+                  <div
+                    key={activeSuggestion.id}
+                    onPointerDown={(e) => {
+                      if (e.target.closest('button')) return;
+                      e.currentTarget.setPointerCapture(e.pointerId);
+                      setDragState({
+                        isDragging: true,
+                        startX: e.clientX,
+                        startY: e.clientY,
+                        dx: 0,
+                        dy: 0,
+                      });
+                    }}
+                    onPointerMove={(e) => {
+                      if (!dragState.isDragging) return;
+                      setDragState((prev) => ({
+                        ...prev,
+                        dx: e.clientX - prev.startX,
+                        dy: (e.clientY - prev.startY) * 0.25,
+                      }));
+                    }}
+                    onPointerUp={() => {
+                      if (!dragState.isDragging) return;
+                      if (dragState.dx > 105) {
+                        handleSwipeSuggestion(activeSuggestion, 'right');
+                      } else if (dragState.dx < -105) {
+                        handleSwipeSuggestion(activeSuggestion, 'left');
+                      } else {
+                        setDragState({
+                          isDragging: false,
+                          startX: 0,
+                          startY: 0,
+                          dx: 0,
+                          dy: 0,
+                        });
+                      }
+                    }}
+                    style={{
+                      transform:
+                        swipeAnim === 'right'
+                          ? 'translateX(420px) rotate(18deg)'
+                          : swipeAnim === 'left'
+                          ? 'translateX(-420px) rotate(-18deg)'
+                          : `translate(${dragState.dx}px, ${dragState.dy}px) rotate(${
+                              dragState.dx * 0.045
+                            }deg)`,
+                      opacity: swipeAnim ? 0 : 1,
+                      transition: dragState.isDragging
+                        ? 'none'
+                        : 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.22s ease',
+                    }}
+                    className="relative z-10 w-full bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden cursor-grab active:cursor-grabbing"
+                  >
+                    {/* Dynamic TINDER STAMPS ("ADICIONAR" vs "PASSAR") */}
+                    {(dragState.dx > 35 || swipeAnim === 'right') && (
+                      <div className="absolute top-6 left-6 z-20 px-4 py-1.5 rounded-xl border-4 border-emerald-500 bg-emerald-500/90 text-white font-black text-lg uppercase tracking-widest -rotate-12 shadow-lg">
+                        💚 ADICIONAR
+                      </div>
+                    )}
+                    {(dragState.dx < -35 || swipeAnim === 'left') && (
+                      <div className="absolute top-6 right-6 z-20 px-4 py-1.5 rounded-xl border-4 border-rose-500 bg-rose-500/90 text-white font-black text-lg uppercase tracking-widest rotate-12 shadow-lg">
+                        ❌ PASSAR
+                      </div>
+                    )}
+
+                    {/* Dish Photo Header */}
+                    <div className="relative h-72 bg-slate-200 overflow-hidden">
+                      <img
+                        src={activeSuggestion.image}
+                        alt={activeSuggestion.title}
+                        draggable={false}
+                        className="w-full h-full object-cover select-none pointer-events-none"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+
+                      <div className="absolute top-4 left-4 flex items-center gap-2">
+                        <span className="px-3 py-1 rounded-full bg-slate-900/85 backdrop-blur text-white text-xs font-extrabold">
+                          {activeSuggestion.category}
+                        </span>
+                        <span className="px-2.5 py-1 rounded-full bg-white/90 text-slate-800 text-xs font-bold flex items-center gap-1 shadow-xs">
+                          <Scale className="w-3.5 h-3.5 text-emerald-600" />
+                          {activeSuggestion.portionWeight}
+                        </span>
+                      </div>
+
+                      <div className="absolute top-4 right-4 px-3.5 py-1.5 rounded-2xl bg-emerald-600 text-white text-sm font-extrabold shadow-md">
+                        {formatBRL(activeSuggestion.costPerServing)} / porção
+                      </div>
+
+                      <div className="absolute bottom-4 left-5 right-5 text-white">
+                        <div className="flex flex-wrap gap-1.5 mb-2">
+                          {activeSuggestion.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/30 border border-emerald-300/40 text-emerald-100"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <h3 className="text-2xl font-extrabold leading-tight drop-shadow-xs">
+                          {activeSuggestion.title}
+                        </h3>
+                      </div>
+                    </div>
+
+                    {/* Visual Card Body (Time, Macros, Key Ingredients & Inspect Ficha Button) */}
+                    <div className="p-5 space-y-4">
+                      {/* Quick Nutrition & Time Row */}
+                      <div className="grid grid-cols-5 gap-2 text-center">
+                        <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
+                          <div className="text-[10px] font-bold uppercase text-slate-400">
+                            Preparo
+                          </div>
+                          <div className="text-xs font-extrabold text-slate-800 flex items-center justify-center gap-1 mt-0.5">
+                            <Clock className="w-3 h-3 text-emerald-600" />
+                            {activeSuggestion.prepTime}m
+                          </div>
+                        </div>
+                        <div className="p-2 rounded-xl bg-orange-50/70 border border-orange-200/70">
+                          <div className="text-[10px] font-bold uppercase text-orange-600">
+                            Calorias
+                          </div>
+                          <div className="text-xs font-extrabold text-orange-900 mt-0.5">
+                            {activeSuggestion.calories} kcal
+                          </div>
+                        </div>
+                        <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
+                          <div className="text-[10px] font-bold uppercase text-slate-400">
+                            Proteína
+                          </div>
+                          <div className="text-xs font-extrabold text-slate-800 mt-0.5">
+                            {activeSuggestion.protein}g
+                          </div>
+                        </div>
+                        <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
+                          <div className="text-[10px] font-bold uppercase text-slate-400">
+                            Carbo
+                          </div>
+                          <div className="text-xs font-extrabold text-slate-800 mt-0.5">
+                            {activeSuggestion.carbs}g
+                          </div>
+                        </div>
+                        <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
+                          <div className="text-[10px] font-bold uppercase text-slate-400">
+                            Gordura
+                          </div>
+                          <div className="text-xs font-extrabold text-slate-800 mt-0.5">
+                            {activeSuggestion.fat}g
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Key Ingredients Preview */}
+                      <div>
+                        <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
+                          <span>Principais Insumos da Ficha Técnica:</span>
+                          <span className="text-slate-700">
+                            Custo Total da Receita ({activeSuggestion.servings}{' '}
+                            {activeSuggestion.servings === 1 ? 'porção' : 'porções'}):{' '}
+                            <strong className="text-emerald-700">
+                              {formatBRL(activeSuggestion.baseCost)}
+                            </strong>
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {activeSuggestion.ingredients.map((ing, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-1.5"
+                            >
+                              <span>
+                                {ing.name} ({ing.amount}
+                                {ing.unit})
+                              </span>
+                              <span className="text-emerald-700 font-bold">
+                                {formatBRL(ing.basePrice)}
+                              </span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Montagem preview + Button to open full Ficha Técnica */}
+                      <div className="p-3 rounded-2xl bg-emerald-50/60 border border-emerald-200/70 flex flex-wrap items-center justify-between gap-3">
+                        <p className="text-xs text-slate-600 flex-1 line-clamp-2">
+                          <strong className="text-slate-800">Empratamento:</strong>{' '}
+                          {activeSuggestion.platingInstructions}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedRecipeModal(activeSuggestion)}
+                          className="px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-extrabold flex items-center gap-1.5 shadow-2xs transition cursor-pointer shrink-0"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Abrir Ficha Técnica Completa</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* TINDER ACTION BUTTONS (LEFT = PASSAR, CENTER = FICHA TÉCNICA, RIGHT = ADICIONAR) */}
+                <div className="flex items-center justify-center gap-5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => handleSwipeSuggestion(activeSuggestion, 'left')}
+                    className="group flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-white hover:bg-rose-50 text-rose-600 border-2 border-rose-200 hover:border-rose-400 font-extrabold text-sm shadow-sm transition cursor-pointer"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-rose-100 group-hover:bg-rose-600 group-hover:text-white flex items-center justify-center transition">
+                      <X className="w-5 h-5" />
+                    </div>
+                    <div className="text-left">
+                      <div>Passar</div>
+                      <div className="text-[10px] font-medium text-slate-400">
+                        Jogar p/ Esquerda
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRecipeModal(activeSuggestion)}
+                    className="px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-2 shadow-sm transition cursor-pointer"
+                  >
+                    <FileText className="w-4 h-4 text-emerald-400" />
+                    <span>Ver Ficha Completa</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSwipeSuggestion(activeSuggestion, 'right')}
+                    className="group flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white border-2 border-emerald-600 font-extrabold text-sm shadow-md transition cursor-pointer"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                      <Heart className="w-5 h-5 fill-white" />
+                    </div>
+                    <div className="text-left">
+                      <div>Adicionar ao Catálogo</div>
+                      <div className="text-[10px] font-medium text-emerald-100">
+                        Jogar p/ Direita
+                      </div>
+                    </div>
+                  </button>
+                </div>
+
+                <p className="text-xs text-slate-400 font-medium">
+                  Restam <strong>{filteredSuggestions.length}</strong> sugestões nesta fila • Você também pode arrastar o card com o mouse!
+                </p>
+              </div>
+            ) : (
+              /* Empty Deck State */
+              <div className="bg-white rounded-3xl p-10 border border-slate-200 text-center space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+                  <Sparkles className="w-7 h-7" />
+                </div>
+                <h3 className="text-xl font-extrabold text-slate-900">
+                  Você avaliou todas as sugestões deste filtro!
+                </h3>
+                <p className="text-sm text-slate-500 max-w-md mx-auto">
+                  As receitas que você jogou para a direita já estão salvas no seu{' '}
+                  <strong>Catálogo de Receitas</strong> e disponíveis para o seu Cardápio Semanal.
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                  {suggestionCatFilter !== 'Todas' && (
+                    <button
+                      onClick={() => setSuggestionCatFilter('Todas')}
+                      className="px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold cursor-pointer"
+                    >
+                      Ver Todas as Categorias
+                    </button>
+                  )}
+                  {dismissedSuggestionsCount > 0 && (
+                    <button
+                      onClick={handleResetDismissedSuggestions}
+                      className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      <span>Rever Receitas Descartadas ({dismissedSuggestionsCount})</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setActiveTab('recipes')}
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold cursor-pointer"
+                  >
+                    Ir para meu Catálogo ({recipes.length})
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* MODAL 1: FICHA TÉCNICA DE RESTAURANTE COMPLETA (VIEW DETAILS) */}
@@ -1366,20 +1886,41 @@ export default function App() {
                 className="w-full h-full object-cover"
               />
               <div className="absolute top-4 right-4 flex items-center gap-2">
-                <button
-                  onClick={(e) => openEditRecipeModal(selectedRecipeModal, e)}
-                  className="px-3 py-1.5 rounded-full bg-white/95 hover:bg-white text-slate-900 font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer"
-                >
-                  <Pencil className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Editar Ficha</span>
-                </button>
-                <button
-                  onClick={(e) => handleDeleteRecipe(selectedRecipeModal, e)}
-                  className="px-3 py-1.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Excluir</span>
-                </button>
+                {recipeMap.has(selectedRecipeModal.id) ? (
+                  <>
+                    <button
+                      onClick={(e) => openEditRecipeModal(selectedRecipeModal, e)}
+                      className="px-3 py-1.5 rounded-full bg-white/95 hover:bg-white text-slate-900 font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer"
+                    >
+                      <Pencil className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Editar Ficha</span>
+                    </button>
+                    <button
+                      onClick={(e) => handleDeleteRecipe(selectedRecipeModal, e)}
+                      className="px-3 py-1.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Excluir</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleSwipeSuggestion(selectedRecipeModal, 'left')}
+                      className="px-3.5 py-1.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      <span>Passar (Esquerda)</span>
+                    </button>
+                    <button
+                      onClick={() => handleSwipeSuggestion(selectedRecipeModal, 'right')}
+                      className="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer"
+                    >
+                      <Heart className="w-3.5 h-3.5 fill-white" />
+                      <span>Adicionar ao Catálogo (Direita)</span>
+                    </button>
+                  </>
+                )}
                 <button
                   onClick={() => setSelectedRecipeModal(null)}
                   className="w-9 h-9 rounded-full bg-slate-900/80 text-white flex items-center justify-center hover:bg-slate-900 cursor-pointer"
