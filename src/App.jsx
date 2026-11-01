@@ -14,7 +14,6 @@ import {
   Search,
   Filter,
   Copy,
-  UserCheck,
   ArrowRightLeft,
   X,
   Link2,
@@ -267,9 +266,7 @@ export default function App() {
   const [budgetDraft, setBudgetDraft] = useState(250);
   const [selectedRecipeModal, setSelectedRecipeModal] = useState(null);
   const [swapSlotTarget, setSwapSlotTarget] = useState(null); // { day, slot }
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [changelogModalOpen, setChangelogModalOpen] = useState(false);
-  const [copiedCode, setCopiedCode] = useState(false);
 
   // Ficha Técnica Editor Modal state
   const [recipeFormModal, setRecipeFormModal] = useState(null);
@@ -291,8 +288,6 @@ export default function App() {
 
   // SEFAZ / NFC-e Invoice & Price Calibration Modal State
   const [sefazModalOpen, setSefazModalOpen] = useState(false);
-  const [sefazInputMode, setSefazInputMode] = useState('text'); // 'text' | 'demo' | 'url'
-  const [sefazUrl, setSefazUrl] = useState('');
   const [sefazText, setSefazText] = useState('');
   const [sefazLoading, setSefazLoading] = useState(false);
   const [sefazConfirming, setSefazConfirming] = useState(false);
@@ -314,7 +309,8 @@ export default function App() {
     }
   }
 
-  async function handleParseSefaz(isDemo = false) {
+  async function handleParseSefaz() {
+    if (!sefazText.trim()) return;
     setSefazLoading(true);
     setSefazError('');
     setSefazSuccessMsg('');
@@ -323,9 +319,7 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          url: isDemo ? undefined : (sefazInputMode === 'url' ? sefazUrl : undefined),
-          rawText: isDemo ? undefined : (sefazInputMode === 'text' ? sefazText : undefined),
-          isDemo,
+          rawText: sefazText,
         }),
       });
       const json = await res.json();
@@ -367,7 +361,6 @@ export default function App() {
       setTimeout(() => {
         setSefazModalOpen(false);
         setSefazInvoice(null);
-        setSefazUrl('');
         setSefazText('');
         setSefazSuccessMsg('');
       }, 2400);
@@ -539,7 +532,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('Todas');
   const [tagFilter, setTagFilter] = useState('Todas');
-  const [maxPricePerServing, setMaxPricePerServing] = useState(35);
+  const [mealPriceTier, setMealPriceTier] = useState('all'); // 'all' | '$' | '$$' | '$$$'
 
   // Suggestions (Descoberta de Pratos) tab state
   const [suggestionCatFilter, setSuggestionCatFilter] = useState('Todas');
@@ -561,20 +554,12 @@ export default function App() {
   const [importing, setImporting] = useState(false);
   const [newFridgeItem, setNewFridgeItem] = useState('');
 
-  // Auth form state
-  const [authName, setAuthName] = useState('');
-  const [authEmail, setAuthEmail] = useState('');
-  const [authCode, setAuthCode] = useState('');
-
   async function fetchState() {
     try {
       const res = await fetch('/api/state');
       const json = await res.json();
       setData(json);
       setBudgetDraft(json.user.weekly_budget);
-      setAuthName(json.user.name);
-      setAuthEmail(json.user.email);
-      setAuthCode(json.user.household_code);
       if (json.currentVersion && json.user.last_seen_version !== json.currentVersion) {
         setChangelogModalOpen(true);
       }
@@ -855,22 +840,6 @@ export default function App() {
     }
   }
 
-  async function handleSaveAccount(e) {
-    e.preventDefault();
-    const res = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: authName,
-        email: authEmail,
-        household_code: authCode,
-      }),
-    });
-    const json = await res.json();
-    setData(json);
-    setAuthModalOpen(false);
-  }
-
   async function handleDismissChangelog() {
     setChangelogModalOpen(false);
     try {
@@ -1023,7 +992,18 @@ export default function App() {
       r.ingredients.some((i) => i.name.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCat = categoryFilter === 'Todas' || r.category === categoryFilter;
     const matchesTag = tagFilter === 'Todas' || r.tags.includes(tagFilter);
-    const matchesPrice = getRecipeServingCost(r) <= maxPricePerServing;
+
+    // Sistema básico de custo por refeição ($ / $$ / $$$)
+    const mealCost = getRecipeMealCost(r);
+    let matchesPrice = true;
+    if (mealPriceTier === '$') {
+      matchesPrice = mealCost <= 25;
+    } else if (mealPriceTier === '$$') {
+      matchesPrice = mealCost > 25 && mealCost <= 50;
+    } else if (mealPriceTier === '$$$') {
+      matchesPrice = mealCost > 50;
+    }
+
     return matchesSearch && matchesCat && matchesTag && matchesPrice;
   });
 
@@ -1187,28 +1167,6 @@ export default function App() {
                   <span className="hidden sm:inline">Modo Escuro</span>
                 </>
               )}
-            </button>
-
-            <button
-              onClick={() => {
-                navigator.clipboard?.writeText(user.household_code);
-                setCopiedCode(true);
-                setTimeout(() => setCopiedCode(false), 2000);
-              }}
-              title="Copiar código de convite da família"
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-semibold transition cursor-pointer"
-            >
-              <Copy className="w-3.5 h-3.5 text-amber-600" />
-              <span> Casa: {user.household_code}</span>
-              {copiedCode && <span className="text-emerald-700 font-bold ml-1">Copiado!</span>}
-            </button>
-
-            <button
-              onClick={() => setAuthModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm border border-white/15 transition cursor-pointer"
-            >
-              <UserCheck className="w-4 h-4 text-emerald-400" />
-              <span>{user.name}</span>
             </button>
           </div>
         </div>
@@ -2146,19 +2104,31 @@ export default function App() {
               </div>
 
               <div>
-                <div className="flex justify-between text-xs font-bold uppercase text-slate-500 mb-1">
-                  <span>Custo Máx / Porção</span>
-                  <span className="text-emerald-700">{formatBRL(maxPricePerServing)}</span>
+                <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 block mb-1">
+                  Faixa de Custo / Refeição
+                </label>
+                <div className="flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 gap-1">
+                  {[
+                    { id: 'all', label: 'Todos', title: 'Todas as faixas de custo' },
+                    { id: '$', label: '$', title: '$ Econômico (até R$ 25 por refeição)' },
+                    { id: '$$', label: '$$', title: '$$ Médio (R$ 25 a R$ 50 por refeição)' },
+                    { id: '$$$', label: '$$$', title: '$$$ Especial (acima de R$ 50 por refeição)' },
+                  ].map((tier) => (
+                    <button
+                      key={tier.id}
+                      type="button"
+                      onClick={() => setMealPriceTier(tier.id)}
+                      title={tier.title}
+                      className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-extrabold transition cursor-pointer text-center ${
+                        mealPriceTier === tier.id
+                          ? 'bg-emerald-600 text-white shadow-2xs'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      {tier.label}
+                    </button>
+                  ))}
                 </div>
-                <input
-                  type="range"
-                  min="2"
-                  max="50"
-                  step="0.5"
-                  value={maxPricePerServing}
-                  onChange={(e) => setMaxPricePerServing(Number(e.target.value))}
-                  className="w-full accent-emerald-600 cursor-pointer"
-                />
               </div>
             </div>
 
@@ -3825,74 +3795,6 @@ export default function App() {
         );
       })()}
 
-      {/* MODAL 4: AUTH & HOUSEHOLD SHARING */}
-      {authModalOpen && (
-        <div
-          onClick={() => setAuthModalOpen(false)}
-          className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl"
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="font-extrabold text-lg text-slate-900">
-                Conta & Compartilhamento Familiar
-              </h3>
-              <button
-                onClick={() => setAuthModalOpen(false)}
-                className="p-1.5 rounded-full hover:bg-slate-100 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveAccount} className="space-y-3">
-              <div>
-                <label className="text-xs font-bold text-slate-600 block mb-1">
-                  Nome da Família / Perfil
-                </label>
-                <input
-                  type="text"
-                  value={authName}
-                  onChange={(e) => setAuthName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-slate-600 block mb-1">
-                  E-mail
-                </label>
-                <input
-                  type="email"
-                  value={authEmail}
-                  onChange={(e) => setAuthEmail(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-slate-600 block mb-1">
-                  Código de Convite da Casa (Compartilhe com a família)
-                </label>
-                <input
-                  type="text"
-                  value={authCode}
-                  onChange={(e) => setAuthCode(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-mono font-bold text-emerald-700 bg-emerald-50/50"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm cursor-pointer mt-2"
-              >
-                Salvar Dados no SQLite
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* MODAL 5: NOVIDADES DA VERSÃO (APARECE APENAS NA ABERTURA QUANDO ATUALIZADO) */}
       {changelogModalOpen && latestRelease && (
         <div
@@ -4749,7 +4651,7 @@ export default function App() {
                     </span>
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Cole o link ou texto da nota fiscal. O NeatEat calibra o preço médio dos alimentos e abastece sua geladeira com quantidades reais.
+                    Cole o texto do cupom de compras ou da nota fiscal. O NeatEat calibra os preços médios reais dos ingredientes e abastece o estoque da sua geladeira com as quantidades exatas compradas.
                   </p>
                 </div>
               </div>
@@ -4788,223 +4690,65 @@ export default function App() {
               </div>
             )}
 
-            {/* STEP 1: ENTRADA DE DADOS (QUANDO NENHUMA NOTA FOI PARSEADA AINDA) */}
+            {/* STEP 1: ENTRADA DE DADOS POR TEXTO DO CUPOM / NOTA */}
             {!sefazInvoice && (
-              <div className="space-y-5">
-                {/* Segmented Control Capsule */}
-                <div className="flex p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200/80 dark:border-white/10">
-                  <button
-                    type="button"
-                    onClick={() => { setSefazInputMode('text'); setSefazError(''); }}
-                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                      sefazInputMode === 'text'
-                        ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                    }`}
-                  >
-                    <FileText className="w-3.5 h-3.5" />
-                    <span>Colar Texto do Cupom (Recomendado)</span>
-                  </button>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                      Cole o texto da nota fiscal ou cupom de compras:
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={handlePasteClipboard}
+                        className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 border border-emerald-300/60 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition shadow-2xs"
+                      >
+                        <Copy className="w-3 h-3" />
+                        <span>Colar da Área de Transferência</span>
+                      </button>
+                      {sefazText && (
+                        <button
+                          type="button"
+                          onClick={() => setSefazText('')}
+                          className="px-2 py-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-[11px] font-bold cursor-pointer"
+                        >
+                          Limpar
+                        </button>
+                      )}
+                    </div>
+                  </div>
 
-                  <button
-                    type="button"
-                    onClick={() => { setSefazInputMode('demo'); setSefazError(''); }}
-                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                      sefazInputMode === 'demo'
-                        ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                    }`}
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Testar com Cupom Exemplo</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setSefazInputMode('url'); setSefazError(''); }}
-                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                      sefazInputMode === 'url'
-                        ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                    }`}
-                  >
-                    <Link2 className="w-3.5 h-3.5" />
-                    <span>Link da Fazenda (Opcional)</span>
-                  </button>
+                  <textarea
+                    rows={8}
+                    placeholder={`Cole aqui o texto copiado da tela da SEFAZ, do cupom fiscal ou da sua compra no mercado.\n\nExemplo:\nARROZ CAMIL 1KG 2 UN 5,89 11,78\nPEITO DE FRANGO 1.45 KG 21,90 31,75\nTOMATE 1KG 8,90\nOVOS 30UN 24,00`}
+                    value={sefazText}
+                    onChange={(e) => setSefazText(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-300 dark:border-white/15 p-4 text-xs font-mono leading-relaxed focus:outline-none focus:border-emerald-500 shadow-inner"
+                  />
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    💡 <strong>O que acontece ao processar:</strong> O NeatEat abastece sua <strong>Geladeira</strong> com as quantidades reais de alimentos comprados e atualiza a <strong>calibragem dos preços médios reais</strong> dos insumos para calcular com precisão o custo das suas refeições.
+                  </p>
                 </div>
 
-                {/* ABA PRINCIPAL: COLAR TEXTO */}
-                {sefazInputMode === 'text' && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                          Cole o texto do cupom fiscal, nota da SEFAZ ou lista de compras:
-                        </label>
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={handlePasteClipboard}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 border border-emerald-300/60 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition shadow-2xs"
-                          >
-                            <Copy className="w-3 h-3" />
-                            <span>Colar da Área de Transferência</span>
-                          </button>
-                          {sefazText && (
-                            <button
-                              type="button"
-                              onClick={() => setSefazText('')}
-                              className="px-2 py-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-[11px] font-bold cursor-pointer"
-                            >
-                              Limpar
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5 pb-1">
-                        <span className="text-[11px] text-slate-400 font-medium">Preencher exemplo rápido:</span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setSefazText(
-                              `SUPERMERCADO ATACADÃO\n01/11/2026\n1 78912345 ARROZ BRANCO CAMIL 1KG 2,000 UN 5,89 11,78\n2 78998765 FEIJAO CARIOCA KICALDO 1KG 1,000 UN 7,49 7,49\n3 21098765 PEITO DE FRANGO RESF KG 1,450 KG 21,90 31,75\n4 21011223 CARNE MOIDA ACEM BOV RESF KG 0,820 KG 36,90 30,26\n5 21044556 TOMATE ITALIA KG 0,950 KG 8,90 8,45\n6 21077889 CEBOLA NACIONAL KG 0,650 KG 5,49 3,57\n7 78944556 OVOS BRANCOS GRANDES DZ 2,000 UN 9,80 19,60\n8 78933221 SABAO EM PO OMO 1.6KG 1,000 UN 22,90 22,90`
-                            )
-                          }
-                          className="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold cursor-pointer transition border border-slate-200 dark:border-white/10"
-                        >
-                          Tabela do Cupom (Atacadão)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setSefazText(
-                              `Arroz branco 2kg 12,00\nFeijão carioca 1kg 7,50\nPeito de frango 1.5kg 33,00\nCarne moída patinho 1kg 38,00\nTomate 1kg 8,90\nCebola 1kg 5,50\nOvos 30un 24,00\nManteiga 200g 9,90`
-                            )
-                          }
-                          className="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-bold cursor-pointer transition border border-slate-200 dark:border-white/10"
-                        >
-                          Lista Simples (Qtd + R$)
-                        </button>
-                      </div>
-
-                      <textarea
-                        rows={7}
-                        placeholder={`Cole aqui o texto copiado da tela da SEFAZ, do cupom fiscal ou da sua compra.\n\nExemplo 1 (Tabela do cupom):\n1 78912345 ARROZ BRANCO CAMIL 1KG 2,000 UN 5,89 11,78\n2 21098765 PEITO DE FRANGO KG 1,450 KG 21,90 31,75\n\nExemplo 2 (Bloco da SEFAZ SP):\nARROZ TIPO 1 CAMIL 1KG\nQtde.: 2,000 UN: UN Vl. Unit.: 5,89\nValor total R$ 11,78`}
-                        value={sefazText}
-                        onChange={(e) => setSefazText(e.target.value)}
-                        className="w-full rounded-2xl border border-slate-300 dark:border-white/15 p-4 text-xs font-mono leading-relaxed focus:outline-none focus:border-emerald-500 shadow-inner"
-                      />
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                        💡 <strong>Como copiar da SEFAZ:</strong> Abra o link da nota no seu navegador ou celular, selecione o texto da tabela dos produtos (Ctrl+A ou com o dedo), copie e cole aqui. Nosso leitor reconhece automaticamente o nome dos alimentos, quilos, unidades e centavos!
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      disabled={!sefazText.trim() || sefazLoading}
-                      onClick={() => handleParseSefaz(false)}
-                      className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition"
-                    >
-                      {sefazLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Analisando e normalizando insumos...</span>
-                        </>
-                      ) : (
-                        <>
-                          <ScanLine className="w-4 h-4" />
-                          <span>Processar Texto do Cupom & Identificar Insumos</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
-
-                {/* ABA: DEMONSTRAÇÃO INSTANTÂNEA */}
-                {sefazInputMode === 'demo' && (
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-500/30 space-y-2">
-                      <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-amber-900 dark:text-amber-300">
-                        <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                        <span>Cupom Realista de Demonstração</span>
-                      </div>
-                      <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
-                        Experimente a tecnologia imediatamente sem precisar digitar ou escanear agora. Carregaremos um cupom de compras real do <strong>Atacadão Supermercados</strong> com 12 itens (carnes, ovos, arroz, queijo, azeite, tomate e itens de limpeza para testar o filtro inteligente).
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      disabled={sefazLoading}
-                      onClick={() => handleParseSefaz(true)}
-                      className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition"
-                    >
-                      {sefazLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Carregando cupom demonstrativo...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-4 h-4" />
-                          <span>Carregar Cupom de Demonstração (12 Itens)</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
-
-                {/* ABA: LINK DA FAZENDA */}
-                {sefazInputMode === 'url' && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 block">
-                        Cole a URL da NFC-e impressa no cupom do mercado:
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="url"
-                          placeholder="https://www.fazenda.sp.gov.br/NFCeConsultaPublica/Paginas/ConsultaQRCode.aspx?p=..."
-                          value={sefazUrl}
-                          onChange={(e) => setSefazUrl(e.target.value)}
-                          className="w-full rounded-2xl border border-slate-300 dark:border-white/15 px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 pr-10"
-                        />
-                        {sefazUrl && (
-                          <button
-                            type="button"
-                            onClick={() => setSefazUrl('')}
-                            className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                      <p className="text-[11px] text-slate-400">
-                        ⚠️ <em>Aviso:</em> Alguns estados (como SP) usam firewall governamental (F5 BIG-IP) que rejeita robôs. Se a URL for rejeitada, abra o link no seu celular ou navegador e cole o texto na aba <strong>"Colar Texto do Cupom"</strong>.
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      disabled={!sefazUrl.trim() || sefazLoading}
-                      onClick={() => handleParseSefaz(false)}
-                      className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition"
-                    >
-                      {sefazLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Conectando com a SEFAZ e extraindo itens...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Search className="w-4 h-4" />
-                          <span>Tentar Conectar com a SEFAZ</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
+                <button
+                  type="button"
+                  disabled={!sefazText.trim() || sefazLoading}
+                  onClick={() => handleParseSefaz(false)}
+                  className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition"
+                >
+                  {sefazLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Analisando e normalizando insumos...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ScanLine className="w-4 h-4" />
+                      <span>Processar Cupom, Abastecer Geladeira & Calibrar Preços</span>
+                    </>
+                  )}
+                </button>
               </div>
             )}
 
