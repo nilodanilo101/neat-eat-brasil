@@ -1228,7 +1228,7 @@ export function calibrateMarketPrices(items, supermarket = '') {
 }
 
 export function stockFridgeFromInvoice(items) {
-  const findFridge = db.prepare('SELECT id, amount FROM fridge_items WHERE LOWER(name) = LOWER(?)');
+  const findFridge = db.prepare('SELECT id, amount, unit FROM fridge_items WHERE LOWER(name) = LOWER(?)');
   const updateFridge = db.prepare('UPDATE fridge_items SET amount = ROUND(amount + ?, 2), unit = ?, last_updated = CURRENT_TIMESTAMP WHERE id = ?');
   const insertFridge = db.prepare('INSERT INTO fridge_items (name, category, amount, unit, last_updated) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)');
 
@@ -1237,11 +1237,25 @@ export function stockFridgeFromInvoice(items) {
     if (!item.stockInFridge) continue;
     const itemName = item.matchedName || item.rawName;
     const category = item.aisle || 'Hortifruti';
-    const amount = Number(item.quantity) || 1;
-    const unit = item.unit || 'un';
+    let amount = Number(item.quantity) || 1;
+    let unit = (item.unit || 'un').toLowerCase();
 
     const existing = findFridge.get(itemName.trim());
     if (existing) {
+      const exUnit = (existing.unit || 'un').toLowerCase();
+      if (exUnit === 'kg' && unit === 'g') {
+        amount = amount / 1000;
+        unit = 'kg';
+      } else if (exUnit === 'g' && unit === 'kg') {
+        amount = amount * 1000;
+        unit = 'g';
+      } else if (exUnit === 'l' && unit === 'ml') {
+        amount = amount / 1000;
+        unit = 'l';
+      } else if (exUnit === 'ml' && unit === 'l') {
+        amount = amount * 1000;
+        unit = 'ml';
+      }
       updateFridge.run(amount, unit, existing.id);
     } else {
       insertFridge.run(itemName.trim(), category, amount, unit);

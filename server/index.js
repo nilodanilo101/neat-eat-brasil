@@ -71,9 +71,19 @@ async function searchExactDishPhotos(dishTitle, _ingredients = []) {
   return ['/dishes/rec-5.jpg'];
 }
 
+function isItemInFridge(ingName, fridgeItems) {
+  const target = (ingName || '').toLowerCase().trim();
+  for (const f of fridgeItems) {
+    const fName = (f.name || '').toLowerCase().trim();
+    if (fName === target) return true;
+    if (fName.length >= 4 && target.includes(fName)) return true;
+    if (target.length >= 4 && fName.includes(target)) return true;
+  }
+  return false;
+}
+
 function buildShoppingList(mealPlan, allRecipes, householdSize, fridgeItems, checkedMap) {
   const recipeMap = new Map(allRecipes.map((r) => [r.id, r]));
-  const fridgeSet = new Set(fridgeItems.map((f) => f.name.toLowerCase().trim()));
   const aggregated = new Map();
 
   for (const item of mealPlan) {
@@ -95,7 +105,7 @@ function buildShoppingList(mealPlan, allRecipes, householdSize, fridgeItems, che
           existing.recipesUsed.push(recipe.title);
         }
       } else {
-        const inFridge = fridgeSet.has(key);
+        const inFridge = isItemInFridge(ing.name, fridgeItems);
         aggregated.set(key, {
           key,
           name: ing.name,
@@ -527,6 +537,11 @@ export async function startServer(options = {}) {
       db.prepare('INSERT INTO fridge_items (name, category) VALUES (?, ?)').run(trimmed, category);
     }
 
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
+  });
+
+  app.post('/api/fridge/clear', (_req, res) => {
+    db.prepare('DELETE FROM fridge_items').run();
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 

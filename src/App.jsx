@@ -599,6 +599,9 @@ export default function App() {
         setRecipeFormModal(null);
         setSwapSlotTarget(null);
         setAuthModalOpen(false);
+        setChangelogModalOpen(false);
+        setSefazModalOpen(false);
+        setCookingDrawerOpen(false);
         setCookingSession(null);
         setRepeatRecipeTarget(null);
       }
@@ -643,34 +646,43 @@ export default function App() {
 
   async function handleGenerateSmartPlan() {
     setLoading(true);
-    const res = await fetch('/api/plan/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        weekly_budget: Number(budgetDraft),
-        dietary_filter: data.user.dietary_filter,
-        household_size: data.user.household_size,
-      }),
-    });
-    const json = await res.json();
-    setData(json);
-    setLoading(false);
+    try {
+      const res = await fetch('/api/plan/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          weekly_budget: Number(budgetDraft),
+          dietary_filter: data.user.dietary_filter,
+          household_size: data.user.household_size,
+        }),
+      });
+      const json = await res.json();
+      setData(json);
+    } catch (err) {
+      console.error('Erro ao gerar plano inteligente:', err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleSwapSlotRecipe(recipeId) {
     if (!swapSlotTarget) return;
-    const res = await fetch('/api/plan/slot', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        day: swapSlotTarget.day,
-        slot: swapSlotTarget.slot,
-        recipe_id: recipeId,
-      }),
-    });
-    const json = await res.json();
-    setData(json);
-    setSwapSlotTarget(null);
+    try {
+      const res = await fetch('/api/plan/slot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          day: swapSlotTarget.day,
+          slot: swapSlotTarget.slot,
+          recipe_id: recipeId,
+        }),
+      });
+      const json = await res.json();
+      setData(json);
+      setSwapSlotTarget(null);
+    } catch (err) {
+      console.error('Erro ao trocar receita do slot:', err);
+    }
   }
 
   async function handleToggleFridgeItem(name, category = 'Mercearia') {
@@ -681,6 +693,17 @@ export default function App() {
     });
     const json = await res.json();
     setData(json);
+  }
+
+  async function handleClearFridge() {
+    if (!window.confirm('Tem certeza de que deseja esvaziar todos os itens da geladeira?')) return;
+    try {
+      const res = await fetch('/api/fridge/clear', { method: 'POST' });
+      const json = await res.json();
+      setData(json);
+    } catch (err) {
+      console.error('Erro ao limpar geladeira:', err);
+    }
   }
 
   async function handleToggleShoppingCheck(itemKey) {
@@ -920,18 +943,25 @@ export default function App() {
 
   const fridgeMatches = useMemo(() => {
     if (!data) return [];
-    const fridgeSet = new Set(data.fridgeItems.map((f) => f.name.toLowerCase().trim()));
+    const fridgeItems = data.fridgeItems || [];
     const scale = data.user.household_size;
+
+    const isIngInFridge = (ingName) => {
+      const target = (ingName || '').toLowerCase().trim();
+      for (const f of fridgeItems) {
+        const fName = (f.name || '').toLowerCase().trim();
+        if (fName === target) return true;
+        if (fName.length >= 4 && target.includes(fName)) return true;
+        if (target.length >= 4 && fName.includes(target)) return true;
+      }
+      return false;
+    };
 
     return data.recipes
       .map((r) => {
         const totalIngs = r.ingredients.length;
-        const matchedIngs = r.ingredients.filter((ing) =>
-          fridgeSet.has(ing.name.toLowerCase().trim())
-        );
-        const missingIngs = r.ingredients.filter(
-          (ing) => !fridgeSet.has(ing.name.toLowerCase().trim())
-        );
+        const matchedIngs = r.ingredients.filter((ing) => isIngInFridge(ing.name));
+        const missingIngs = r.ingredients.filter((ing) => !isIngInFridge(ing.name));
         const missingCost = missingIngs.reduce(
           (acc, ing) => acc + ing.basePrice * (scale / r.servings),
           0
@@ -1810,6 +1840,64 @@ export default function App() {
                       );
                     })}
                   </div>
+                </div>
+
+                {/* Lista Completa dos Itens Atualmente na Geladeira */}
+                <div className="pt-3 border-t border-slate-100 dark:border-white/10 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                      <Refrigerator className="w-4 h-4 text-emerald-600" />
+                      <span>Estoque Atual ({fridgeItems.length} {fridgeItems.length === 1 ? 'item' : 'itens'})</span>
+                    </h4>
+                    {fridgeItems.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleClearFridge}
+                        className="text-[10px] font-bold text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 cursor-pointer transition"
+                      >
+                        Limpar Geladeira
+                      </button>
+                    )}
+                  </div>
+
+                  {fridgeItems.length === 0 ? (
+                    <div className="py-6 text-center text-slate-400 dark:text-slate-500 text-xs">
+                      Sua geladeira está vazia no momento. Adicione itens acima ou importe seu cupom de compras!
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
+                      {fridgeItems.map((f) => (
+                        <div
+                          key={f.id || f.name}
+                          className="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-white/10 flex items-center justify-between gap-2 shadow-2xs group"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-base leading-none shrink-0">
+                              {getIngredientEmoji(f.name, f.category)}
+                            </span>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+                                {f.name}
+                              </p>
+                              {f.amount > 0 && (
+                                <p className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
+                                  {f.amount} {f.unit}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleFridgeItem(f.name, f.category)}
+                            title="Remover da geladeira"
+                            className="w-6 h-6 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center cursor-pointer transition shrink-0"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
