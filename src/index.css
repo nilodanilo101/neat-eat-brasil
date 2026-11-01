@@ -432,6 +432,7 @@ html.dark .border-slate-100 {
   border-color: rgba(255, 255, 255, 0.13) !important;
 }
 
+html.dark .divide-slate-100 > :not(:last-child),
 html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
   border-color: rgba(255, 255, 255, 0.10) !important;
 }

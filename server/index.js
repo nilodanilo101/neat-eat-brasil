@@ -10,6 +10,7 @@ import {
   getTodayDateKey,
 } from './db.js';
 import { CURRENT_VERSION, RELEASE_NOTES } from './changelog.js';
+import { CACHE_DIR } from './imageCache.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -335,6 +336,7 @@ export async function startServer(options = {}) {
 
   const app = express();
   app.use(express.json({ limit: '10mb' }));
+  app.use('/cache/step-images', express.static(CACHE_DIR, { maxAge: '7d' }));
 
   app.get('/api/state', (_req, res) => {
     syncDailyDiscoveryBatchOncePerDay().catch(() => {});
@@ -549,6 +551,9 @@ export async function startServer(options = {}) {
       specificInstructions = '',
       ingredients = [],
       steps = [],
+      sections = [],
+      stepDetails = [],
+      chefTips = {},
     } = req.body;
 
     if (!title || !title.trim()) {
@@ -580,9 +585,10 @@ export async function startServer(options = {}) {
       INSERT INTO recipes (
         id, title, category, prep_time, servings, calories, protein, carbs, fat,
         tags_json, image, source, ingredients_json, steps_json,
-        portion_weight, plating_instructions, specific_instructions
+        portion_weight, plating_instructions, specific_instructions,
+        sections_json, step_details_json, chef_tips_json
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       title.trim(),
@@ -600,7 +606,10 @@ export async function startServer(options = {}) {
       JSON.stringify(validSteps),
       portionWeight || '350g por porção',
       platingInstructions || 'Servir em prato aquecido com montagem centralizada.',
-      specificInstructions || 'Respeitar as gramaturas e temperaturas da ficha técnica.'
+      specificInstructions || 'Respeitar as gramaturas e temperaturas da ficha técnica.',
+      JSON.stringify(Array.isArray(sections) ? sections : []),
+      JSON.stringify(Array.isArray(stepDetails) ? stepDetails : []),
+      JSON.stringify(typeof chefTips === 'object' && chefTips !== null ? chefTips : {})
     );
 
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
@@ -631,6 +640,9 @@ export async function startServer(options = {}) {
       specificInstructions,
       ingredients,
       steps,
+      sections,
+      stepDetails,
+      chefTips,
     } = req.body;
 
     const nextTitle = title ? title.trim() : existing.title;
@@ -671,7 +683,10 @@ export async function startServer(options = {}) {
           steps_json = ?,
           portion_weight = ?,
           plating_instructions = ?,
-          specific_instructions = ?
+          specific_instructions = ?,
+          sections_json = ?,
+          step_details_json = ?,
+          chef_tips_json = ?
       WHERE id = ?
     `).run(
       nextTitle,
@@ -690,6 +705,9 @@ export async function startServer(options = {}) {
       portionWeight ?? existing.portion_weight,
       platingInstructions ?? existing.plating_instructions,
       specificInstructions ?? existing.specific_instructions,
+      JSON.stringify(Array.isArray(sections) ? sections : JSON.parse(existing.sections_json || '[]')),
+      JSON.stringify(Array.isArray(stepDetails) ? stepDetails : JSON.parse(existing.step_details_json || '[]')),
+      JSON.stringify(typeof chefTips === 'object' && chefTips !== null ? chefTips : JSON.parse(existing.chef_tips_json || '{}')),
       id
     );
 

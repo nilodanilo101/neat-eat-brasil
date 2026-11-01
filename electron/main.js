@@ -70,7 +70,7 @@ async function createWindow() {
   serverInstance = server;
 
   const iconPath = path.join(__dirname, '..', 'build', 'icon.png');
-  if (process.platform === 'darwin' && app.dock) {
+  if (process.platform === 'darwin' && app.dock && !app.isPackaged) {
     try {
       app.dock.setIcon(iconPath);
     } catch {

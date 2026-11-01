@@ -30,6 +30,7 @@ import {
   Heart,
   RotateCcw,
   Eye,
+  EyeOff,
   Moon,
   Sun,
   Play,
@@ -37,10 +38,22 @@ import {
   ChevronLeft,
   ChevronRight,
   Timer,
+  Repeat,
+  ShoppingBag,
+  Maximize2,
+  Lightbulb,
+  Snowflake,
+  ListChecks,
 } from 'lucide-react';
 
 const DAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 const SLOTS = ['Café da Manhã', 'Almoço', 'Jantar'];
+
+function getNextDay(currentDay) {
+  const idx = DAYS.indexOf(currentDay);
+  if (idx === -1) return DAYS[0];
+  return DAYS[(idx + 1) % DAYS.length];
+}
 const AISLES = [
   'Açougue',
   'Hortifruti',
@@ -268,6 +281,111 @@ export default function App() {
 
   // Guided Step-by-Step Cooking Mode state (Botão Play)
   const [cookingSession, setCookingSession] = useState(null);
+  const [wakeLockActive, setWakeLockActive] = useState(false);
+  const [cookingDrawerOpen, setCookingDrawerOpen] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState(null); // { src, alt, title }
+
+  // Shopping List "Modo Mercado" (Ocultar comprados)
+  const [hideCheckedShopping, setHideCheckedShopping] = useState(false);
+
+  // Quick Repeat / Marmita Meal Target
+  const [repeatRecipeTarget, setRepeatRecipeTarget] = useState(null); // { recipe, sourceDay, sourceSlot }
+
+  // Screen Wake Lock API: impede que a tela desligue durante o Modo Cozinhar
+  useEffect(() => {
+    let sentinel = null;
+    async function requestWake() {
+      if (cookingSession && 'wakeLock' in navigator) {
+        try {
+          sentinel = await navigator.wakeLock.request('screen');
+          setWakeLockActive(true);
+          sentinel.addEventListener('release', () => {
+            setWakeLockActive(false);
+          });
+        } catch (e) {
+          console.log('Wake Lock indisponível ou bloqueado:', e);
+          setWakeLockActive(false);
+        }
+      }
+    }
+    if (cookingSession) {
+      requestWake();
+    } else {
+      setWakeLockActive(false);
+    }
+    return () => {
+      if (sentinel) {
+        sentinel.release().catch(() => {});
+        sentinel = null;
+      }
+    };
+  }, [cookingSession]);
+
+  // Atalhos de Teclado no Modo Cozinhar: [Espaço] para Timer, [← / →] para Passos
+  useEffect(() => {
+    if (!cookingSession) return;
+    function handleCookingKeys(e) {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        setCookingSession((prev) => {
+          if (!prev) return prev;
+          if (prev.timerRunning) {
+            return { ...prev, timerRunning: false };
+          }
+          const steps = Array.isArray(prev.recipe.steps) ? prev.recipe.steps : [];
+          const currentStep =
+            prev.stepIndex >= 1 && prev.stepIndex <= steps.length
+              ? steps[prev.stepIndex - 1]
+              : '';
+          const suggested = currentStep ? extractStepSeconds(currentStep) : 0;
+          const secs = prev.timerSeconds > 0 ? prev.timerSeconds : suggested > 0 ? suggested : 60;
+          return {
+            ...prev,
+            timerSeconds: secs,
+            timerRunning: true,
+            timerFinished: false,
+          };
+        });
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        const steps = Array.isArray(cookingSession.recipe.steps) ? cookingSession.recipe.steps : [];
+        const totalStages = steps.length + 2;
+        const nextIdx = Math.min(totalStages - 1, cookingSession.stepIndex + 1);
+        const nextSec =
+          nextIdx >= 1 && nextIdx <= steps.length
+            ? extractStepSeconds(steps[nextIdx - 1])
+            : 0;
+        setCookingSession((prev) => ({
+          ...prev,
+          stepIndex: nextIdx,
+          completedSteps:
+            prev.stepIndex >= 1
+              ? { ...prev.completedSteps, [prev.stepIndex - 1]: true }
+              : prev.completedSteps,
+          timerSeconds: prev.timerRunning ? prev.timerSeconds : nextSec,
+          timerFinished: false,
+        }));
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const steps = Array.isArray(cookingSession.recipe.steps) ? cookingSession.recipe.steps : [];
+        const prevIdx = Math.max(0, cookingSession.stepIndex - 1);
+        const nextSec =
+          prevIdx >= 1 && prevIdx <= steps.length
+            ? extractStepSeconds(steps[prevIdx - 1])
+            : 0;
+        setCookingSession((prev) => ({
+          ...prev,
+          stepIndex: prevIdx,
+          timerSeconds: prev.timerRunning ? prev.timerSeconds : nextSec,
+          timerFinished: false,
+        }));
+      }
+    }
+    window.addEventListener('keydown', handleCookingKeys);
+    return () => window.removeEventListener('keydown', handleCookingKeys);
+  }, [cookingSession]);
 
   useEffect(() => {
     if (!cookingSession?.timerRunning) return;
@@ -370,11 +488,36 @@ export default function App() {
         setSwapSlotTarget(null);
         setAuthModalOpen(false);
         setCookingSession(null);
+        setRepeatRecipeTarget(null);
       }
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  async function handleRepeatMealToSlot(targetDay, targetSlot, recipeId) {
+    try {
+      const res = await fetch('/api/plan/slot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          day: targetDay,
+          slot: targetSlot,
+          recipe_id: recipeId,
+        }),
+      });
+      const json = await res.json();
+      setData(json);
+      setRepeatRecipeTarget(null);
+      setSwipeFeedback({
+        direction: 'right',
+        title: `Prato repetido para ${targetSlot} de ${targetDay}!`,
+      });
+      setTimeout(() => setSwipeFeedback(null), 3000);
+    } catch (err) {
+      console.error('Erro ao repetir refeição:', err);
+    }
+  }
 
   async function updateProfile(patch) {
     const res = await fetch('/api/profile', {
@@ -761,6 +904,19 @@ export default function App() {
     return acc;
   }, {});
 
+  // Modo Mercado statistics (In-cart vs Remaining)
+  const toBuyList = (shoppingList || []).filter((i) => !i.inFridge);
+  const checkedList = toBuyList.filter((i) => i.checked);
+  const remainingList = toBuyList.filter((i) => !i.checked);
+  const shoppingStats = {
+    toBuyCount: toBuyList.length,
+    checkedCount: checkedList.length,
+    remainingCount: remainingList.length,
+    checkedTotal: checkedList.reduce((acc, i) => acc + (i.estimatedPrice || 0), 0),
+    remainingTotal: remainingList.reduce((acc, i) => acc + (i.estimatedPrice || 0), 0),
+    pct: toBuyList.length > 0 ? Math.round((checkedList.length / toBuyList.length) * 100) : 0,
+  };
+
   const latestRelease = data.releaseNotes?.[0];
 
   // Live cost calculation inside Ficha Técnica form
@@ -787,14 +943,12 @@ export default function App() {
       <header className="sticky top-0 z-30 liquid-header">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 pb-2.5 flex flex-wrap items-center justify-between gap-4">
           {/* Brand with Menu Icon */}
-          <div className="flex items-center gap-3.5">
-            <div className="relative p-0.5 rounded-2xl bg-gradient-to-br from-white/80 to-white/20 shadow-md">
-              <img
-                src="/menu-icon.png"
-                alt="Ícone Menu NeatEat"
-                className="w-11 h-11 rounded-[14px] object-cover"
-              />
-            </div>
+          <div className="flex items-center gap-3">
+            <img
+              src="/menu-icon.png"
+              alt="Ícone Menu NeatEat"
+              className="w-10 h-10 object-contain drop-shadow-md transition-transform hover:scale-105"
+            />
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-xl tracking-tight text-slate-900">
@@ -1134,21 +1288,35 @@ export default function App() {
                               <span className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" /> {recipe.prepTime}m
                               </span>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1.5 flex-wrap justify-end">
                                 <button
                                   onClick={(e) => openCookingMode(recipe, e)}
                                   title="Iniciar Modo Cozinhar (Passo a Passo)"
-                                  className="px-2 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1 cursor-pointer transition"
+                                  className="px-2 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1 cursor-pointer transition text-[10px]"
                                 >
                                   <Play className="w-2.5 h-2.5 fill-white" />
                                   <span>Cozinhar</span>
                                 </button>
                                 <button
-                                  onClick={() => setSwapSlotTarget({ day, slot })}
-                                  className="text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1 cursor-pointer"
+                                  onClick={() =>
+                                    setRepeatRecipeTarget({
+                                      recipe,
+                                      sourceDay: day,
+                                      sourceSlot: slot,
+                                    })
+                                  }
+                                  title="Repetir prato como sobra ou marmita em outro dia/turno"
+                                  className="text-slate-600 hover:text-emerald-700 font-semibold flex items-center gap-0.5 cursor-pointer text-[10px] bg-slate-100 hover:bg-slate-200 px-1.5 py-0.5 rounded transition"
                                 >
-                                  <ArrowRightLeft className="w-3 h-3" />
-                                  Trocar
+                                  <Repeat className="w-2.5 h-2.5 text-slate-500" />
+                                  <span>Repetir</span>
+                                </button>
+                                <button
+                                  onClick={() => setSwapSlotTarget({ day, slot })}
+                                  className="text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-0.5 cursor-pointer text-[10px]"
+                                >
+                                  <ArrowRightLeft className="w-2.5 h-2.5" />
+                                  <span>Trocar</span>
                                 </button>
                               </div>
                             </div>
@@ -1167,6 +1335,85 @@ export default function App() {
         {activeTab === 'shopping' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-4 space-y-5">
+              {/* PAINEL DO MERCADO (MODO FOCO & TOTAL DINÂMICO NO CARRINHO) */}
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                      <ShoppingBag className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-sm text-slate-900">
+                        Modo Mercado
+                      </h4>
+                      <p className="text-[11px] text-slate-500">
+                        Acompanhamento do carrinho em tempo real
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    {shoppingStats.pct}%
+                  </span>
+                </div>
+
+                {/* Progress bar */}
+                <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-300"
+                    style={{ width: `${shoppingStats.pct}%` }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200">
+                    <span className="text-[10px] font-bold uppercase text-emerald-800 block">
+                      🛒 No Carrinho
+                    </span>
+                    <span className="text-base font-extrabold text-emerald-950 block mt-0.5">
+                      {formatBRL(shoppingStats.checkedTotal)}
+                    </span>
+                    <span className="text-[11px] text-emerald-700 font-medium">
+                      {shoppingStats.checkedCount} de {shoppingStats.toBuyCount} itens
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] font-bold uppercase text-slate-500 block">
+                      ⏳ Falta Comprar
+                    </span>
+                    <span className="text-base font-extrabold text-slate-900 block mt-0.5">
+                      {formatBRL(shoppingStats.remainingTotal)}
+                    </span>
+                    <span className="text-[11px] text-slate-500 font-medium">
+                      {shoppingStats.remainingCount}{' '}
+                      {shoppingStats.remainingCount === 1 ? 'item restante' : 'itens restantes'}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setHideCheckedShopping((prev) => !prev)}
+                  className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer ${
+                    hideCheckedShopping
+                      ? 'bg-emerald-600 text-white shadow-xs hover:bg-emerald-500'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
+                  }`}
+                >
+                  {hideCheckedShopping ? (
+                    <>
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>Mostrar todos ({shoppingList.length} itens)</span>
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="w-3.5 h-3.5" />
+                      <span>Ocultar {shoppingStats.checkedCount} já no carrinho</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
               <div className="bg-slate-900 text-white rounded-3xl p-6 space-y-4">
                 <h4 className="font-bold text-sm text-slate-300 uppercase tracking-wider">
                   Resumo Financeiro (Preço Médio)
@@ -1194,45 +1441,94 @@ export default function App() {
 
             <div className="lg:col-span-8 space-y-4">
               <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-xs">
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
                   <div>
-                    <h2 className="text-lg font-extrabold text-slate-900">
-                      Lista de Compras Inteligente
+                    <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                      <span>Lista de Compras Inteligente</span>
+                      {hideCheckedShopping && (
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300/50">
+                          Modo Foco Ativo
+                        </span>
+                      )}
                     </h2>
                     <p className="text-xs text-slate-500">
                       Insumos repetidos entre as 21 refeições foram somados automaticamente para{' '}
                       <strong>{user.household_size} pessoas</strong>.
                     </p>
                   </div>
-                  <button
-                    onClick={() => setActiveTab('fridge')}
-                    className="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-2 rounded-xl border border-emerald-200 transition cursor-pointer"
-                  >
-                    Gerenciar itens da geladeira ({fridgeItems.length})
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setHideCheckedShopping((prev) => !prev)}
+                      className={`text-xs font-bold px-3 py-2 rounded-xl border transition cursor-pointer flex items-center gap-1.5 ${
+                        hideCheckedShopping
+                          ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                          : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                      }`}
+                    >
+                      {hideCheckedShopping ? (
+                        <>
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Mostrar comprados</span>
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff className="w-3.5 h-3.5" />
+                          <span>Ocultar comprados ({shoppingStats.checkedCount})</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('fridge')}
+                      className="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-2 rounded-xl border border-emerald-200 transition cursor-pointer"
+                    >
+                      Gerenciar itens da geladeira ({fridgeItems.length})
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-6">
-                  {Object.entries(shoppingByAisle).map(([aisle, items]) => (
-                    <div key={aisle} className="space-y-2">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
-                        <h3 className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
-                          {aisle}
-                        </h3>
-                        <span className="text-xs text-slate-400 font-medium">
-                          {items.length} {items.length === 1 ? 'item' : 'itens'}
-                        </span>
-                      </div>
+                  {Object.entries(shoppingByAisle).map(([aisle, items]) => {
+                    const visibleItems = hideCheckedShopping ? items.filter((i) => !i.checked) : items;
+                    if (hideCheckedShopping && visibleItems.length === 0) {
+                      return (
+                        <div
+                          key={aisle}
+                          className="p-3 rounded-2xl bg-emerald-50/50 border border-emerald-200/60 flex items-center justify-between text-xs text-emerald-900"
+                        >
+                          <span className="font-bold flex items-center gap-1.5">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            {aisle}: Todos os {items.length} itens já estão no carrinho!
+                          </span>
+                          <span className="text-[11px] text-emerald-700 font-semibold">100% coletado</span>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div key={aisle} className="space-y-2">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                          <h3 className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
+                            {aisle}
+                          </h3>
+                          <span className="text-xs text-slate-400 font-medium">
+                            {visibleItems.length}{' '}
+                            {visibleItems.length === 1 ? 'item pendente' : 'itens pendentes'}
+                            {hideCheckedShopping && items.length > visibleItems.length && (
+                              <span className="text-emerald-700 font-semibold ml-1">
+                                ({items.length - visibleItems.length} no carrinho)
+                              </span>
+                            )}
+                          </span>
+                        </div>
 
-                      <div className="divide-y divide-slate-100">
-                        {items.map((item) => (
+                        <div className="space-y-1.5 pt-1">
+                          {visibleItems.map((item) => (
                           <div
                             key={item.key}
                             onClick={() => handleToggleShoppingCheck(item.key)}
-                            className={`py-2.5 px-3 rounded-xl flex items-center justify-between gap-3 transition cursor-pointer ${
+                            className={`py-2.5 px-3 rounded-2xl flex items-center justify-between gap-3 transition cursor-pointer border ${
                               item.checked
-                                ? 'bg-slate-50 text-slate-400'
-                                : 'hover:bg-slate-50 text-slate-800'
+                                ? 'bg-slate-100/40 text-slate-400 border-transparent line-through'
+                                : 'bg-white/30 hover:bg-white/70 border-slate-200/50 text-slate-800 shadow-2xs'
                             }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1288,7 +1584,8 @@ export default function App() {
                         ))}
                       </div>
                     </div>
-                  ))}
+                  );
+                })}
                 </div>
               </div>
             </div>
@@ -2231,136 +2528,270 @@ export default function App() {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Header & Nutrition */}
-              <div className="border-b border-slate-200 pb-4">
-                <h2 className="text-2xl font-extrabold text-slate-900">
-                  {selectedRecipeModal.title}
-                </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-6 gap-2.5 mt-4">
+              {/* Header & Quick Action */}
+              <div className="border-b border-slate-200 pb-5">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="max-w-xl">
+                    <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold uppercase tracking-wider">
+                        {selectedRecipeModal.category}
+                      </span>
+                      {selectedRecipeModal.tags && selectedRecipeModal.tags.map((t, i) => (
+                        <span key={i} className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                      {selectedRecipeModal.title}
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Fonte: <strong>{selectedRecipeModal.source || 'NeatEat Brasil'}</strong>
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => openCookingMode(selectedRecipeModal, e)}
+                    className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-600/25 transition-all hover:scale-102 shrink-0"
+                  >
+                    <Play className="w-4 h-4 fill-current" />
+                    <span>Iniciar Modo Cozinhar</span>
+                  </button>
+                </div>
+
+                {/* Nutrition metrics grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-6 gap-2.5 mt-5">
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
-                    <div className="text-[10px] font-bold uppercase text-slate-400">
-                      Tempo Preparo
-                    </div>
-                    <div className="text-sm font-extrabold text-slate-800">
-                      {selectedRecipeModal.prepTime} min
-                    </div>
+                    <div className="text-[10px] font-bold uppercase text-slate-400">Tempo Preparo</div>
+                    <div className="text-sm font-extrabold text-slate-800">{selectedRecipeModal.prepTime} min</div>
                   </div>
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
-                    <div className="text-[10px] font-bold uppercase text-slate-400">
-                      Rendimento
-                    </div>
+                    <div className="text-[10px] font-bold uppercase text-slate-400">Rendimento</div>
                     <div className="text-sm font-extrabold text-slate-800">
-                      {selectedRecipeModal.servings}{' '}
-                      {selectedRecipeModal.servings === 1 ? 'porção' : 'porções'}
+                      {selectedRecipeModal.servings} {selectedRecipeModal.servings === 1 ? 'porção' : 'porções'}
                     </div>
                   </div>
                   <div className="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200">
-                    <div className="text-[10px] font-bold uppercase text-emerald-700">
-                      Calorias
-                    </div>
-                    <div className="text-sm font-extrabold text-emerald-900">
-                      {selectedRecipeModal.calories} kcal
-                    </div>
+                    <div className="text-[10px] font-bold uppercase text-emerald-700">Calorias</div>
+                    <div className="text-sm font-extrabold text-emerald-900">{selectedRecipeModal.calories} kcal</div>
                   </div>
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
-                    <div className="text-[10px] font-bold uppercase text-slate-400">
-                      Proteínas
-                    </div>
-                    <div className="text-sm font-extrabold text-slate-800">
-                      {selectedRecipeModal.protein}g
-                    </div>
+                    <div className="text-[10px] font-bold uppercase text-slate-400">Proteínas</div>
+                    <div className="text-sm font-extrabold text-slate-800">{selectedRecipeModal.protein}g</div>
                   </div>
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
-                    <div className="text-[10px] font-bold uppercase text-slate-400">
-                      Carboidratos
-                    </div>
-                    <div className="text-sm font-extrabold text-slate-800">
-                      {selectedRecipeModal.carbs}g
-                    </div>
+                    <div className="text-[10px] font-bold uppercase text-slate-400">Carboidratos</div>
+                    <div className="text-sm font-extrabold text-slate-800">{selectedRecipeModal.carbs}g</div>
                   </div>
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
-                    <div className="text-[10px] font-bold uppercase text-slate-400">
-                      Gorduras
-                    </div>
-                    <div className="text-sm font-extrabold text-slate-800">
-                      {selectedRecipeModal.fat}g
-                    </div>
+                    <div className="text-[10px] font-bold uppercase text-slate-400">Gorduras</div>
+                    <div className="text-sm font-extrabold text-slate-800">{selectedRecipeModal.fat}g</div>
                   </div>
                 </div>
               </div>
 
-              {/* Insumos Utilizados, Quantidade e Custo de cada Insumo */}
+              {/* Insumos Utilizados agrupados por seção */}
               <div>
-                <div className="flex items-center justify-between mb-2.5">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                    Insumos Utilizados, Quantidades & Custo Unitário (Ficha base:{' '}
-                    {selectedRecipeModal.servings} porção/porções)
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                    <Utensils className="w-4 h-4 text-emerald-600" />
+                    <span>Insumos & Ingredientes ({selectedRecipeModal.ingredients?.length || 0} itens)</span>
                   </h3>
-                  <span className="text-xs font-bold text-emerald-700">
-                    Para {user.household_size} pessoa(s):{' '}
-                    {formatBRL(getRecipeMealCost(selectedRecipeModal))}
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                    Para {user.household_size} pessoa(s): {formatBRL(getRecipeMealCost(selectedRecipeModal))}
                   </span>
                 </div>
 
-                <div className="overflow-hidden rounded-2xl border border-slate-200">
-                  <table className="w-full text-left border-collapse text-xs">
-                    <thead>
-                      <tr className="bg-slate-100 text-slate-600 font-bold uppercase">
-                        <th className="py-2.5 px-3">Insumo / Ingrediente</th>
-                        <th className="py-2.5 px-3">Setor</th>
-                        <th className="py-2.5 px-3">Quantidade Ficha</th>
-                        <th className="py-2.5 px-3 text-right">Custo do Insumo</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {selectedRecipeModal.ingredients.map((ing, i) => (
-                        <tr key={i} className="hover:bg-slate-50">
-                          <td className="py-2.5 px-3 font-bold text-slate-800">
-                            <span className="mr-1.5">
-                              {getIngredientEmoji(ing.name, ing.aisle)}
-                            </span>
-                            {ing.name}
-                          </td>
-                          <td className="py-2.5 px-3 text-slate-500">{ing.aisle}</td>
-                          <td className="py-2.5 px-3 font-semibold text-slate-700">
-                            {ing.amount} {ing.unit}
-                          </td>
-                          <td className="py-2.5 px-3 text-right font-extrabold text-emerald-700">
-                            {formatBRL(ing.basePrice)}
-                          </td>
-                        </tr>
+                {(() => {
+                  const sectionsMap = new Map();
+                  (selectedRecipeModal.ingredients || []).forEach((ing) => {
+                    const sec = ing.section || 'Ingredientes Gerais';
+                    if (!sectionsMap.has(sec)) sectionsMap.set(sec, []);
+                    sectionsMap.get(sec).push(ing);
+                  });
+                  const entries = Array.from(sectionsMap.entries());
+
+                  return (
+                    <div className="space-y-3.5">
+                      {entries.map(([secName, ings], sIdx) => (
+                        <div key={sIdx} className="overflow-hidden rounded-2xl border border-slate-200 shadow-2xs">
+                          {entries.length > 1 && (
+                            <div className="bg-slate-100/90 px-3.5 py-2 border-b border-slate-200 font-extrabold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                              <span>🍳 {secName}</span>
+                            </div>
+                          )}
+                          <table className="w-full text-left border-collapse text-xs">
+                            <thead>
+                              <tr className="bg-slate-50 text-slate-500 font-bold uppercase border-b border-slate-200">
+                                <th className="py-2 px-3">Insumo</th>
+                                <th className="py-2 px-3">Setor</th>
+                                <th className="py-2 px-3">Quantidade Ficha</th>
+                                <th className="py-2 px-3 text-right">Custo Est.</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 bg-white">
+                              {ings.map((ing, i) => (
+                                <tr key={i} className="hover:bg-slate-50/70 transition">
+                                  <td className="py-2.5 px-3 font-bold text-slate-800">
+                                    <span className="mr-1.5">{getIngredientEmoji(ing.name, ing.aisle)}</span>
+                                    {ing.name}
+                                  </td>
+                                  <td className="py-2.5 px-3 text-slate-500">{ing.aisle}</td>
+                                  <td className="py-2.5 px-3 font-semibold text-slate-700">
+                                    {ing.amount} {ing.unit}
+                                  </td>
+                                  <td className="py-2.5 px-3 text-right font-extrabold text-emerald-700">
+                                    {formatBRL(ing.basePrice)}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       ))}
-                    </tbody>
-                    <tfoot>
-                      <tr className="bg-emerald-50/80 font-extrabold text-slate-900 border-t border-emerald-200">
-                        <td colSpan={3} className="py-2.5 px-3">
-                          Custo Total da Ficha Técnica (CMV)
-                        </td>
-                        <td className="py-2.5 px-3 text-right text-emerald-700">
-                          {formatBRL(selectedRecipeModal.baseCost)}
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </table>
+                      <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 flex items-center justify-between text-xs font-extrabold">
+                        <span className="text-slate-800">Custo Total da Ficha Técnica (CMV):</span>
+                        <span className="text-emerald-700 text-sm">{formatBRL(selectedRecipeModal.baseCost)}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Modo de Preparo Operacional com Fotos dos Key-Frames */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                    <span>👩‍🍳 Modo de Preparo Operacional ({selectedRecipeModal.steps?.length || 0} passos)</span>
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={(e) => openCookingMode(selectedRecipeModal, e)}
+                    className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Abrir no Modo Cozinha</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {(() => {
+                    const steps = selectedRecipeModal.steps || [];
+                    const details = selectedRecipeModal.stepDetails || [];
+
+                    return steps.map((stepText, idx) => {
+                      const d = details[idx];
+                      const hasImg = d && d.image;
+                      return (
+                        <div
+                          key={idx}
+                          className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row gap-4 items-start"
+                        >
+                          {hasImg && (
+                            <div
+                              onClick={() => setZoomedImage({ src: d.image, alt: d.alt || stepText, title: `Passo ${idx + 1}` })}
+                              className="relative w-full sm:w-36 h-28 rounded-xl overflow-hidden shrink-0 border border-slate-200 bg-slate-900 cursor-pointer group"
+                            >
+                              <img
+                                src={d.image}
+                                alt={d.alt || stepText}
+                                loading="lazy"
+                                decoding="async"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                              />
+                              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition" />
+                              <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/60 text-[9px] font-bold text-white flex items-center gap-1">
+                                <Maximize2 className="w-2.5 h-2.5" />
+                                <span>Ver foto</span>
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-xs flex items-center justify-center shrink-0">
+                                {idx + 1}
+                              </span>
+                              {d && d.section && (
+                                <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide">
+                                  {d.section}
+                                </span>
+                              )}
+                              {d && d.timerSeconds > 0 && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold">
+                                  <Timer className="w-3 h-3" />
+                                  <span>{Math.round(d.timerSeconds / 60)} min</span>
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="text-sm text-slate-800 leading-relaxed font-medium">
+                              {stepText}
+                            </p>
+
+                            {d && d.tip && (
+                              <div className="p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-start gap-2 text-xs text-amber-950">
+                                <Lightbulb className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                                <p className="leading-snug">
+                                  <strong>Dica do Chef:</strong> {d.tip}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
 
-              {/* Modo de Preparo */}
-              <div>
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2.5">
-                  Modo de Preparo Operacional
-                </h3>
-                <ol className="space-y-2.5">
-                  {selectedRecipeModal.steps.map((step, idx) => (
-                    <li key={idx} className="flex gap-3 text-sm text-slate-700">
-                      <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                        {idx + 1}
-                      </span>
-                      <span>{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
+              {/* Bloco "Anote aí..." — Dicas do Chef, Conservação e Segredos */}
+              {selectedRecipeModal.chefTips && (
+                <div className="space-y-3">
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                    <span>📝 Anote aí... (Dicas do Chef, Conservação & Segredos)</span>
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {selectedRecipeModal.chefTips.intro && (
+                      <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200/90 space-y-1.5 shadow-2xs">
+                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-emerald-800">
+                          <Lightbulb className="w-4 h-4 text-emerald-600" />
+                          <span>Dica & Variações</span>
+                        </div>
+                        <p className="text-xs text-slate-700 leading-relaxed">
+                          {selectedRecipeModal.chefTips.intro}
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedRecipeModal.chefTips.storage && (
+                      <div className="p-4 rounded-2xl bg-sky-50/80 border border-sky-200/90 space-y-1.5 shadow-2xs">
+                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-sky-800">
+                          <Snowflake className="w-4 h-4 text-sky-600" />
+                          <span>Conservação & Congelamento</span>
+                        </div>
+                        <p className="text-xs text-slate-700 leading-relaxed">
+                          {selectedRecipeModal.chefTips.storage}
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedRecipeModal.chefTips.secret && (
+                      <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/90 space-y-1.5 shadow-2xs">
+                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-amber-800">
+                          <Flame className="w-4 h-4 text-amber-600" />
+                          <span>Segredo da Textura & Ponto</span>
+                        </div>
+                        <p className="text-xs text-slate-700 leading-relaxed">
+                          {selectedRecipeModal.chefTips.secret}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Como a Porção Deve Ser Servida: Peso, Montagem e Finalização */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3000,6 +3431,138 @@ export default function App() {
         </div>
       )}
 
+      {/* MODAL: REPETIR / APROVEITAR REFEIÇÃO / MARMITA */}
+      {repeatRecipeTarget && (() => {
+        const { recipe, sourceDay, sourceSlot } = repeatRecipeTarget;
+        const nextDay = getNextDay(sourceDay);
+        return (
+          <div
+            onClick={() => setRepeatRecipeTarget(null)}
+            className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl border border-slate-200"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold uppercase tracking-wider mb-1">
+                    <Repeat className="w-3 h-3" />
+                    <span>Aproveitar / Marmita</span>
+                  </div>
+                  <h3 className="font-extrabold text-lg text-slate-900">
+                    Repetir "{recipe.title}"
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Origem: <strong>{sourceSlot} de {sourceDay}</strong>
+                  </p>
+                </div>
+                <button
+                  onClick={() => setRepeatRecipeTarget(null)}
+                  className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Quick smart shortcuts */}
+              <div className="space-y-2">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">
+                  Sugestões Rápidas (1 clique)
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {sourceSlot === 'Almoço' && (
+                    <button
+                      type="button"
+                      onClick={() => handleRepeatMealToSlot(sourceDay, 'Jantar', recipe.id)}
+                      className="p-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border border-emerald-200 text-left transition cursor-pointer flex flex-col justify-between"
+                    >
+                      <span className="text-xs font-bold flex items-center gap-1.5">
+                        🍲 Aproveitar no Jantar de Hoje
+                      </span>
+                      <span className="text-[11px] text-emerald-700 font-semibold mt-1">
+                        {sourceDay} • Jantar
+                      </span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => handleRepeatMealToSlot(nextDay, 'Almoço', recipe.id)}
+                    className="p-3.5 rounded-2xl bg-teal-50 hover:bg-teal-100 text-teal-950 border border-teal-200 text-left transition cursor-pointer flex flex-col justify-between"
+                  >
+                    <span className="text-xs font-bold flex items-center gap-1.5">
+                      🍱 Marmita no Almoço de Amanhã
+                    </span>
+                    <span className="text-[11px] text-teal-700 font-semibold mt-1">
+                      {nextDay} • Almoço
+                    </span>
+                  </button>
+
+                  {sourceSlot === 'Jantar' && (
+                    <button
+                      type="button"
+                      onClick={() => handleRepeatMealToSlot(nextDay, 'Jantar', recipe.id)}
+                      className="p-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border border-emerald-200 text-left transition cursor-pointer flex flex-col justify-between"
+                    >
+                      <span className="text-xs font-bold flex items-center gap-1.5">
+                        🍲 Repetir no Jantar de Amanhã
+                      </span>
+                      <span className="text-[11px] text-emerald-700 font-semibold mt-1">
+                        {nextDay} • Jantar
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Or pick any day and slot */}
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">
+                  Ou escolha qualquer dia e horário na grade:
+                </span>
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {DAYS.map((day) => (
+                    <div
+                      key={day}
+                      className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2"
+                    >
+                      <span className="text-xs font-bold text-slate-800 w-20 shrink-0">
+                        {day}
+                      </span>
+                      <div className="flex gap-1.5 flex-1 justify-end">
+                        {SLOTS.map((slot) => {
+                          const isOrigin = day === sourceDay && slot === sourceSlot;
+                          return (
+                            <button
+                              key={slot}
+                              type="button"
+                              disabled={isOrigin}
+                              onClick={() => handleRepeatMealToSlot(day, slot, recipe.id)}
+                              className={`px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition cursor-pointer ${
+                                isOrigin
+                                  ? 'opacity-30 bg-slate-200 text-slate-500 cursor-not-allowed'
+                                  : 'bg-white hover:bg-emerald-600 hover:text-white text-slate-700 border border-slate-200 shadow-2xs'
+                              }`}
+                            >
+                              {slot === 'Café da Manhã'
+                                ? 'Café'
+                                : slot === 'Almoço'
+                                ? 'Almoço'
+                                : 'Jantar'}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* MODAL 4: AUTH & HOUSEHOLD SHARING */}
       {authModalOpen && (
         <div
@@ -3164,15 +3727,25 @@ export default function App() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3.5">
                     <img
-                      src={resolveRecipeImage(rec.image)}
+                      src={rec.image}
                       alt={rec.title}
-                      onError={handleRecipeImgError}
-                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-white/30 shadow-md shrink-0"
+                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-white/30 shadow-md shrink-0 bg-slate-200"
                     />
                     <div>
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-[11px] font-extrabold uppercase tracking-wider mb-1">
-                        <Play className="w-3 h-3 fill-current" />
-                        <span>Modo Cozinhar Guiado • Etapa {currentIdx + 1} de {totalStages}</span>
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-[11px] font-extrabold uppercase tracking-wider">
+                          <Play className="w-3 h-3 fill-current" />
+                          <span>Modo Cozinhar Guiado • Etapa {currentIdx + 1} de {totalStages}</span>
+                        </div>
+                        {wakeLockActive && (
+                          <div
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-400/30 border border-emerald-300/50 text-[10px] font-bold text-white tracking-wide"
+                            title="Sua tela não vai escurecer nem apagar durante o preparo"
+                          >
+                            <Sun className="w-3 h-3 text-amber-300" />
+                            <span>Tela Sempre Ativa</span>
+                          </div>
+                        )}
                       </div>
                       <h2 className="text-lg sm:text-xl font-extrabold leading-tight">
                         {rec.title}
@@ -3187,13 +3760,24 @@ export default function App() {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => setCookingSession(null)}
-                    className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer shrink-0 transition"
-                    title="Sair do Modo Cozinhar"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setCookingDrawerOpen(true)}
+                      className="px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs flex items-center gap-1.5 cursor-pointer transition shadow-xs"
+                      title="Consultar lista completa de ingredientes"
+                    >
+                      <ListChecks className="w-4 h-4" />
+                      <span className="hidden sm:inline">Ingredientes</span>
+                    </button>
+                    <button
+                      onClick={() => setCookingSession(null)}
+                      className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer shrink-0 transition"
+                      title="Sair do Modo Cozinhar"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* PROGRESS BAR & STEP PILLS */}
@@ -3496,84 +4080,145 @@ export default function App() {
                   </div>
                 )}
 
-                {!isMiseEnPlace && !isFinalPlating && (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold uppercase tracking-wider">
-                        🍳 Passo {currentIdx} de {steps.length}
-                      </span>
+                {!isMiseEnPlace && !isFinalPlating && (() => {
+                  const currentStepDetail = rec.stepDetails && rec.stepDetails[currentIdx - 1];
+                  const hasStepImg = currentStepDetail && currentStepDetail.image;
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setCookingSession((prev) => ({
-                            ...prev,
-                            completedSteps: {
-                              ...prev.completedSteps,
-                              [currentIdx - 1]: !prev.completedSteps[currentIdx - 1],
-                            },
-                          }))
-                        }
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition ${
-                          cookingSession.completedSteps[currentIdx - 1]
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                        }`}
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>
-                          {cookingSession.completedSteps[currentIdx - 1]
-                            ? 'Passo Concluído'
-                            : 'Marcar como Concluído'}
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* LARGE READABLE STEP CARD */}
-                    <div className="p-6 sm:p-8 rounded-3xl bg-slate-50 border-2 border-slate-200/80 shadow-inner">
-                      <p className="text-xl sm:text-2xl font-bold text-slate-900 leading-relaxed">
-                        {currentStepText}
-                      </p>
-                    </div>
-
-                    {/* INGREDIENTS MENTIONED IN THIS STEP */}
-                    {stepIngredients.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
-                          Insumos utilizados neste passo:
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {stepIngredients.map((ing, i) => (
-                            <span
-                              key={i}
-                              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs font-bold"
-                            >
-                              <span className="text-base">
-                                {getIngredientEmoji(ing.name, ing.aisle)}
-                              </span>
-                              <span>{ing.name}:</span>
-                              <strong className="text-emerald-700">
-                                {Number((ing.amount * scaleRatio).toFixed(2))} {ing.unit}
-                              </strong>
+                  return (
+                    <div className="space-y-5">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold uppercase tracking-wider">
+                            🍳 Passo {currentIdx} de {steps.length}
+                          </span>
+                          {currentStepDetail && currentStepDetail.section && (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+                              {currentStepDetail.section}
                             </span>
-                          ))}
+                          )}
                         </div>
-                      </div>
-                    )}
 
-                    {/* NEXT STEP PREVIEW */}
-                    {currentIdx < steps.length && (
-                      <div className="p-4 rounded-2xl bg-slate-100/70 border border-slate-200/70 flex items-start gap-3">
-                        <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 shrink-0 mt-0.5">
-                          A seguir (Passo {currentIdx + 1}):
-                        </span>
-                        <p className="text-xs text-slate-600 line-clamp-2">
-                          {steps[currentIdx]}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCookingSession((prev) => ({
+                              ...prev,
+                              completedSteps: {
+                                ...prev.completedSteps,
+                                [currentIdx - 1]: !prev.completedSteps[currentIdx - 1],
+                              },
+                            }))
+                          }
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition ${
+                            cookingSession.completedSteps[currentIdx - 1]
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                          }`}
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>
+                            {cookingSession.completedSteps[currentIdx - 1]
+                              ? 'Passo Concluído'
+                              : 'Marcar como Concluído'}
+                          </span>
+                        </button>
+                      </div>
+
+                      {/* PHOTO OF THE STEP (UNLOADS PREVIOUS TEXTURES FROM RAM TO SAVE MEMORY) */}
+                      {hasStepImg && (
+                        <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-md bg-slate-900 group max-h-72 sm:max-h-80">
+                          <img
+                            key={currentIdx}
+                            src={currentStepDetail.image}
+                            alt={currentStepDetail.alt || currentStepText}
+                            decoding="async"
+                            className="w-full h-56 sm:h-72 object-cover transition-transform duration-300 group-hover:scale-102"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setZoomedImage({
+                                src: currentStepDetail.image,
+                                alt: currentStepDetail.alt || currentStepText,
+                                title: `Passo ${currentIdx}: ${currentStepDetail.section || ''}`,
+                              })
+                            }
+                            className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md transition"
+                          >
+                            <Maximize2 className="w-3.5 h-3.5" />
+                            <span>Ampliar Foto</span>
+                          </button>
+                          {currentStepDetail.alt && (
+                            <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/50 backdrop-blur-md text-[11px] font-medium text-white max-w-sm truncate">
+                              {currentStepDetail.alt}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* LARGE READABLE STEP CARD */}
+                      <div className="p-6 sm:p-7 rounded-3xl bg-slate-50 border-2 border-slate-200/80 shadow-inner">
+                        <p className="text-xl sm:text-2xl font-bold text-slate-900 leading-relaxed">
+                          {currentStepText}
                         </p>
                       </div>
-                    )}
-                  </div>
-                )}
+
+                      {/* DICA DO CHEF PARA ESTE PASSO */}
+                      {currentStepDetail && currentStepDetail.tip && (
+                        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
+                          <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                          <div className="text-xs text-amber-950 leading-relaxed">
+                            <strong className="font-bold">Dica do Chef: </strong>
+                            {currentStepDetail.tip}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* INGREDIENTS MENTIONED IN THIS STEP */}
+                      {stepIngredients.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                            Insumos utilizados neste passo:
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {stepIngredients.map((ing, i) => (
+                              <span
+                                key={i}
+                                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs font-bold"
+                              >
+                                <span className="text-base">
+                                  {getIngredientEmoji(ing.name, ing.aisle)}
+                                </span>
+                                <span>{ing.name}:</span>
+                                <strong className="text-emerald-700">
+                                  {Number((ing.amount * scaleRatio).toFixed(2))} {ing.unit}
+                                </strong>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* NEXT STEP PREVIEW */}
+                      {currentIdx < steps.length && (
+                        <div className="p-4 rounded-2xl bg-white/50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs backdrop-blur-md">
+                          <div className="flex items-start sm:items-center gap-3 min-w-0">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-[11px] font-extrabold uppercase tracking-wider shrink-0">
+                              <span>A seguir • Passo {currentIdx + 1}</span>
+                            </span>
+                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 line-clamp-2 leading-relaxed">
+                              {steps[currentIdx]}
+                            </p>
+                          </div>
+                          <div className="hidden sm:flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
+                            <span>Próximo</span>
+                            <ChevronRight className="w-4 h-4" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {isFinalPlating && (
                   <div className="space-y-5">
@@ -3656,12 +4301,25 @@ export default function App() {
                   <span>Etapa Anterior</span>
                 </button>
 
-                <div className="text-xs font-bold text-slate-400 hidden sm:block">
-                  {isMiseEnPlace
-                    ? 'Separe os ingredientes para começar'
-                    : isFinalPlating
-                    ? 'Prato pronto para servir!'
-                    : `Passo ${currentIdx} de ${steps.length}`}
+                <div className="flex flex-col items-center justify-center text-center">
+                  <div className="text-xs font-bold text-slate-500">
+                    {isMiseEnPlace
+                      ? 'Separe os ingredientes para começar'
+                      : isFinalPlating
+                      ? 'Prato pronto para servir!'
+                      : `Passo ${currentIdx} de ${steps.length}`}
+                  </div>
+                  <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400 mt-1">
+                    <span className="font-semibold text-slate-500">Atalhos:</span>
+                    <span className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-mono font-bold">Espaço</span>
+                    <span>Timer</span>
+                    <span className="text-slate-300">•</span>
+                    <span className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-mono font-bold">← / →</span>
+                    <span>Passos</span>
+                    <span className="text-slate-300">•</span>
+                    <span className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-mono font-bold">Esc</span>
+                    <span>Fechar</span>
+                  </div>
                 </div>
 
                 {!isFinalPlating ? (
@@ -3710,6 +4368,119 @@ export default function App() {
           </div>
         );
       })()}
+
+      {/* INGREDIENTS DRAWER (DURING COOKING MODE) */}
+      {cookingDrawerOpen && cookingSession && (
+        <div
+          onClick={() => setCookingDrawerOpen(false)}
+          className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs flex items-center justify-end p-0 sm:p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-l-3xl sm:rounded-3xl max-w-md w-full h-full sm:h-auto sm:max-h-[85vh] p-6 shadow-2xl flex flex-col space-y-4"
+          >
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <div className="flex items-center gap-2">
+                <ListChecks className="w-5 h-5 text-emerald-600" />
+                <h3 className="font-extrabold text-base text-slate-900">Ingredientes da Receita</h3>
+              </div>
+              <button
+                onClick={() => setCookingDrawerOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs text-slate-500">
+              Quantidades escaladas para <strong>{cookingSession.scaleServings || 2} porções</strong>.
+            </p>
+            <div className="overflow-y-auto flex-1 space-y-2 pr-1 max-h-[60vh]">
+              {(cookingSession.recipe.ingredients || []).map((ing, idx) => {
+                const checked = !!cookingSession.checkedIngredients[idx];
+                const baseS = cookingSession.recipe.servings || 2;
+                const ratio = (cookingSession.scaleServings || baseS) / baseS;
+                const scaledAmt = Number((ing.amount * ratio).toFixed(2));
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() =>
+                      setCookingSession((prev) => ({
+                        ...prev,
+                        checkedIngredients: {
+                          ...prev.checkedIngredients,
+                          [idx]: !prev.checkedIngredients[idx],
+                        },
+                      }))
+                    }
+                    className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between gap-3 cursor-pointer transition ${
+                      checked
+                        ? 'bg-emerald-50/70 border-emerald-300 text-slate-400 line-through'
+                        : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800 shadow-2xs'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="text-xl shrink-0">{getIngredientEmoji(ing.name, ing.aisle)}</span>
+                      <div className="min-w-0">
+                        <div className="font-bold text-xs truncate">{ing.name}</div>
+                        <div className="text-[11px] text-slate-500">{scaledAmt} {ing.unit} ({ing.aisle})</div>
+                      </div>
+                    </div>
+                    <div
+                      className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                        checked ? 'bg-emerald-600 text-white' : 'border border-slate-300 text-transparent'
+                      }`}
+                    >
+                      ✓
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              onClick={() => setCookingDrawerOpen(false)}
+              className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs cursor-pointer transition"
+            >
+              Fechar Lista
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ZOOM LIGHTBOX MODAL */}
+      {zoomedImage && (
+        <div
+          onClick={() => setZoomedImage(null)}
+          className="fixed inset-0 z-70 bg-black/92 backdrop-blur-md flex flex-col items-center justify-center p-4 cursor-zoom-out"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-4xl w-full flex flex-col items-center"
+          >
+            <div className="w-full flex items-center justify-between text-white mb-3">
+              <span className="font-extrabold text-sm sm:text-base">{zoomedImage.title || 'Foto em Alta Resolução'}</span>
+              <button
+                onClick={() => setZoomedImage(null)}
+                className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer transition"
+                title="Fechar"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <img
+              src={zoomedImage.src}
+              alt={zoomedImage.alt || 'Foto ampliada'}
+              className="max-h-[80vh] w-auto max-w-full rounded-2xl shadow-2xl object-contain border border-white/20"
+            />
+            {zoomedImage.alt && (
+              <p className="text-xs text-slate-300 text-center mt-3 max-w-xl">
+                {zoomedImage.alt}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
