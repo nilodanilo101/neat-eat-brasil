@@ -1,17 +1,16 @@
-export const CURRENT_VERSION = '1.0.7';
+export const CURRENT_VERSION = '1.0.8';
 
 export const RELEASE_NOTES = [
   {
-    version: '1.0.7',
-    date: '31/10/2026',
-    title: 'Novidades da Versão — Descoberta Diária de Pratos & Otimizações',
+    version: '1.0.8',
+    date: '01/11/2026',
+    title: 'Novidades da Versão — Modo Escuro & Descoberta Diária',
     summary:
-      'A aba Descoberta de Pratos agora renova automaticamente a seleção de sugestões 1x por dia, acompanhada de otimizações gerais de desempenho e usabilidade.',
+      'Agora o NeatEat Brasil conta com Modo Escuro completo em todas as telas e fichas técnicas, com alternância rápida no topo e salvamento automático da sua preferência.',
     items: [
-      '🔥 Descoberta de Pratos com renovação automática 1x por dia: todos os dias uma nova seleção de receitas brasileiras entra na pilha de sugestões.',
-      '🏷️ Seleção interativa de etiquetas nutricionais ao criar ou editar uma Ficha Técnica de Restaurante.',
-      '⚡ Otimização do banco de dados SQLite (modo WAL + índices) e algoritmo aprimorado de variedade semanal para evitar repetição seguida de pratos.',
-      '🔍 Busca rápida e ordenação inteligente por refeição ao trocar um prato do cardápio.'
+      '🌙 Novo Modo Escuro (Dark Mode): alterne a qualquer momento pelo botão no topo da tela (com detecção automática do tema do sistema e salvamento da sua escolha).',
+      '🔥 Aba "Descoberta de Pratos" com atualização automática de novas sugestões 1x por dia.',
+      '🏷️ Seleção interativa de etiquetas nutricionais nas Fichas Técnicas e melhorias de performance.'
     ]
   }
 ];

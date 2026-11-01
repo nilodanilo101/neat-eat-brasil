@@ -30,6 +30,8 @@ import {
   Heart,
   RotateCcw,
   Eye,
+  Moon,
+  Sun,
 } from 'lucide-react';
 
 const DAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
@@ -110,6 +112,25 @@ export default function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('planner');
+  const [darkMode, setDarkMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem('neateat_theme');
+      if (saved === 'dark') return true;
+      if (saved === 'light') return false;
+      return window.matchMedia?.('(prefers-color-scheme: dark)').matches || false;
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    try {
+      localStorage.setItem('neateat_theme', darkMode ? 'dark' : 'light');
+    } catch {
+      // Ignore storage error
+    }
+  }, [darkMode]);
 
   // Local UI controls
   const [budgetDraft, setBudgetDraft] = useState(250);
@@ -652,8 +673,26 @@ export default function App() {
             </div>
           </div>
 
-          {/* Household & Auth Button */}
+          {/* Dark Mode Toggle, Household & Auth Button */}
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setDarkMode((prev) => !prev)}
+              title={darkMode ? 'Alternar para Modo Claro' : 'Alternar para Modo Escuro'}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-semibold transition cursor-pointer"
+            >
+              {darkMode ? (
+                <>
+                  <Sun className="w-4 h-4 text-amber-400" />
+                  <span className="hidden sm:inline">Modo Claro</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-4 h-4 text-slate-700" />
+                  <span className="hidden sm:inline">Modo Escuro</span>
+                </>
+              )}
+            </button>
+
             <button
               onClick={() => {
                 navigator.clipboard?.writeText(user.household_code);
