@@ -1,17 +1,17 @@
-export const CURRENT_VERSION = '1.0.5';
+export const CURRENT_VERSION = '1.0.6';
 
 export const RELEASE_NOTES = [
   {
-    version: '1.0.5',
+    version: '1.0.6',
     date: '31/10/2026',
-    title: 'Novidades da Versão — Aba Sugestões (Tinder de Receitas)',
+    title: 'Novidades da Versão — Aba Sugestões (Tinder) & Fotos Locais Embutidas',
     summary:
-      'Agora você pode descobrir novos pratos brasileiros com Ficha Técnica completa deslizando para a esquerda ou para a direita!',
+      'Todas as 32 fotografias culinárias agora vêm embutidas diretamente dentro do aplicativo (carregamento instantâneo e sem bloqueio de rede), além da nova aba Sugestões estilo Tinder!',
     items: [
-      '🔥 Nova Aba "Sugestões" estilo Tinder: arraste o card para a direita (💚 Adicionar) para incluir a receita no seu Catálogo de Receitas ou para a esquerda (❌ Passar) para recusar.',
-      '📋 Espie a Ficha Técnica completa (insumos, custos, montagem e nutrição) antes de decidir.',
-      '↩️ Botões para "Desfazer último swipe", "Rever descartadas" e filtros rápidos por Café da Manhã, Almoço e Jantar.',
-      '📸 Acervo curado com fotografias culinárias reais e verificadas de cada prato.'
+      '📸 Fotos 100% locais e embutidas no app (/dishes/*.jpg): eliminamos o bloqueio de hotlink (erro 403) de sites externos para que todas as fotos das receitas e sugestões apareçam instantaneamente.',
+      '🔥 Nova Aba "Sugestões" estilo Tinder: arraste para a direita (💚 Adicionar) para salvar a receita no seu Catálogo ou para a esquerda (❌ Passar).',
+      '📋 Visualização completa da Ficha Técnica de Restaurante antes de aprovar cada sugestão.',
+      '↩️ Botões para "Desfazer último swipe" e "Rever descartadas".'
     ]
   }
 ];

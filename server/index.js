@@ -46,14 +46,14 @@ async function searchExactDishPhotos(dishTitle, _ingredients = []) {
       }
     }
     if (results.length > 0) {
-      return results.slice(0, 6);
+      return results
+        .slice(0, 6)
+        .map((u) => `/api/image-proxy?url=${encodeURIComponent(u)}`);
     }
   } catch (err) {
     console.error('Erro ao buscar foto culinária do prato:', err);
   }
-  return [
-    'https://www.receiteria.com.br/wp-content/uploads/file-de-frango-grelhado.jpeg',
-  ];
+  return ['/dishes/rec-5.jpg'];
 }
 
 function buildShoppingList(mealPlan, allRecipes, householdSize, fridgeItems, checkedMap) {
@@ -172,6 +172,32 @@ export async function startServer(options = {}) {
     if (!q) return res.json({ images: [] });
     const images = await searchExactDishPhotos(q);
     res.json({ images });
+  });
+
+  app.get('/api/image-proxy', async (req, res) => {
+    const targetUrl = String(req.query.url || '').trim();
+    if (!targetUrl.startsWith('https://')) {
+      return res.redirect('/dishes/rec-5.jpg');
+    }
+    try {
+      const upstream = await fetch(targetUrl, {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+          Referer: 'https://www.receiteria.com.br/',
+        },
+      });
+      if (!upstream.ok) {
+        return res.redirect('/dishes/rec-5.jpg');
+      }
+      const contentType = upstream.headers.get('content-type') || 'image/jpeg';
+      const buf = Buffer.from(await upstream.arrayBuffer());
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.send(buf);
+    } catch {
+      res.redirect('/dishes/rec-5.jpg');
+    }
   });
 
   // TINDER-STYLE SUGGESTION SWIPE (LEFT = PASS, RIGHT = ADD TO CATALOG)

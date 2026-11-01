@@ -24,7 +24,7 @@ const INITIAL_RECIPES = [
     carbs: 24,
     fat: 14,
     tags: ['Rápido', 'Sem Glúten', 'Vegetariano', 'Alta Proteína', 'Econômico'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/crepioca-de-queijo-com-tomate-e-oregano-capa.png',
+    image: '/dishes/rec-1.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '210g por porção',
     platingInstructions:
@@ -56,7 +56,7 @@ const INITIAL_RECIPES = [
     carbs: 52,
     fat: 12,
     tags: ['Vegetariano', 'Econômico', 'Rápido'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/overnight-oats-1.jpg',
+    image: '/dishes/rec-2.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '310g por porção',
     platingInstructions:
@@ -88,7 +88,7 @@ const INITIAL_RECIPES = [
     carbs: 38,
     fat: 14,
     tags: ['Vegetariano', 'Econômico', 'Rápido'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/ovos-mexidos-perfeitos.jpg',
+    image: '/dishes/rec-3.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '260g por porção',
     platingInstructions:
@@ -119,7 +119,7 @@ const INITIAL_RECIPES = [
     carbs: 45,
     fat: 11,
     tags: ['Sem Glúten', 'Sem Lactose', 'Vegetariano', 'Econômico'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/cuscuz-com-ovo.jpg',
+    image: '/dishes/rec-4.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '240g por porção',
     platingInstructions:
@@ -152,7 +152,7 @@ const INITIAL_RECIPES = [
     carbs: 58,
     fat: 12,
     tags: ['Sem Glúten', 'Sem Lactose', 'Alta Proteína', 'Econômico'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/file-de-frango-grelhado.jpeg',
+    image: '/dishes/rec-5.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '420g por porção',
     platingInstructions:
@@ -185,7 +185,7 @@ const INITIAL_RECIPES = [
     carbs: 48,
     fat: 16,
     tags: ['Sem Glúten', 'Sem Lactose', 'Alta Proteína', 'Econômico'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/carne-moida-com-abobora-capa.png',
+    image: '/dishes/rec-6.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '390g por porção',
     platingInstructions:
@@ -218,7 +218,7 @@ const INITIAL_RECIPES = [
     carbs: 54,
     fat: 18,
     tags: ['Sem Glúten', 'Alta Proteína', 'Econômico'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/escondidinho-de-frango-capa.png',
+    image: '/dishes/rec-7.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '380g por porção',
     platingInstructions:
@@ -250,7 +250,7 @@ const INITIAL_RECIPES = [
     carbs: 62,
     fat: 14,
     tags: ['Vegetariano', 'Sem Glúten', 'Econômico'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/strogonoff-de-grao-de-bico-com-shitake.jpg',
+    image: '/dishes/rec-8.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '400g por porção',
     platingInstructions:
@@ -283,7 +283,7 @@ const INITIAL_RECIPES = [
     carbs: 42,
     fat: 12,
     tags: ['Sem Glúten', 'Alta Proteína', 'Rápido'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/file-de-tilapia-grelhado-na-manteiga.jpeg',
+    image: '/dishes/rec-9.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '380g por porção',
     platingInstructions:
@@ -317,7 +317,7 @@ const INITIAL_RECIPES = [
     carbs: 11,
     fat: 19,
     tags: ['Low Carb', 'Vegetariano', 'Sem Glúten', 'Econômico', 'Rápido'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/omelete-de-forno-com-legumes.jpg',
+    image: '/dishes/rec-10.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '240g por porção',
     platingInstructions:
@@ -349,7 +349,7 @@ const INITIAL_RECIPES = [
     carbs: 40,
     fat: 9,
     tags: ['Sem Glúten', 'Sem Lactose', 'Alta Proteína', 'Econômico'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/sopa-de-mandioquinha-0.jpg',
+    image: '/dishes/rec-11.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '350ml (340g) por porção',
     platingInstructions:
@@ -381,7 +381,7 @@ const INITIAL_RECIPES = [
     carbs: 58,
     fat: 13,
     tags: ['Sem Lactose', 'Alta Proteína', 'Econômico', 'Rápido'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/macarrao-com-brocolis-00-1.jpg',
+    image: '/dishes/rec-12.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '340g por porção',
     platingInstructions:
@@ -413,7 +413,7 @@ const INITIAL_RECIPES = [
     carbs: 49,
     fat: 20,
     tags: ['Sem Glúten', 'Sem Lactose', 'Alta Proteína'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/lomo-saltado.jpg',
+    image: '/dishes/rec-13.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '370g por porção',
     platingInstructions:
@@ -445,7 +445,7 @@ const INITIAL_RECIPES = [
     carbs: 12,
     fat: 14,
     tags: ['Low Carb', 'Sem Glúten', 'Sem Lactose', 'Alta Proteína', 'Rápido', 'Econômico'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/abobrinha-recheada-com-frango.jpeg',
+    image: '/dishes/rec-14.jpg',
     source: 'Ficha Técnica NeatEat Brasil',
     portionWeight: '310g por porção',
     platingInstructions:
@@ -585,7 +585,7 @@ export function initDb() {
       );
     }
   } else {
-    // Upgrade existing built-in recipes with Ficha Técnica fields & exact dish images if still using old Unsplash or Bing URLs
+    // Upgrade existing built-in and approved suggestion recipes to use local bundled dish photos (/dishes/<id>.jpg)
     const updateBuiltIn = db.prepare(`
       UPDATE recipes
       SET image = ?,
@@ -593,9 +593,9 @@ export function initDb() {
           portion_weight = ?,
           plating_instructions = ?,
           specific_instructions = ?
-      WHERE id = ? AND (plating_instructions = '' OR image LIKE '%unsplash.com%' OR image LIKE '%bing.com%')
+      WHERE id = ? AND (plating_instructions = '' OR image LIKE 'http%')
     `);
-    for (const r of INITIAL_RECIPES) {
+    for (const r of [...INITIAL_RECIPES, ...SUGGESTION_RECIPES]) {
       updateBuiltIn.run(
         r.image,
         r.source,
@@ -711,7 +711,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 28,
     fat: 13,
     tags: ['Sem Glúten', 'Rápido', 'Vegetariano', 'Econômico'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/pao-de-queijo-de-frigideira-capa.png',
+    image: '/dishes/sug-1.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '160g por porção',
     platingInstructions:
@@ -741,7 +741,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 42,
     fat: 8,
     tags: ['Econômico', 'Rápido', 'Vegetariano', 'Sem Lactose'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/panqueca-de-banana-fit-com-aveia.jpeg',
+    image: '/dishes/sug-2.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '210g por porção',
     platingInstructions:
@@ -771,7 +771,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 31,
     fat: 14,
     tags: ['Sem Glúten', 'Rápido', 'Alta Proteína', 'Vegetariano'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/tapioca-de-queijo-com-ovo-e1693489568393.jpg',
+    image: '/dishes/sug-3.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '190g por porção',
     platingInstructions:
@@ -801,7 +801,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 29,
     fat: 19,
     tags: ['Rápido', 'Vegetariano', 'Sem Glúten', 'Econômico'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/vitamina-de-abacate-0.jpg',
+    image: '/dishes/sug-4.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '350ml por porção',
     platingInstructions:
@@ -831,7 +831,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 38,
     fat: 8,
     tags: ['Sem Lactose', 'Rápido', 'Econômico', 'Vegetariano'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/bolo-de-caneca-sem-leite-capa.jpeg',
+    image: '/dishes/sug-5.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '165g por porção',
     platingInstructions:
@@ -861,7 +861,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 26,
     fat: 18,
     tags: ['Rápido', 'Vegetariano'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/avocado-toast-com-ovo-2.jpg',
+    image: '/dishes/sug-6.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '185g por porção',
     platingInstructions:
@@ -891,7 +891,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 54,
     fat: 19,
     tags: ['Econômico', 'Alta Proteína', 'Sem Glúten'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/baiao-de-dois.jpeg',
+    image: '/dishes/sug-7.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '390g por porção',
     platingInstructions:
@@ -922,7 +922,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 34,
     fat: 15,
     tags: ['Alta Proteína', 'Sem Glúten', 'Sem Lactose', 'Econômico'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/picadinho-de-carne-com-legumes-capa.png',
+    image: '/dishes/sug-8.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '380g por porção',
     platingInstructions:
@@ -953,7 +953,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 28,
     fat: 13,
     tags: ['Alta Proteína', 'Rápido', 'Sem Lactose'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/frango-xadrez-10.jpg',
+    image: '/dishes/sug-9.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '340g por porção',
     platingInstructions:
@@ -984,7 +984,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 24,
     fat: 14,
     tags: ['Alta Proteína', 'Sem Glúten', 'Sem Lactose'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/moqueca-de-peixe-com-camarao.jpeg',
+    image: '/dishes/sug-10.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '360g por porção',
     platingInstructions:
@@ -1015,7 +1015,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 46,
     fat: 14,
     tags: ['Econômico', 'Alta Proteína', 'Sem Glúten'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/bobo-de-frango-capa.jpg',
+    image: '/dishes/sug-11.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '370g por porção',
     platingInstructions:
@@ -1046,7 +1046,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 48,
     fat: 16,
     tags: ['Econômico', 'Alta Proteína', 'Sem Glúten'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/arroz-de-forno-com-frango-capa.png',
+    image: '/dishes/sug-12.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '360g por porção',
     platingInstructions:
@@ -1076,7 +1076,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 38,
     fat: 17,
     tags: ['Econômico', 'Alta Proteína'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/panqueca-de-carne-moida.jpeg',
+    image: '/dishes/sug-13.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '320g por porção',
     platingInstructions:
@@ -1106,7 +1106,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 36,
     fat: 12,
     tags: ['Econômico', 'Sem Glúten', 'Sem Lactose'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/caldo-verde-capa.jpeg',
+    image: '/dishes/sug-14.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '350ml por porção',
     platingInstructions:
@@ -1136,7 +1136,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 24,
     fat: 19,
     tags: ['Vegetariano', 'Econômico'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/quiche-de-alho-poro-capa.png',
+    image: '/dishes/sug-15.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '220g por porção',
     platingInstructions:
@@ -1166,7 +1166,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 16,
     fat: 14,
     tags: ['Alta Proteína', 'Low Carb', 'Rápido'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/salada-caesar-com-frango.jpg',
+    image: '/dishes/sug-16.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '290g por porção',
     platingInstructions:
@@ -1197,7 +1197,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 33,
     fat: 11,
     tags: ['Rápido', 'Alta Proteína', 'Econômico'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/wrap-de-frango-kim-07.jpg',
+    image: '/dishes/sug-17.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '260g por porção',
     platingInstructions:
@@ -1227,7 +1227,7 @@ export const SUGGESTION_RECIPES = [
     carbs: 26,
     fat: 9,
     tags: ['Low Carb', 'Sem Glúten', 'Sem Lactose', 'Alta Proteína'],
-    image: 'https://www.receiteria.com.br/wp-content/uploads/creme-de-abobora-com-gengibre-e-frango.png',
+    image: '/dishes/sug-18.jpg',
     source: 'Ficha Técnica — Sugestão Curada',
     portionWeight: '340g por porção',
     platingInstructions:
