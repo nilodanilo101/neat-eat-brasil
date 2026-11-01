@@ -49,6 +49,8 @@ import {
   TrendingUp,
   Volume2,
   VolumeX,
+  MoreVertical,
+  CalendarDays,
 } from 'lucide-react';
 import {
   playChefServiceBell,
@@ -251,6 +253,30 @@ export default function App() {
   const [selectedRecipeModal, setSelectedRecipeModal] = useState(null);
   const [swapSlotTarget, setSwapSlotTarget] = useState(null); // { day, slot }
   const [changelogModalOpen, setChangelogModalOpen] = useState(false);
+
+  // Planner UI Mode & State (Visão Semanal vs Foco Diário + Progressive Disclosure Menu)
+  const [plannerViewMode, setPlannerViewMode] = useState('week'); // 'week' | 'day'
+  const [plannerSelectedDay, setPlannerSelectedDay] = useState('Segunda');
+  const [activeMealMenu, setActiveMealMenu] = useState(null); // { day, slot } | null
+
+  useEffect(() => {
+    function handleGlobalClick(e) {
+      if (activeMealMenu && !e.target.closest('[data-meal-menu]')) {
+        setActiveMealMenu(null);
+      }
+    }
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        setActiveMealMenu(null);
+      }
+    }
+    window.addEventListener('click', handleGlobalClick);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('click', handleGlobalClick);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeMealMenu]);
 
   // Ficha Técnica Editor Modal state
   const [recipeFormModal, setRecipeFormModal] = useState(null);
@@ -1189,16 +1215,18 @@ export default function App() {
         {/* TAB 1: PLANEJADOR SEMANAL */}
         {activeTab === 'planner' && (
           <div className="space-y-6">
-            <section className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200/80">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-                {/* Budget Slider */}
-                <div className="lg:col-span-5 space-y-2">
+            {/* TOP BAR / CONTROL CENTER: DUAS ZONAS CLARAS */}
+            <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl backdrop-blur-xl space-y-5">
+              {/* ZONA A: CONFIGURAÇÃO DE PARÂMETROS */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                {/* Orçamento Semanal com Slider & Feedback Vivo */}
+                <div className="lg:col-span-5 space-y-2 bg-slate-950/70 p-4 rounded-2xl border border-white/5">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                      <Wallet className="w-4 h-4 text-emerald-600" />
-                      Orçamento Semanal (Preço Médio)
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                      <Wallet className="w-4 h-4 text-emerald-400" />
+                      Orçamento Semanal
                     </label>
-                    <span className="text-xl font-extrabold text-emerald-700">
+                    <span className="text-xl font-black text-emerald-400 tracking-tight">
                       {formatBRL(budgetDraft)}
                     </span>
                   </div>
@@ -1211,28 +1239,28 @@ export default function App() {
                     onChange={(e) => setBudgetDraft(Number(e.target.value))}
                     onMouseUp={() => updateProfile({ weekly_budget: Number(budgetDraft) })}
                     onTouchEnd={() => updateProfile({ weekly_budget: Number(budgetDraft) })}
-                    className="w-full accent-emerald-600 cursor-pointer h-2 bg-slate-200 rounded-lg"
+                    className="w-full accent-emerald-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
                   />
                   <div className="flex justify-between text-[11px] text-slate-400 font-medium">
-                    <span>R$ 100 (Ultra Econômico)</span>
+                    <span>R$ 100 (Econômico)</span>
                     <span>R$ 400 (Equilibrado)</span>
                     <span>R$ 800 (Família)</span>
                   </div>
                 </div>
 
-                {/* Household Size + Diet */}
-                <div className="lg:col-span-4 grid grid-cols-2 gap-3">
+                {/* Pessoas na Casa & Preferência Alimentar */}
+                <div className="lg:col-span-4 grid grid-cols-2 gap-3 bg-slate-950/70 p-4 rounded-2xl border border-white/5">
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 mb-1">
-                      <Users className="w-3.5 h-3.5 text-emerald-600" />
-                      Pessoas na Casa
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1 mb-1.5">
+                      <Users className="w-3.5 h-3.5 text-emerald-400" />
+                      Pessoas
                     </label>
                     <select
                       value={user.household_size}
                       onChange={(e) =>
                         updateProfile({ household_size: Number(e.target.value) })
                       }
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold bg-slate-50 focus:outline-none focus:border-emerald-500"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-semibold text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer"
                     >
                       {[1, 2, 3, 4, 5, 6].map((n) => (
                         <option key={n} value={n}>
@@ -1243,14 +1271,14 @@ export default function App() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 mb-1">
-                      <Filter className="w-3.5 h-3.5 text-emerald-600" />
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1 mb-1.5">
+                      <Filter className="w-3.5 h-3.5 text-emerald-400" />
                       Preferência
                     </label>
                     <select
                       value={user.dietary_filter}
                       onChange={(e) => updateProfile({ dietary_filter: e.target.value })}
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold bg-slate-50 focus:outline-none focus:border-emerald-500"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-semibold text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer"
                     >
                       {DIETARY_OPTIONS.map((opt) => (
                         <option key={opt} value={opt}>
@@ -1261,164 +1289,454 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Smart Generator */}
-                <div className="lg:col-span-3">
+                {/* Botão de Ação: Recalcular Cardápio */}
+                <div className="lg:col-span-3 flex flex-col justify-center">
                   <button
                     onClick={handleGenerateSmartPlan}
-                    className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition cursor-pointer"
+                    className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-sm shadow-lg shadow-emerald-950/40 flex items-center justify-center gap-2 transition active:scale-[0.98] cursor-pointer"
                   >
-                    <Sparkles className="w-4 h-4" />
-                    <span>Recalcular para {formatBRL(budgetDraft)}</span>
+                    <Sparkles className="w-4 h-4 text-emerald-200" />
+                    <span>Recalcular Cardápio</span>
+                  </button>
+                  <p className="text-[11px] text-slate-400 text-center mt-1.5 font-medium">
+                    Otimizado para {formatBRL(budgetDraft)}
+                  </p>
+                </div>
+              </div>
+
+              {/* ZONA B: RESUMO FINANCEIRO & STATUS CONSOLIDADO */}
+              <div
+                className={`p-4 rounded-2xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                  isOverBudget
+                    ? 'bg-rose-950/30 border-rose-800/50 text-rose-200'
+                    : 'bg-emerald-950/30 border-emerald-800/40 text-emerald-200'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                      isOverBudget ? 'bg-rose-900/60 text-rose-400' : 'bg-emerald-900/60 text-emerald-400'
+                    }`}
+                  >
+                    {isOverBudget ? <AlertTriangle className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+                          isOverBudget
+                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                            : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                        }`}
+                      >
+                        {isOverBudget ? 'Acima da Meta' : 'Dentro do Orçamento'}
+                      </span>
+                      <span className="text-xs font-semibold text-slate-300">
+                        Custo semanal estimado:{' '}
+                        <strong className="text-white">{formatBRL(totals.weeklyActualCost)}</strong>
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {isOverBudget
+                        ? `O cardápio planejado excede a meta em ${formatBRL(
+                            Math.abs(totals.budgetRemaining)
+                          )}. Clique em "Recalcular Cardápio" para reequilibrar receitas.`
+                        : `Plano com 21 refeições para ${user.household_size} ${
+                            user.household_size === 1 ? 'pessoa' : 'pessoas'
+                          } com saldo livre de ${formatBRL(totals.budgetRemaining)} no orçamento.`}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => setActiveTab('shopping')}
+                    className="px-4 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-white/10 text-xs font-bold text-slate-100 flex items-center gap-2 transition cursor-pointer hover:border-emerald-500/40"
+                  >
+                    <ShoppingCart className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Ver Lista Consolidada →</span>
                   </button>
                 </div>
               </div>
 
-              {/* Status Banner */}
-              <div
-                className={`mt-5 p-3.5 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs font-medium ${
-                  isOverBudget
-                    ? 'bg-rose-50 text-rose-900 border border-rose-200'
-                    : 'bg-emerald-50/80 text-emerald-950 border border-emerald-200'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {isOverBudget ? (
-                    <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
-                  ) : (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  )}
-                  <span>
-                    {isOverBudget
-                      ? `Atenção: Seu cardápio atual passa ${formatBRL(
-                          Math.abs(totals.budgetRemaining)
-                        )} do orçamento de ${formatBRL(
-                          user.weekly_budget
-                        )}. Clique em "Recalcular" para ajustar automaticamente!`
-                      : `Ótimo! Seu plano de 21 refeições para ${user.household_size} ${
-                          user.household_size === 1 ? 'pessoa' : 'pessoas'
-                        } pelo preço médio estimado deixa ${formatBRL(
-                          totals.budgetRemaining
-                        )} livres no orçamento semanal.`}
-                  </span>
+              {/* VIEW SWITCHER CAPSULE: VISÃO SEMANAL vs FOCO DIÁRIO */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-white/5">
+                <div className="flex items-center gap-1.5 p-1 bg-slate-950/80 rounded-2xl border border-white/5">
+                  <button
+                    type="button"
+                    onClick={() => setPlannerViewMode('week')}
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                      plannerViewMode === 'week'
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>Visão Semanal (7 Dias)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPlannerViewMode('day')}
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                      plannerViewMode === 'day'
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <CalendarDays className="w-3.5 h-3.5" />
+                    <span>Foco Diário</span>
+                  </button>
                 </div>
-                <button
-                  onClick={() => setActiveTab('shopping')}
-                  className="font-bold underline hover:opacity-80 cursor-pointer"
-                >
-                  Ver Lista de Compras Consolidada →
-                </button>
+
+                <div className="text-xs text-slate-400 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <span>Clique no prato para abrir a ficha técnica ou use os 3 pontinhos para ações rápidas</span>
+                </div>
               </div>
             </section>
 
-            {/* 7-Day Weekly Grid */}
-            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
-              {DAYS.map((day) => {
-                const daySlots = SLOTS.map((slot) => {
-                  const found = mealPlan.find((m) => m.day === day && m.slot === slot);
-                  const recipe = found ? recipeMap.get(found.recipe_id) : recipes[0];
-                  return { slot, recipe };
-                });
+            {/* MODO 1: GRADE SEMANAL (7 COLUNAS × 3 REFEIÇÕES COM PROGRESSIVE DISCLOSURE) */}
+            {plannerViewMode === 'week' && (
+              <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-3.5">
+                {DAYS.map((day) => {
+                  const daySlots = SLOTS.map((slot) => {
+                    const found = mealPlan.find((m) => m.day === day && m.slot === slot);
+                    const recipe = found ? recipeMap.get(found.recipe_id) : recipes[0];
+                    return { slot, recipe };
+                  });
 
-                const dayCost = daySlots.reduce(
-                  (acc, s) => acc + getRecipeMealCost(s.recipe),
-                  0
-                );
-                const dayCals = daySlots.reduce(
-                  (acc, s) => acc + (s.recipe?.calories || 0),
-                  0
-                );
+                  const dayCost = daySlots.reduce(
+                    (acc, s) => acc + getRecipeMealCost(s.recipe),
+                    0
+                  );
+                  const dayCals = daySlots.reduce(
+                    (acc, s) => acc + (s.recipe?.calories || 0),
+                    0
+                  );
 
-                return (
-                  <div
-                    key={day}
-                    className="bg-white rounded-2xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden"
-                  >
-                    <div className="p-3 bg-slate-900 text-white flex items-center justify-between">
-                      <div>
-                        <h3 className="font-bold text-sm">{day}</h3>
-                        <p className="text-[11px] text-slate-300">{dayCals} kcal/pessoa</p>
+                  return (
+                    <div
+                      key={day}
+                      className="bg-slate-900/70 rounded-2xl border border-slate-800/90 shadow-md flex flex-col overflow-hidden transition hover:border-slate-700"
+                    >
+                      {/* Day Column Header Consolidado */}
+                      <div className="p-3 bg-slate-900/95 border-b border-white/5 flex items-center justify-between">
+                        <div>
+                          <h3 className="font-extrabold text-sm text-slate-100">{day}</h3>
+                          <p className="text-[11px] text-slate-400">{dayCals} kcal/dia</p>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 font-bold text-xs border border-emerald-500/25">
+                          {formatBRL(dayCost)}
+                        </span>
                       </div>
-                      <span className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold text-xs border border-emerald-400/30">
-                        {formatBRL(dayCost)}
-                      </span>
-                    </div>
 
-                    <div className="p-2.5 space-y-2.5 flex-1 flex flex-col justify-between">
-                      {daySlots.map(({ slot, recipe }) => {
-                        if (!recipe) return null;
-                        const mealCost = getRecipeMealCost(recipe);
-                        return (
-                          <div
-                            key={slot}
-                            className="group rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-white hover:border-emerald-200 hover:shadow-xs p-2.5 transition flex flex-col justify-between"
-                          >
-                            <div>
-                              <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                                <span>{slot}</span>
-                                <span className="text-emerald-700 font-extrabold">
-                                  {formatBRL(mealCost)}
+                      {/* Meal Cards */}
+                      <div className="p-2 space-y-2.5 flex-1 flex flex-col justify-between">
+                        {daySlots.map(({ slot, recipe }) => {
+                          if (!recipe) return null;
+                          const mealCost = getRecipeMealCost(recipe);
+                          const isMenuOpen =
+                            activeMealMenu?.day === day && activeMealMenu?.slot === slot;
+
+                          return (
+                            <div
+                              key={slot}
+                              data-meal-menu
+                              className="group relative rounded-xl border border-slate-800/90 bg-slate-900/50 hover:bg-slate-800/80 hover:border-emerald-500/40 p-2.5 transition-all flex flex-col justify-between gap-2 shadow-2xs"
+                            >
+                              {/* Card Header: Slot Name + Price + 3-Dot Dropdown */}
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                                  {slot}
                                 </span>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs font-black text-emerald-400">
+                                    {formatBRL(mealCost)}
+                                  </span>
+
+                                  {/* 3-Dot Context Menu (Progressive Disclosure) */}
+                                  <div className="relative">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveMealMenu(isMenuOpen ? null : { day, slot });
+                                      }}
+                                      title="Opções da refeição"
+                                      className={`w-6 h-6 rounded-md flex items-center justify-center transition cursor-pointer ${
+                                        isMenuOpen
+                                          ? 'bg-slate-700 text-white'
+                                          : 'text-slate-400 hover:text-slate-100 hover:bg-slate-700/60'
+                                      }`}
+                                    >
+                                      <MoreVertical className="w-3.5 h-3.5" />
+                                    </button>
+
+                                    {/* Dropdown Flutuante */}
+                                    {isMenuOpen && (
+                                      <div
+                                        className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl py-1.5 z-40 divide-y divide-white/5 animate-in fade-in zoom-in-95 duration-100"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <div className="py-1">
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              setActiveMealMenu(null);
+                                              openCookingMode(recipe, e);
+                                            }}
+                                            className="w-full px-3 py-1.5 text-left text-xs font-semibold text-emerald-300 hover:bg-emerald-950/50 flex items-center gap-2 cursor-pointer transition"
+                                          >
+                                            <Play className="w-3 h-3 fill-emerald-300" />
+                                            <span>Modo Cozinhar</span>
+                                          </button>
+                                        </div>
+                                        <div className="py-1">
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setActiveMealMenu(null);
+                                              setRepeatRecipeTarget({
+                                                recipe,
+                                                sourceDay: day,
+                                                sourceSlot: slot,
+                                              });
+                                            }}
+                                            className="w-full px-3 py-1.5 text-left text-xs font-semibold text-slate-300 hover:bg-slate-800 flex items-center gap-2 cursor-pointer transition"
+                                          >
+                                            <Repeat className="w-3 h-3 text-slate-400" />
+                                            <span>Repetir (Sobra)</span>
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setActiveMealMenu(null);
+                                              setSwapSlotTarget({ day, slot });
+                                            }}
+                                            className="w-full px-3 py-1.5 text-left text-xs font-semibold text-slate-300 hover:bg-slate-800 flex items-center gap-2 cursor-pointer transition"
+                                          >
+                                            <ArrowRightLeft className="w-3 h-3 text-slate-400" />
+                                            <span>Trocar Receita</span>
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
                               </div>
 
+                              {/* Clickable Card Body: Direct Access to Recipe Details */}
                               <div
                                 onClick={() => setSelectedRecipeModal(recipe)}
-                                className="flex gap-2.5 items-start cursor-pointer"
+                                className="flex gap-2.5 items-start cursor-pointer group/title"
                               >
                                 <img
                                   src={recipe.image}
                                   alt={recipe.title}
-                                  className="w-12 h-12 rounded-lg object-cover shrink-0 bg-slate-200"
+                                  className="w-12 h-12 rounded-lg object-cover shrink-0 bg-slate-800 ring-1 ring-white/10 group-hover/title:scale-105 transition-transform"
                                 />
-                                <h4 className="text-xs font-bold text-slate-800 group-hover:text-emerald-700 line-clamp-2 leading-snug">
-                                  {recipe.title}
-                                </h4>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-xs font-bold text-slate-100 group-hover/title:text-emerald-300 line-clamp-2 leading-snug transition-colors">
+                                    {recipe.title}
+                                  </h4>
+                                </div>
+                              </div>
+
+                              {/* Subtle Secondary Metadata Badges: Prep Time + Calories */}
+                              <div className="pt-1.5 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
+                                <span className="flex items-center gap-1 font-medium">
+                                  <Clock className="w-3 h-3 text-slate-500" /> {recipe.prepTime}m
+                                </span>
+                                <span className="flex items-center gap-1 font-medium">
+                                  <Flame className="w-3 h-3 text-amber-500/70" /> {recipe.calories} kcal
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </section>
+            )}
+
+            {/* MODO 2: FOCO DIÁRIO DETALHADO (SEGMENTED TABS POR DIA + CARDS AMPLOS) */}
+            {plannerViewMode === 'day' && (
+              <div className="space-y-6">
+                {/* Seletor Horizontal de Dias */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+                  {DAYS.map((day) => {
+                    const isSelected = plannerSelectedDay === day;
+                    const daySlots = SLOTS.map((slot) => {
+                      const found = mealPlan.find((m) => m.day === day && m.slot === slot);
+                      return found ? recipeMap.get(found.recipe_id) : recipes[0];
+                    }).filter(Boolean);
+                    const dayCost = daySlots.reduce((acc, r) => acc + getRecipeMealCost(r), 0);
+                    const dayCals = daySlots.reduce((acc, r) => acc + (r?.calories || 0), 0);
+
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => setPlannerSelectedDay(day)}
+                        className={`px-4 py-3 rounded-2xl flex flex-col items-center gap-1 min-w-[110px] shrink-0 transition-all cursor-pointer border ${
+                          isSelected
+                            ? 'bg-emerald-600 text-white border-emerald-500 shadow-lg shadow-emerald-950/60 scale-[1.02]'
+                            : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-white/5'
+                        }`}
+                      >
+                        <span className="text-xs font-black uppercase tracking-wider">{day}</span>
+                        <span
+                          className={`text-xs font-bold ${
+                            isSelected ? 'text-white' : 'text-emerald-400'
+                          }`}
+                        >
+                          {formatBRL(dayCost)}
+                        </span>
+                        <span
+                          className={`text-[10px] ${
+                            isSelected ? 'text-emerald-100' : 'text-slate-400'
+                          }`}
+                        >
+                          {dayCals} kcal
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* 3 Cards Amplos para o Dia Selecionado */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {SLOTS.map((slot) => {
+                    const found = mealPlan.find(
+                      (m) => m.day === plannerSelectedDay && m.slot === slot
+                    );
+                    const recipe = found ? recipeMap.get(found.recipe_id) : recipes[0];
+                    if (!recipe) return null;
+                    const mealCost = getRecipeMealCost(recipe);
+
+                    return (
+                      <div
+                        key={slot}
+                        className="bg-slate-900/80 rounded-3xl border border-slate-800/90 shadow-xl overflow-hidden flex flex-col justify-between transition hover:border-emerald-500/40"
+                      >
+                        <div>
+                          {/* Foto Panorâmica em Alta Resolução */}
+                          <div
+                            onClick={() => setSelectedRecipeModal(recipe)}
+                            className="relative aspect-video overflow-hidden cursor-pointer group"
+                          >
+                            <img
+                              src={recipe.image}
+                              alt={recipe.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                            <div className="absolute top-3 left-3 flex items-center gap-2">
+                              <span className="px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md text-[10px] font-extrabold uppercase tracking-wider text-slate-200 border border-white/10">
+                                {slot}
+                              </span>
+                            </div>
+                            <div className="absolute top-3 right-3">
+                              <span className="px-3 py-1 rounded-full bg-emerald-500/90 backdrop-blur-md text-slate-950 font-black text-xs shadow-md">
+                                {formatBRL(mealCost)}
+                              </span>
+                            </div>
+                            <div className="absolute bottom-3 left-3 right-3">
+                              <h3 className="font-black text-base text-white group-hover:text-emerald-300 transition-colors line-clamp-2">
+                                {recipe.title}
+                              </h3>
+                            </div>
+                          </div>
+
+                          {/* Metadados Nutricionais & Tempo */}
+                          <div className="p-4 space-y-4">
+                            <div className="grid grid-cols-4 gap-2 text-center">
+                              <div className="p-2 rounded-xl bg-slate-950/60 border border-white/5">
+                                <span className="block text-[10px] font-bold text-slate-400">Tempo</span>
+                                <span className="text-xs font-black text-slate-200">{recipe.prepTime}m</span>
+                              </div>
+                              <div className="p-2 rounded-xl bg-slate-950/60 border border-white/5">
+                                <span className="block text-[10px] font-bold text-slate-400">Calorias</span>
+                                <span className="text-xs font-black text-amber-400">{recipe.calories}</span>
+                              </div>
+                              <div className="p-2 rounded-xl bg-slate-950/60 border border-white/5">
+                                <span className="block text-[10px] font-bold text-slate-400">Proteína</span>
+                                <span className="text-xs font-black text-emerald-400">{recipe.protein || 0}g</span>
+                              </div>
+                              <div className="p-2 rounded-xl bg-slate-950/60 border border-white/5">
+                                <span className="block text-[10px] font-bold text-slate-400">Carbos</span>
+                                <span className="text-xs font-black text-cyan-400">{recipe.carbs || 0}g</span>
                               </div>
                             </div>
 
-                            <div className="mt-2 pt-1.5 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-slate-500">
-                              <span className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" /> {recipe.prepTime}m
+                            {/* Insumos Principais Preview */}
+                            <div>
+                              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
+                                Principais Ingredientes ({recipe.ingredients?.length || 0})
                               </span>
-                              <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                                <button
-                                  onClick={(e) => openCookingMode(recipe, e)}
-                                  title="Iniciar Modo Cozinhar (Passo a Passo)"
-                                  className="px-2 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1 cursor-pointer transition text-[10px]"
-                                >
-                                  <Play className="w-2.5 h-2.5 fill-white" />
-                                  <span>Cozinhar</span>
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    setRepeatRecipeTarget({
-                                      recipe,
-                                      sourceDay: day,
-                                      sourceSlot: slot,
-                                    })
-                                  }
-                                  title="Repetir prato como sobra ou marmita em outro dia/turno"
-                                  className="text-slate-600 hover:text-emerald-700 font-semibold flex items-center gap-0.5 cursor-pointer text-[10px] bg-slate-100 hover:bg-slate-200 px-1.5 py-0.5 rounded transition"
-                                >
-                                  <Repeat className="w-2.5 h-2.5 text-slate-500" />
-                                  <span>Repetir</span>
-                                </button>
-                                <button
-                                  onClick={() => setSwapSlotTarget({ day, slot })}
-                                  className="text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-0.5 cursor-pointer text-[10px]"
-                                >
-                                  <ArrowRightLeft className="w-2.5 h-2.5" />
-                                  <span>Trocar</span>
-                                </button>
+                              <div className="flex flex-wrap gap-1.5">
+                                {(recipe.ingredients || []).slice(0, 4).map((ing, i) => (
+                                  <span
+                                    key={i}
+                                    className="px-2 py-0.5 rounded-lg bg-slate-800 text-[11px] font-medium text-slate-300 border border-white/5"
+                                  >
+                                    {ing.name} ({ing.amount}{ing.unit})
+                                  </span>
+                                ))}
+                                {(recipe.ingredients?.length || 0) > 4 && (
+                                  <span className="px-2 py-0.5 rounded-lg bg-slate-800/50 text-[11px] font-medium text-slate-400">
+                                    +{recipe.ingredients.length - 4} mais
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-            </section>
+                        </div>
+
+                        {/* Ações Estruturadas do Card Diário */}
+                        <div className="p-4 pt-0 space-y-2">
+                          <button
+                            type="button"
+                            onClick={(e) => openCookingMode(recipe, e)}
+                            className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-md shadow-emerald-950/50 flex items-center justify-center gap-2 transition cursor-pointer"
+                          >
+                            <Play className="w-3.5 h-3.5 fill-white" />
+                            <span>Iniciar Modo Cozinhar</span>
+                          </button>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setRepeatRecipeTarget({
+                                  recipe,
+                                  sourceDay: plannerSelectedDay,
+                                  sourceSlot: slot,
+                                })
+                              }
+                              className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-white/5 flex items-center justify-center gap-1.5 transition cursor-pointer"
+                            >
+                              <Repeat className="w-3 h-3 text-slate-400" />
+                              <span>Repetir Sobra</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setSwapSlotTarget({ day: plannerSelectedDay, slot })}
+                              className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-white/5 flex items-center justify-center gap-1.5 transition cursor-pointer"
+                            >
+                              <ArrowRightLeft className="w-3 h-3 text-emerald-400" />
+                              <span>Trocar Receita</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -4719,7 +5037,20 @@ export default function App() {
             )}
 
             {/* STEP 2: CONFERÊNCIA DOS ITENS PARSEADOS & SELEÇÃO PARA GELADEIRA */}
-            {sefazInvoice && (
+            {sefazInvoice && (!sefazInvoice.items || sefazInvoice.items.length === 0) && (
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm flex items-center justify-between">
+                <span>Nenhum item válido foi encontrado no cupom processado.</span>
+                <button
+                  type="button"
+                  onClick={() => setSefazInvoice(null)}
+                  className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 rounded-lg text-xs font-bold text-amber-200 cursor-pointer"
+                >
+                  Voltar e Tentar Novamente
+                </button>
+              </div>
+            )}
+
+            {sefazInvoice && sefazInvoice.items && sefazInvoice.items.length > 0 && (
               <div className="space-y-5">
                 {/* Supermarket Banner */}
                 <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">

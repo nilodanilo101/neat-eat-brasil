@@ -42,13 +42,15 @@ export function parseSefazHtml(html) {
   }
 
   // Verifica se o HTML é uma mensagem de rejeição do firewall da Fazenda (F5 BIG-IP)
-  if (
+  const isRejected =
     html.includes('Request Rejected') ||
     html.includes('The requested URL was rejected') ||
-    html.includes('support ID is')
-  ) {
+    html.toLowerCase().includes('support id is') ||
+    html.toLowerCase().includes('request rejected');
+
+  if (isRejected) {
     throw new Error(
-      'O portal da Fazenda bloqueou a conexão direta com firewall (F5 BIG-IP). Abra o link no seu navegador ou celular, copie o texto dos produtos da nota fiscal e cole na aba "Colar Texto do Cupom".'
+      'A página retornou um bloqueio de firewall da SEFAZ ("Request Rejected"). Como os servidores governamentais bloqueiam acessos automatizados, copie o texto dos produtos direto da página no navegador e cole na área de texto.'
     );
   }
 
@@ -160,6 +162,11 @@ export function parseSefazHtml(html) {
 
   // Enriquece os itens com o matcher culinário
   const items = rawItems.map(enrichScrapedItem);
+  if (items.length === 0) {
+    throw new Error(
+      'Nenhum produto ou alimento foi identificado na nota fiscal. Verifique se o conteúdo colado contém os itens e preços da compra.'
+    );
+  }
   const totalValue = items.reduce((acc, i) => acc + i.totalPrice, 0);
 
   return {
@@ -181,13 +188,16 @@ export function parseSefazText(text) {
   }
 
   // Verifica se o texto é uma mensagem de rejeição de WAF / Firewall da Fazenda
+  const lower = text.toLowerCase();
   if (
-    text.includes('Request Rejected') ||
-    text.includes('The requested URL was rejected') ||
-    text.includes('support ID is')
+    lower.includes('request rejected') ||
+    lower.includes('the requested url was rejected') ||
+    lower.includes('support id is') ||
+    lower.includes('access denied') ||
+    lower.includes('403 forbidden')
   ) {
     throw new Error(
-      'A página da SEFAZ foi bloqueada pelo firewall do governo estadual (F5 BIG-IP). Abra o link no seu navegador ou celular, copie o texto dos produtos da nota fiscal e cole aqui diretamente.'
+      'O texto colado contém uma mensagem de bloqueio de firewall da SEFAZ ("Request Rejected"). Por favor, copie apenas as linhas com os nomes, quantidades e valores dos itens.'
     );
   }
 
@@ -204,7 +214,7 @@ export function parseSefazText(text) {
     const l = rawLines[i];
     if (
       l.length > 3 &&
-      !l.match(/NFC-e|DANFE|CNPJ|IE:|DOCUMENTO|CHAVE|CONSUMIDOR|VIA|ESTRATO|CONSULTA|SEFAZ|FAZENDA/i) &&
+      !l.match(/NFC-e|DANFE|CNPJ|IE:|DOCUMENTO|CHAVE|CONSUMIDOR|VIA|ESTRATO|CONSULTA|SEFAZ|FAZENDA|REQUEST|REJECTED|SUPPORT\s*ID/i) &&
       !l.match(/^\d+$/)
     ) {
       supermarket = l.replace(/[0-9\.\-\/]/g, '').trim() || supermarket;
