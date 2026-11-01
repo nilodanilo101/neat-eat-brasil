@@ -1,7 +1,7 @@
 {
   "name": "neat-eat-br",
   "private": true,
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "NeatEat Brasil — Planejador de Refeições & Ficha Técnica",
   "author": "Danilo de Almeida Silva <nilodanilo101@gmail.com>",
   "type": "module",
