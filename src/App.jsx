@@ -44,6 +44,11 @@ import {
   Lightbulb,
   Snowflake,
   ListChecks,
+  Receipt,
+  ScanLine,
+  QrCode,
+  TrendingDown,
+  TrendingUp,
 } from 'lucide-react';
 
 const DAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
@@ -290,6 +295,99 @@ export default function App() {
 
   // Quick Repeat / Marmita Meal Target
   const [repeatRecipeTarget, setRepeatRecipeTarget] = useState(null); // { recipe, sourceDay, sourceSlot }
+
+  // SEFAZ / NFC-e Invoice & Price Calibration Modal State
+  const [sefazModalOpen, setSefazModalOpen] = useState(false);
+  const [sefazInputMode, setSefazInputMode] = useState('url'); // 'url' | 'text' | 'demo'
+  const [sefazUrl, setSefazUrl] = useState('');
+  const [sefazText, setSefazText] = useState('');
+  const [sefazLoading, setSefazLoading] = useState(false);
+  const [sefazConfirming, setSefazConfirming] = useState(false);
+  const [sefazInvoice, setSefazInvoice] = useState(null);
+  const [sefazError, setSefazError] = useState('');
+  const [sefazSuccessMsg, setSefazSuccessMsg] = useState('');
+
+  async function handleParseSefaz(isDemo = false) {
+    setSefazLoading(true);
+    setSefazError('');
+    setSefazSuccessMsg('');
+    try {
+      const res = await fetch('/api/sefaz/parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: isDemo ? undefined : (sefazInputMode === 'url' ? sefazUrl : undefined),
+          rawText: isDemo ? undefined : (sefazInputMode === 'text' ? sefazText : undefined),
+          isDemo,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Falha ao ler nota fiscal');
+      }
+      setSefazInvoice(json.invoice);
+    } catch (err) {
+      setSefazError(err.message || 'Erro ao processar cupom fiscal');
+    } finally {
+      setSefazLoading(false);
+    }
+  }
+
+  async function handleConfirmSefazInvoice() {
+    if (!sefazInvoice || !sefazInvoice.items) return;
+    setSefazConfirming(true);
+    setSefazError('');
+    try {
+      const res = await fetch('/api/sefaz/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          supermarket: sefazInvoice.supermarket,
+          purchaseDate: sefazInvoice.purchaseDate,
+          totalValue: sefazInvoice.totalValue,
+          items: sefazInvoice.items,
+        }),
+      });
+      const nextData = await res.json();
+      if (!res.ok || !nextData.success) {
+        throw new Error(nextData.error || 'Falha ao confirmar calibração');
+      }
+      setData(nextData);
+      setSefazSuccessMsg(
+        `✅ Compra confirmada com sucesso! ${nextData.calibratedCount} insumos calibrados e ${nextData.stockedCount} itens guardados na sua Geladeira.`
+      );
+      setTimeout(() => {
+        setSefazModalOpen(false);
+        setSefazInvoice(null);
+        setSefazUrl('');
+        setSefazText('');
+        setSefazSuccessMsg('');
+      }, 2400);
+    } catch (err) {
+      setSefazError(err.message || 'Erro ao salvar calibragem e atualizar geladeira');
+    } finally {
+      setSefazConfirming(false);
+    }
+  }
+
+  function handleToggleSefazItemStock(idx) {
+    if (!sefazInvoice) return;
+    const updated = { ...sefazInvoice };
+    const items = [...updated.items];
+    items[idx] = { ...items[idx], stockInFridge: !items[idx].stockInFridge };
+    updated.items = items;
+    setSefazInvoice(updated);
+  }
+
+  function handleToggleAllSefazStock(checked) {
+    if (!sefazInvoice) return;
+    const updated = { ...sefazInvoice };
+    updated.items = updated.items.map((i) => ({
+      ...i,
+      stockInFridge: i.isNonFood ? false : checked,
+    }));
+    setSefazInvoice(updated);
+  }
 
   // Screen Wake Lock API: impede que a tela desligue durante o Modo Cozinhar
   useEffect(() => {
@@ -1456,7 +1554,20 @@ export default function App() {
                       <strong>{user.household_size} pessoas</strong>.
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setSefazInvoice(null);
+                        setSefazError('');
+                        setSefazSuccessMsg('');
+                        setSefazModalOpen(true);
+                      }}
+                      className="text-xs font-extrabold px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-xs flex items-center gap-1.5 cursor-pointer transition"
+                      title="Importar cupom fiscal com preços reais para calibrar custos e atualizar geladeira"
+                    >
+                      <Receipt className="w-4 h-4" />
+                      <span>Cheguei do Mercado (NFC-e)</span>
+                    </button>
                     <button
                       onClick={() => setHideCheckedShopping((prev) => !prev)}
                       className={`text-xs font-bold px-3 py-2 rounded-xl border transition cursor-pointer flex items-center gap-1.5 ${
@@ -1611,6 +1722,28 @@ export default function App() {
                       Marque o que você já tem em casa para abater da lista de compras e descobrir receitas!
                     </p>
                   </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex items-center justify-between gap-3 shadow-2xs">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Receipt className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <div>
+                      <p className="text-xs font-bold text-emerald-950">Entrada Automática por Nota Fiscal</p>
+                      <p className="text-[11px] text-emerald-700">Abasteça quantidades e calibre preços com cupom da SEFAZ</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSefazInvoice(null);
+                      setSefazError('');
+                      setSefazSuccessMsg('');
+                      setSefazModalOpen(true);
+                    }}
+                    className="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-2xs shrink-0 cursor-pointer transition flex items-center gap-1"
+                  >
+                    <span>Importar Cupom</span>
+                  </button>
                 </div>
 
                 <form
@@ -4446,6 +4579,466 @@ export default function App() {
             >
               Fechar Lista
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 7: CALIBRADOR DE PREÇOS REAIS & ENTRADA DE COMPRAS (SEFAZ / NFC-e) */}
+      {sefazModalOpen && (
+        <div
+          onClick={() => {
+            if (!sefazConfirming) {
+              setSefazModalOpen(false);
+              setSefazInvoice(null);
+              setSefazError('');
+              setSefazSuccessMsg('');
+            }
+          }}
+          className="fixed inset-0 z-60 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-5"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-7 shadow-2xl border border-slate-200/90 dark:border-white/10 space-y-6"
+          >
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 dark:border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-md shadow-emerald-600/25 shrink-0">
+                  <Receipt className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
+                      Calibrador de Preços & Entrada de Compras
+                    </h2>
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/40">
+                      NFC-e / SEFAZ
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Cole o link ou texto da nota fiscal. O NeatEat calibra o preço médio dos alimentos e abastece sua geladeira com quantidades reais.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (!sefazConfirming) {
+                    setSefazModalOpen(false);
+                    setSefazInvoice(null);
+                    setSefazError('');
+                    setSefazSuccessMsg('');
+                  }
+                }}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 transition cursor-pointer shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Error / Success Feedback */}
+            {sefazError && (
+              <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/40 text-rose-800 dark:text-rose-200 text-xs flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-bold">Atenção ao processar cupom fiscal:</p>
+                  <p className="leading-relaxed">{sefazError}</p>
+                </div>
+              </div>
+            )}
+
+            {sefazSuccessMsg && (
+              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-600/40 text-emerald-900 dark:text-emerald-200 text-sm font-bold flex items-center gap-3 animate-fade-in shadow-xs">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <span>{sefazSuccessMsg}</span>
+              </div>
+            )}
+
+            {/* STEP 1: ENTRADA DE DADOS (QUANDO NENHUMA NOTA FOI PARSEADA AINDA) */}
+            {!sefazInvoice && (
+              <div className="space-y-5">
+                {/* Segmented Control Capsule */}
+                <div className="flex p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200/80 dark:border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => { setSefazInputMode('url'); setSefazError(''); }}
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                      sefazInputMode === 'url'
+                        ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                    }`}
+                  >
+                    <Link2 className="w-3.5 h-3.5" />
+                    <span>Link da Fazenda (URL / QR Code)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setSefazInputMode('text'); setSefazError(''); }}
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                      sefazInputMode === 'text'
+                        ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                    }`}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Colar Texto ou HTML</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setSefazInputMode('demo'); setSefazError(''); }}
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                      sefazInputMode === 'demo'
+                        ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                    }`}
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Testar com Cupom Exemplo</span>
+                  </button>
+                </div>
+
+                {/* ABA 1: LINK DA FAZENDA */}
+                {sefazInputMode === 'url' && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 block">
+                        Cole a URL da NFC-e impressa no cupom do mercado:
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="url"
+                          placeholder="https://www.fazenda.sp.gov.br/NFCeConsultaPublica/Paginas/ConsultaQRCode.aspx?p=..."
+                          value={sefazUrl}
+                          onChange={(e) => setSefazUrl(e.target.value)}
+                          className="w-full rounded-2xl border border-slate-300 dark:border-white/15 px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 pr-10"
+                        />
+                        {sefazUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setSefazUrl('')}
+                            className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-400">
+                        💡 <strong>Como achar:</strong> Aponte a câmera do celular para o QR Code da nota fiscal do supermercado e copie o link, ou digite o link que aparece impresso logo abaixo do QR Code.
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                        <ScanLine className="w-4 h-4 text-emerald-600" />
+                        <span>Suporte a notas de <strong>SP, RJ, MG, RS, PR, BA, DF</strong> e padrão nacional ENCAT.</span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={!sefazUrl.trim() || sefazLoading}
+                      onClick={() => handleParseSefaz(false)}
+                      className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition"
+                    >
+                      {sefazLoading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Conectando com a SEFAZ e extraindo itens...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Search className="w-4 h-4" />
+                          <span>Buscar e Ler Nota Fiscal</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {/* ABA 2: COLAR TEXTO OU HTML */}
+                {sefazInputMode === 'text' && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 block">
+                        Cole o texto copiado da página da SEFAZ ou do cupom:
+                      </label>
+                      <textarea
+                        rows={6}
+                        placeholder={`001 ARROZ BRANCO CAMIL 1KG Qtde: 2 UN Vl.Unit: 5,89 Vl.Total: 11,78\n002 PEITO DE FRANGO KG 1,450 KG X 21,90 31,75\n003 QUEIJO MUSSARELA FATIADO 0,350 KG X 48,00 16,80\n004 SABAO EM PO OMO 1.6KG 1 UN X 22,90 22,90`}
+                        value={sefazText}
+                        onChange={(e) => setSefazText(e.target.value)}
+                        className="w-full rounded-2xl border border-slate-300 dark:border-white/15 p-4 text-xs font-mono leading-relaxed focus:outline-none focus:border-emerald-500"
+                      />
+                      <p className="text-[11px] text-slate-400">
+                        💡 Se o portal da Fazenda do seu estado exigir Captcha no navegador, abra a nota no celular ou computador, selecione o texto dos produtos e cole aqui diretamente.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={!sefazText.trim() || sefazLoading}
+                      onClick={() => handleParseSefaz(false)}
+                      className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition"
+                    >
+                      {sefazLoading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Analisando e normalizando insumos...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ScanLine className="w-4 h-4" />
+                          <span>Processar Texto do Cupom</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {/* ABA 3: DEMONSTRAÇÃO INSTANTÂNEA */}
+                {sefazInputMode === 'demo' && (
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-500/30 space-y-2">
+                      <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-amber-900 dark:text-amber-300">
+                        <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <span>Cupom Realista de Demonstração</span>
+                      </div>
+                      <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
+                        Experimente a tecnologia imediatamente sem precisar escanear um cupom de papel agora. Carregaremos um cupom de compras do <strong>Atacadão Supermercados</strong> com 12 itens (carnes, ovos, arroz, queijo, azeite, tomate e itens de limpeza para testar o filtro inteligente).
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={sefazLoading}
+                      onClick={() => handleParseSefaz(true)}
+                      className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition"
+                    >
+                      {sefazLoading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Carregando cupom demonstrativo...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-4 h-4" />
+                          <span>Carregar Cupom de Demonstração (12 Itens)</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* STEP 2: CONFERÊNCIA DOS ITENS PARSEADOS & SELEÇÃO PARA GELADEIRA */}
+            {sefazInvoice && (
+              <div className="space-y-5">
+                {/* Supermarket Banner */}
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
+                        {sefazInvoice.supermarket}
+                      </h3>
+                      {sefazInvoice.isDemo && (
+                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300/40">
+                          Demonstração
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Data da compra: <strong>{sefazInvoice.purchaseDate}</strong> • Total pago: <strong className="text-emerald-600 dark:text-emerald-400">{formatBRL(sefazInvoice.totalValue)}</strong>
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-xs font-bold border border-emerald-300/40">
+                      🥬 {sefazInvoice.foodItemsCount} Alimentos
+                    </span>
+                    {sefazInvoice.itemsCount > sefazInvoice.foodItemsCount && (
+                      <span className="px-2.5 py-1 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold">
+                        🧴 {sefazInvoice.itemsCount - sefazInvoice.foodItemsCount} Outros
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Items Review Table */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between px-1">
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={sefazInvoice.items.filter((i) => !i.isNonFood).every((i) => i.stockInFridge)}
+                          onChange={(e) => handleToggleAllSefazStock(e.target.checked)}
+                          className="rounded text-emerald-600 focus:ring-emerald-500"
+                        />
+                        <span>Marcar todos os alimentos para a Geladeira</span>
+                      </label>
+                    </div>
+                    <span className="text-xs text-slate-400">
+                      {sefazInvoice.items.filter((i) => i.stockInFridge).length} de {sefazInvoice.items.length} itens selecionados
+                    </span>
+                  </div>
+
+                  <div className="border border-slate-200/80 dark:border-white/10 rounded-2xl overflow-hidden divide-y divide-slate-100 dark:divide-white/5 max-h-[44vh] overflow-y-auto">
+                    {sefazInvoice.items.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={`p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition ${
+                          item.isNonFood
+                            ? 'bg-slate-50/40 dark:bg-slate-900/40 opacity-70'
+                            : item.stockInFridge
+                            ? 'bg-white dark:bg-slate-800/40'
+                            : 'bg-slate-50/70 dark:bg-slate-900/60'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <input
+                            type="checkbox"
+                            checked={item.stockInFridge}
+                            onChange={() => handleToggleSefazItemStock(idx)}
+                            className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer shrink-0"
+                            title="Marque para guardar na geladeira"
+                          />
+
+                          <div className="min-w-0 space-y-0.5">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
+                                {item.rawName}
+                              </span>
+                              {item.isNonFood && (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                                  Não Alimentício
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2 text-xs">
+                              <span className="text-emerald-700 dark:text-emerald-300 font-semibold flex items-center gap-1">
+                                <span>↳ {item.matchedName}</span>
+                              </span>
+                              <span className="text-slate-400">•</span>
+                              <span className="text-slate-500 dark:text-slate-400 font-medium">
+                                {item.quantity} {item.unit}
+                              </span>
+                              <span className="text-slate-400">•</span>
+                              <span className="text-slate-500 dark:text-slate-400">
+                                {formatBRL(item.unitPrice)}/{item.unit}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex sm:flex-col items-end justify-between sm:justify-center gap-1 shrink-0 text-right">
+                          <span className="text-sm font-black text-slate-900 dark:text-white">
+                            {formatBRL(item.totalPrice)}
+                          </span>
+
+                          {item.priceVariationPct !== null && (
+                            <span
+                              className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-0.5 ${
+                                item.priceVariationPct < 0
+                                  ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
+                                  : item.priceVariationPct > 0
+                                  ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300'
+                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                              }`}
+                            >
+                              {item.priceVariationPct < 0 ? (
+                                <>
+                                  <TrendingDown className="w-3 h-3 text-emerald-600" />
+                                  <span>{item.priceVariationPct}% mais barato</span>
+                                </>
+                              ) : item.priceVariationPct > 0 ? (
+                                <>
+                                  <TrendingUp className="w-3 h-3 text-rose-600" />
+                                  <span>+{item.priceVariationPct}%</span>
+                                </>
+                              ) : (
+                                <span>Referência</span>
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Summary & Impact Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-3 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-500/20 text-xs space-y-1">
+                    <span className="font-extrabold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
+                      <Refrigerator className="w-4 h-4 text-emerald-600" />
+                      <span>Geladeira & Despensa</span>
+                    </span>
+                    <p className="text-slate-600 dark:text-slate-300">
+                      <strong>{sefazInvoice.items.filter((i) => i.stockInFridge).length} itens</strong> entrarão no seu estoque com quantidade real.
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-sky-50/70 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-500/20 text-xs space-y-1">
+                    <span className="font-extrabold text-sky-900 dark:text-sky-300 flex items-center gap-1.5">
+                      <Scale className="w-4 h-4 text-sky-600" />
+                      <span>Fichas Técnicas</span>
+                    </span>
+                    <p className="text-slate-600 dark:text-slate-300">
+                      <strong>{sefazInvoice.foodItemsCount} insumos</strong> calibrarão os custos por porção das suas receitas.
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-500/20 text-xs space-y-1">
+                    <span className="font-extrabold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                      <ShoppingCart className="w-4 h-4 text-amber-600" />
+                      <span>Lista da Semana</span>
+                    </span>
+                    <p className="text-slate-600 dark:text-slate-300">
+                      Baixa automática no carrinho dos itens comprados.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-between gap-3 pt-2">
+                  <button
+                    type="button"
+                    disabled={sefazConfirming}
+                    onClick={() => {
+                      setSefazInvoice(null);
+                      setSefazError('');
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold cursor-pointer transition"
+                  >
+                    ← Voltar / Outra Nota
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={sefazConfirming}
+                    onClick={handleConfirmSefazInvoice}
+                    className="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-sm flex items-center gap-2 cursor-pointer shadow-md shadow-emerald-600/20 transition disabled:opacity-50"
+                  >
+                    {sefazConfirming ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Calibrando e Atualizando Estoque...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Confirmar & Calibrar NeatEat</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

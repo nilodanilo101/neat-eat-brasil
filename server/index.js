@@ -8,9 +8,16 @@ import {
   generateSmartMealPlan,
   getSuggestionsState,
   getTodayDateKey,
+  getMarketPrices,
+  getGroceryHistory,
+  saveGroceryInvoice,
+  calibrateMarketPrices,
+  stockFridgeFromInvoice,
 } from './db.js';
 import { CURRENT_VERSION, RELEASE_NOTES } from './changelog.js';
 import { CACHE_DIR } from './imageCache.js';
+import { parseSefazUrl, parseSefazHtml, parseSefazText, getDemoSefazInvoice } from './sefazParser.js';
+import { CANONICAL_INGREDIENTS } from './ingredientMatcher.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -115,7 +122,7 @@ function getFullState() {
   const allUsers = db.prepare('SELECT id, name, email, household_code FROM users ORDER BY id ASC').all();
   const recipes = getAllRecipes();
   const mealPlan = db.prepare('SELECT day, slot, recipe_id FROM meal_plans').all();
-  const fridgeItems = db.prepare('SELECT id, name, category FROM fridge_items ORDER BY name ASC').all();
+  const fridgeItems = db.prepare('SELECT id, name, category, amount, unit, last_updated FROM fridge_items ORDER BY name ASC').all();
   const checkedRows = db.prepare('SELECT item_key, checked FROM shopping_state').all();
   const checkedMap = new Map(checkedRows.map((r) => [r.item_key, r.checked === 1]));
 
@@ -133,6 +140,8 @@ function getFullState() {
     .reduce((acc, item) => acc + item.estimatedPrice, 0);
   const netToBuyTotal = Math.max(0, grossTotal - fridgeSavings);
   const suggestionsState = getSuggestionsState();
+  const marketPrices = getMarketPrices();
+  const groceryHistory = getGroceryHistory();
 
   return {
     user,
@@ -140,6 +149,8 @@ function getFullState() {
     recipes,
     mealPlan,
     fridgeItems,
+    marketPrices,
+    groceryHistory,
     shoppingList,
     suggestions: suggestionsState.suggestions,
     dismissedSuggestionsCount: suggestionsState.dismissedCount,
@@ -530,6 +541,92 @@ export async function startServer(options = {}) {
     `).run(itemKey, nextVal);
 
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
+  });
+
+  // ============================================================================
+  // ENDPOINTS DE NOTA FISCAL (SEFAZ / NFC-e) & CALIBRAGEM DE PREÇOS
+  // ============================================================================
+
+  // 1. Processar URL / HTML / Texto ou Demonstração da SEFAZ
+  app.post('/api/sefaz/parse', async (req, res) => {
+    try {
+      const { url, html, rawText, isDemo } = req.body;
+
+      let invoice;
+      if (isDemo) {
+        invoice = getDemoSefazInvoice();
+      } else if (url && url.trim()) {
+        invoice = await parseSefazUrl(url.trim());
+      } else if (html && html.trim()) {
+        invoice = parseSefazHtml(html.trim());
+      } else if (rawText && rawText.trim()) {
+        invoice = parseSefazText(rawText.trim());
+      } else {
+        return res.status(400).json({ error: 'Nenhum dado fornecido (informe URL, HTML ou Texto da nota fiscal).' });
+      }
+
+      res.json({
+        success: true,
+        invoice,
+        canonicalIngredients: CANONICAL_INGREDIENTS,
+      });
+    } catch (err) {
+      console.error('Erro ao processar nota fiscal:', err);
+      res.status(500).json({ error: err.message || 'Erro ao processar cupom fiscal' });
+    }
+  });
+
+  // 2. Confirmar Nota: Calibrar Preços + Abastecer Geladeira + Baixar Compras
+  app.post('/api/sefaz/confirm', (req, res) => {
+    try {
+      const { supermarket, purchaseDate, totalValue, items = [] } = req.body;
+      if (!items || items.length === 0) {
+        return res.status(400).json({ error: 'Nenhum item para confirmar.' });
+      }
+
+      // Salva nota no histórico
+      const invoiceId = saveGroceryInvoice({ supermarket, purchaseDate, totalValue, items });
+
+      // Calibra preços médios dos insumos
+      const calibratedCount = calibrateMarketPrices(items, supermarket);
+
+      // Abastece a geladeira com quantidades reais
+      const stockedCount = stockFridgeFromInvoice(items);
+
+      // Dá baixa na lista de compras para os insumos alimentícios estocados
+      const markShopping = db.prepare(`
+        INSERT INTO shopping_state (item_key, checked)
+        VALUES (?, 1)
+        ON CONFLICT(item_key) DO UPDATE SET checked = 1
+      `);
+      for (const it of items) {
+        if (it.stockInFridge && it.matchedKey) {
+          markShopping.run(it.matchedKey);
+        }
+      }
+
+      res.json({
+        success: true,
+        invoiceId,
+        calibratedCount,
+        stockedCount,
+        ...getFullState(),
+        currentVersion: appVersion || CURRENT_VERSION,
+      });
+    } catch (err) {
+      console.error('Erro ao confirmar nota fiscal:', err);
+      res.status(500).json({ error: err.message || 'Erro ao confirmar calibragem' });
+    }
+  });
+
+  // 3. Obter Histórico de Cupons Fiscais
+  app.get('/api/sefaz/history', (_req, res) => {
+    res.json({ history: getGroceryHistory() });
+  });
+
+  // 4. Obter Preços Médios Calibrados de Mercado
+  app.get('/api/market-prices', (_req, res) => {
+    res.json({ prices: getMarketPrices() });
   });
 
   // CREATE NEW RECIPE (FICHA TÉCNICA DE RESTAURANTE)

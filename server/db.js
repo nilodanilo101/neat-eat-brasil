@@ -80,8 +80,32 @@ export function initDb() {
       recipe_json TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS ingredient_market_prices (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      ingredient_key TEXT UNIQUE NOT NULL,
+      display_name TEXT NOT NULL,
+      aisle TEXT NOT NULL DEFAULT 'Mercearia',
+      std_unit TEXT NOT NULL DEFAULT 'kg',
+      last_unit_price REAL NOT NULL,
+      avg_unit_price REAL NOT NULL,
+      sample_count INTEGER NOT NULL DEFAULT 1,
+      last_supermarket TEXT NOT NULL DEFAULT '',
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS grocery_invoices (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      supermarket TEXT NOT NULL,
+      purchase_date TEXT NOT NULL,
+      total_value REAL NOT NULL,
+      items_count INTEGER NOT NULL DEFAULT 0,
+      items_json TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE INDEX IF NOT EXISTS idx_meal_plans_day_slot ON meal_plans(day, slot);
     CREATE INDEX IF NOT EXISTS idx_suggestion_swipes_id ON suggestion_swipes(suggestion_id);
+    CREATE INDEX IF NOT EXISTS idx_market_prices_key ON ingredient_market_prices(ingredient_key);
   `);
 
   try {
@@ -100,6 +124,9 @@ export function initDb() {
     `ALTER TABLE recipes ADD COLUMN sections_json TEXT NOT NULL DEFAULT '[]'`,
     `ALTER TABLE recipes ADD COLUMN step_details_json TEXT NOT NULL DEFAULT '[]'`,
     `ALTER TABLE recipes ADD COLUMN chef_tips_json TEXT NOT NULL DEFAULT '{}'`,
+    `ALTER TABLE fridge_items ADD COLUMN amount REAL NOT NULL DEFAULT 1.0`,
+    `ALTER TABLE fridge_items ADD COLUMN unit TEXT NOT NULL DEFAULT 'un'`,
+    `ALTER TABLE fridge_items ADD COLUMN last_updated TEXT NOT NULL DEFAULT ''`,
   ];
   for (const sql of safeMigrations) {
     try {
@@ -1123,4 +1150,159 @@ export function getSuggestionsState() {
     lastSwipe,
     discoveryDate: todayKey,
   };
+}
+
+// ============================================================================
+// CALIBRAÇÃO DE PREÇOS REAIS & GESTÃO DE CUPONS FISCAIS (SEFAZ / NFC-e)
+// ============================================================================
+
+export function getMarketPrices() {
+  return db.prepare('SELECT * FROM ingredient_market_prices ORDER BY display_name ASC').all();
+}
+
+export function saveGroceryInvoice({ supermarket, purchaseDate, totalValue, items }) {
+  const stmt = db.prepare(`
+    INSERT INTO grocery_invoices (supermarket, purchase_date, total_value, items_count, items_json)
+    VALUES (?, ?, ?, ?, ?)
+  `);
+  const result = stmt.run(
+    supermarket || 'Supermercado',
+    purchaseDate || new Date().toISOString().split('T')[0],
+    Number(totalValue) || 0,
+    items?.length || 0,
+    JSON.stringify(items || [])
+  );
+  return result.lastInsertRowid;
+}
+
+export function getGroceryHistory() {
+  const rows = db.prepare('SELECT * FROM grocery_invoices ORDER BY id DESC LIMIT 20').all();
+  return rows.map((r) => ({
+    id: r.id,
+    supermarket: r.supermarket,
+    purchaseDate: r.purchase_date,
+    totalValue: r.total_value,
+    itemsCount: r.items_count,
+    items: JSON.parse(r.items_json || '[]'),
+    createdAt: r.created_at,
+  }));
+}
+
+export function calibrateMarketPrices(items, supermarket = '') {
+  const upsertPrice = db.prepare(`
+    INSERT INTO ingredient_market_prices (
+      ingredient_key, display_name, aisle, std_unit, last_unit_price, avg_unit_price, sample_count, last_supermarket, updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, 1, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(ingredient_key) DO UPDATE SET
+      last_unit_price = excluded.last_unit_price,
+      avg_unit_price = ROUND(((ingredient_market_prices.avg_unit_price * ingredient_market_prices.sample_count) + excluded.last_unit_price) / (ingredient_market_prices.sample_count + 1), 2),
+      sample_count = ingredient_market_prices.sample_count + 1,
+      last_supermarket = excluded.last_supermarket,
+      updated_at = CURRENT_TIMESTAMP
+  `);
+
+  let calibratedCount = 0;
+  for (const item of items) {
+    if (!item.matchedKey || item.isNonFood || !item.pricePerStdUnit || item.pricePerStdUnit <= 0) continue;
+    upsertPrice.run(
+      item.matchedKey,
+      item.matchedName || item.rawName,
+      item.aisle || 'Mercearia',
+      item.stdUnit || 'kg',
+      Number(item.pricePerStdUnit),
+      Number(item.pricePerStdUnit),
+      supermarket || ''
+    );
+    calibratedCount++;
+  }
+
+  // Após calibrar os preços médios no mercado, recalcula os custos nas fichas técnicas
+  try {
+    recalcRecipesCost();
+  } catch (err) {
+    console.error('Erro ao recalcular receitas:', err);
+  }
+
+  return calibratedCount;
+}
+
+export function stockFridgeFromInvoice(items) {
+  const findFridge = db.prepare('SELECT id, amount FROM fridge_items WHERE LOWER(name) = LOWER(?)');
+  const updateFridge = db.prepare('UPDATE fridge_items SET amount = ROUND(amount + ?, 2), unit = ?, last_updated = CURRENT_TIMESTAMP WHERE id = ?');
+  const insertFridge = db.prepare('INSERT INTO fridge_items (name, category, amount, unit, last_updated) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)');
+
+  let stockedCount = 0;
+  for (const item of items) {
+    if (!item.stockInFridge) continue;
+    const itemName = item.matchedName || item.rawName;
+    const category = item.aisle || 'Hortifruti';
+    const amount = Number(item.quantity) || 1;
+    const unit = item.unit || 'un';
+
+    const existing = findFridge.get(itemName.trim());
+    if (existing) {
+      updateFridge.run(amount, unit, existing.id);
+    } else {
+      insertFridge.run(itemName.trim(), category, amount, unit);
+    }
+    stockedCount++;
+  }
+
+  return stockedCount;
+}
+
+export function recalcRecipesCost() {
+  const marketPrices = db.prepare('SELECT ingredient_key, display_name, std_unit, avg_unit_price FROM ingredient_market_prices').all();
+  if (marketPrices.length === 0) return;
+
+  const priceMap = new Map();
+  for (const mp of marketPrices) {
+    priceMap.set(mp.ingredient_key, mp);
+  }
+
+  const recipes = db.prepare('SELECT id, servings, ingredients_json FROM recipes').all();
+  const updateRecipe = db.prepare('UPDATE recipes SET ingredients_json = ? WHERE id = ?');
+
+  for (const r of recipes) {
+    let ingList = [];
+    try {
+      ingList = JSON.parse(r.ingredients_json || '[]');
+    } catch {
+      continue;
+    }
+
+    let modified = false;
+    for (const ing of ingList) {
+      const normName = ing.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      for (const [key, mp] of priceMap.entries()) {
+        const normKey = key.replace(/_/g, ' ');
+        if (normName.includes(normKey) || normKey.includes(normName)) {
+          const amount = Number(ing.amount) || 0;
+          let calculatedPrice = ing.basePrice;
+          if (ing.unit === 'g' && mp.std_unit === 'kg') {
+            calculatedPrice = Number(((amount / 1000) * mp.avg_unit_price).toFixed(2));
+          } else if (ing.unit === 'kg' && mp.std_unit === 'kg') {
+            calculatedPrice = Number((amount * mp.avg_unit_price).toFixed(2));
+          } else if (ing.unit === 'ml' && mp.std_unit === 'l') {
+            calculatedPrice = Number(((amount / 1000) * mp.avg_unit_price).toFixed(2));
+          } else if (ing.unit === 'l' && mp.std_unit === 'l') {
+            calculatedPrice = Number((amount * mp.avg_unit_price).toFixed(2));
+          } else if (['un', 'dente', 'folhas', 'colher'].includes(ing.unit)) {
+            calculatedPrice = Number(Math.max(0.2, (amount * (mp.avg_unit_price / 10))).toFixed(2));
+          }
+
+          if (calculatedPrice > 0 && calculatedPrice !== ing.basePrice) {
+            ing.basePrice = calculatedPrice;
+            modified = true;
+          }
+          break;
+        }
+      }
+    }
+
+    if (modified) {
+      updateRecipe.run(JSON.stringify(ingList), r.id);
+    }
+  }
 }
