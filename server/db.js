@@ -528,11 +528,27 @@ export function initDb() {
       recipe_json TEXT NOT NULL,
       swiped_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS daily_discovered_recipes (
+      id TEXT PRIMARY KEY,
+      date_added TEXT NOT NULL,
+      recipe_json TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_meal_plans_day_slot ON meal_plans(day, slot);
+    CREATE INDEX IF NOT EXISTS idx_suggestion_swipes_id ON suggestion_swipes(suggestion_id);
   `);
+
+  try {
+    db.exec('PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;');
+  } catch {
+    // Ignore if WAL not supported
+  }
 
   // Safe migrations for existing databases
   const safeMigrations = [
     `ALTER TABLE users ADD COLUMN last_seen_version TEXT NOT NULL DEFAULT ''`,
+    `ALTER TABLE users ADD COLUMN last_discovery_date TEXT NOT NULL DEFAULT ''`,
     `ALTER TABLE recipes ADD COLUMN portion_weight TEXT NOT NULL DEFAULT '350g por porção'`,
     `ALTER TABLE recipes ADD COLUMN plating_instructions TEXT NOT NULL DEFAULT ''`,
     `ALTER TABLE recipes ADD COLUMN specific_instructions TEXT NOT NULL DEFAULT ''`,
@@ -674,6 +690,7 @@ export function generateSmartMealPlan(weeklyBudget, dietaryFilter, householdSize
   const insertSlot = db.prepare('INSERT INTO meal_plans (day, slot, recipe_id) VALUES (?, ?, ?)');
 
   let runningTotal = 0;
+  const usedCounts = new Map();
 
   for (let dIdx = 0; dIdx < days.length; dIdx++) {
     const day = days[dIdx];
@@ -690,10 +707,16 @@ export function generateSmartMealPlan(weeklyBudget, dietaryFilter, householdSize
       const maxAllowedSlotCost = Math.max(4, (weeklyBudget - runningTotal) / Math.max(1, remainingSlots));
 
       const affordable = scored.filter((s) => s.slotCost <= maxAllowedSlotCost * 1.15);
-      const candidateList = affordable.length > 0 ? affordable : scored.sort((a, b) => a.slotCost - b.slotCost);
+      const candidateList = (affordable.length > 0 ? affordable : scored).sort((a, b) => {
+        const uA = usedCounts.get(a.recipe.id) || 0;
+        const uB = usedCounts.get(b.recipe.id) || 0;
+        if (uA !== uB) return uA - uB;
+        return a.slotCost - b.slotCost;
+      });
 
-      const chosen = candidateList[(dIdx + slots.indexOf(slot)) % candidateList.length];
+      const chosen = candidateList[(dIdx + slots.indexOf(slot)) % Math.min(3, candidateList.length)];
       runningTotal += chosen.slotCost;
+      usedCounts.set(chosen.recipe.id, (usedCounts.get(chosen.recipe.id) || 0) + 1);
       insertSlot.run(day, slot, chosen.recipe.id);
     }
   }
@@ -1246,9 +1269,221 @@ export const SUGGESTION_RECIPES = [
       'Sirva nas tigelas coroando com o peito de frango desfiado dourado no azeite.',
     ],
   },
+  {
+    id: 'sug-19',
+    title: 'Waffle Crocante de Pão de Queijo Mineiro',
+    category: 'Café da Manhã',
+    prepTime: 12,
+    servings: 2,
+    calories: 305,
+    protein: 15,
+    carbs: 29,
+    fat: 14,
+    tags: ['Sem Glúten', 'Rápido', 'Vegetariano', 'Econômico'],
+    image: '/dishes/sug-19.jpg',
+    source: 'Ficha Técnica — Descoberta Diária',
+    portionWeight: '175g por porção',
+    platingInstructions:
+      'Servir dois waffles dourados dispostos diagonalmente em prato raso aquecido com manteiga derretendo nas cavidades.',
+    specificInstructions:
+      'Pré-aquecer a máquina de waffle ou sanduicheira por 3 minutos antes de despejar a massa para garantir casca crocante.',
+    ingredients: [
+      { name: 'Polvilho doce', amount: 100, unit: 'g', aisle: 'Mercearia', basePrice: 1.90 },
+      { name: 'Ovo', amount: 2, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 1.80 },
+      { name: 'Queijo muçarela ou meia cura', amount: 80, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 3.90 },
+      { name: 'Leite integral', amount: 80, unit: 'ml', aisle: 'Laticínios e Ovos', basePrice: 0.65 },
+    ],
+    steps: [
+      'Bata o leite, os ovos, o polvilho e uma pitada de sal até obter mistura homogênea.',
+      'Incorpore o queijo ralado e asse na máquina de waffle até dourar.',
+    ],
+  },
+  {
+    id: 'sug-20',
+    title: 'Mingau Cremoso de Aveia com Banana Caramelizada',
+    category: 'Café da Manhã',
+    prepTime: 10,
+    servings: 1,
+    calories: 315,
+    protein: 13,
+    carbs: 48,
+    fat: 8,
+    tags: ['Econômico', 'Rápido', 'Vegetariano'],
+    image: '/dishes/sug-20.jpg',
+    source: 'Ficha Técnica — Descoberta Diária',
+    portionWeight: '280g por porção',
+    platingInstructions:
+      'Servir em cumbuca funda aquecida, dispor rodelas de banana douradas em meia-lua e polvilhar canela.',
+    specificInstructions:
+      'Mexer continuamente em fogo brando para liberar o amido da aveia e criar textura aveludada.',
+    ingredients: [
+      { name: 'Aveia em flocos', amount: 45, unit: 'g', aisle: 'Mercearia', basePrice: 1.05 },
+      { name: 'Leite integral', amount: 220, unit: 'ml', aisle: 'Laticínios e Ovos', basePrice: 1.40 },
+      { name: 'Banana nanica', amount: 100, unit: 'g', aisle: 'Hortifruti', basePrice: 0.90 },
+      { name: 'Canela em pó', amount: 3, unit: 'g', aisle: 'Temperos', basePrice: 0.25 },
+    ],
+    steps: [
+      'Cozinhe a aveia no leite em fogo baixo mexendo por 5 minutos até engrossar.',
+      'Doure as rodelas de banana na frigideira com canela e disponha sobre o mingau.',
+    ],
+  },
+  {
+    id: 'sug-21',
+    title: 'Feijão Tropeiro Mineiro Completo com Couve',
+    category: 'Almoço',
+    prepTime: 25,
+    servings: 3,
+    calories: 510,
+    protein: 28,
+    carbs: 49,
+    fat: 21,
+    tags: ['Econômico', 'Alta Proteína', 'Sem Lactose'],
+    image: '/dishes/sug-21.jpg',
+    source: 'Ficha Técnica — Descoberta Diária',
+    portionWeight: '380g por porção',
+    platingInstructions:
+      'Servir em prato rústico aquecido, guarnecer com couve refogada fina na lateral e ovos mexidos dourados no topo.',
+    specificInstructions:
+      'Cozinhar o feijão al dente e escorrer todo o caldo para que o tropeiro fique úmido porém soltinho.',
+    ingredients: [
+      { name: 'Feijão carioca cozido (grãos firmes)', amount: 350, unit: 'g', aisle: 'Mercearia', basePrice: 3.10 },
+      { name: 'Farinha de mandioca torrada', amount: 120, unit: 'g', aisle: 'Mercearia', basePrice: 1.40 },
+      { name: 'Linguiça calabresa', amount: 160, unit: 'g', aisle: 'Açougue', basePrice: 5.90 },
+      { name: 'Ovo', amount: 3, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 2.70 },
+      { name: 'Couve manteiga', amount: 100, unit: 'g', aisle: 'Hortifruti', basePrice: 1.60 },
+    ],
+    steps: [
+      'Doure a calabresa em cubos com cebola e alho, junte os ovos e mexa até cozinharem.',
+      'Adicione o feijão escorrido, a couve fatiada fina e incorpore a farinha de mandioca aos poucos.',
+    ],
+  },
+  {
+    id: 'sug-22',
+    title: 'Lasanha Leve de Abobrinha com Carne Moída e Queijo',
+    category: 'Almoço',
+    prepTime: 35,
+    servings: 3,
+    calories: 385,
+    protein: 32,
+    carbs: 18,
+    fat: 20,
+    tags: ['Low Carb', 'Sem Glúten', 'Alta Proteína'],
+    image: '/dishes/sug-22.jpg',
+    source: 'Ficha Técnica — Descoberta Diária',
+    portionWeight: '360g por porção',
+    platingInstructions:
+      'Cortar fatia quadrada estruturada exibindo as lâminas de abobrinha intercaladas com bolonhesa e topo gratinado.',
+    specificInstructions:
+      'Grelhar rapidamente as lâminas de abobrinha antes da montagem para retirar o excesso de água.',
+    ingredients: [
+      { name: 'Abobrinha italiana', amount: 400, unit: 'g', aisle: 'Hortifruti', basePrice: 3.60 },
+      { name: 'Carne moída (patinho ou acém)', amount: 350, unit: 'g', aisle: 'Açougue', basePrice: 12.20 },
+      { name: 'Tomate', amount: 220, unit: 'g', aisle: 'Hortifruti', basePrice: 1.95 },
+      { name: 'Queijo muçarela', amount: 140, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 6.80 },
+    ],
+    steps: [
+      'Fatie a abobrinha no sentido do comprimento e sele rapidamente em frigideira quente.',
+      'Intercale camadas de abobrinha, carne moída ao molho de tomate e queijo muçarela e leve ao forno para gratinar.',
+    ],
+  },
+  {
+    id: 'sug-23',
+    title: 'Torta Cremosa de Frango de Liquidificador',
+    category: 'Jantar',
+    prepTime: 35,
+    servings: 4,
+    calories: 410,
+    protein: 27,
+    carbs: 36,
+    fat: 16,
+    tags: ['Econômico', 'Alta Proteína'],
+    image: '/dishes/sug-23.jpg',
+    source: 'Ficha Técnica — Descoberta Diária',
+    portionWeight: '260g por porção',
+    platingInstructions:
+      'Servir fatia retangular dourada exibindo o recheio cremoso de frango desfiado com milho e ervas.',
+    specificInstructions:
+      'Deixar descansar por 8 minutos após sair do forno para corte limpo e uniforme das porções.',
+    ingredients: [
+      { name: 'Peito de frango', amount: 400, unit: 'g', aisle: 'Açougue', basePrice: 8.90 },
+      { name: 'Ovo', amount: 3, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 2.70 },
+      { name: 'Leite integral', amount: 250, unit: 'ml', aisle: 'Laticínios e Ovos', basePrice: 1.60 },
+      { name: 'Farinha de trigo ou aveia', amount: 180, unit: 'g', aisle: 'Mercearia', basePrice: 1.50 },
+      { name: 'Requeijão cremoso', amount: 100, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 3.40 },
+    ],
+    steps: [
+      'Refogue o frango desfiado com temperos e requeijão até ficar cremoso.',
+      'Bata a massa no liquidificador, despeje metade na forma, distribua o recheio, cubra e asse até dourar.',
+    ],
+  },
+  {
+    id: 'sug-24',
+    title: 'Nhoque Caseiro de Batata-Doce ao Molho Rústico',
+    category: 'Jantar',
+    prepTime: 30,
+    servings: 2,
+    calories: 395,
+    protein: 14,
+    carbs: 62,
+    fat: 9,
+    tags: ['Econômico', 'Vegetariano'],
+    image: '/dishes/sug-24.jpg',
+    source: 'Ficha Técnica — Descoberta Diária',
+    portionWeight: '330g por porção',
+    platingInstructions:
+      'Dispor os nhoques macios no centro do prato fundo, banhar com molho de tomate fresco e folhas de manjericão.',
+    specificInstructions:
+      'Assar ou cozinhar a batata-doce com casca para absorver menos água e exigir menos farinha na massa.',
+    ingredients: [
+      { name: 'Batata-doce', amount: 400, unit: 'g', aisle: 'Hortifruti', basePrice: 3.20 },
+      { name: 'Aveia em flocos ou farinha', amount: 90, unit: 'g', aisle: 'Mercearia', basePrice: 1.90 },
+      { name: 'Tomate', amount: 250, unit: 'g', aisle: 'Hortifruti', basePrice: 2.20 },
+      { name: 'Queijo parmesão ou muçarela', amount: 40, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 2.80 },
+    ],
+    steps: [
+      'Amasse a batata-doce cozida ainda morna e incorpore a farinha até formar massa macia.',
+      'Modele os nhoques, cozinhe em água fervente até subirem e sirva com molho de tomate rústico.',
+    ],
+  },
 ];
 
+export function getTodayDateKey() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function hashSeed(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+export function ensureDailyDiscoveryRefresh() {
+  const todayKey = getTodayDateKey();
+  const user = db.prepare('SELECT id, last_discovery_date FROM users ORDER BY id ASC LIMIT 1').get();
+  if (!user) return { refreshedToday: false, todayKey };
+
+  if (user.last_discovery_date !== todayKey) {
+    // 1x por dia: renova a pilha de descobertas liberando pratos descartados em dias anteriores e rotacionando o lote do dia
+    db.prepare(
+      "DELETE FROM suggestion_swipes WHERE action = 'left' AND substr(swiped_at, 1, 10) < ?"
+    ).run(todayKey);
+    db.prepare('UPDATE users SET last_discovery_date = ? WHERE id = ?').run(todayKey, user.id);
+    return { refreshedToday: true, todayKey };
+  }
+
+  return { refreshedToday: false, todayKey };
+}
+
 export function getSuggestionsState() {
+  const { todayKey } = ensureDailyDiscoveryRefresh();
+
   const existingRecipes = getAllRecipes();
   const existingTitles = new Set(existingRecipes.map((r) => r.title.toLowerCase().trim()));
   const existingIds = new Set(existingRecipes.map((r) => r.id));
@@ -1256,16 +1491,39 @@ export function getSuggestionsState() {
   const swipedRows = db.prepare('SELECT * FROM suggestion_swipes ORDER BY id DESC').all();
   const swipedMap = new Map(swipedRows.map((row) => [row.suggestion_id, row]));
 
+  const discoveredRows = db
+    .prepare('SELECT * FROM daily_discovered_recipes ORDER BY date_added DESC')
+    .all();
+  const discoveredPool = discoveredRows
+    .map((r) => {
+      try {
+        return JSON.parse(r.recipe_json);
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+
+  const combinedPool = [...discoveredPool, ...SUGGESTION_RECIPES];
+  const seenPoolIds = new Set();
+
   const available = [];
   let dismissedCount = 0;
 
-  for (const sug of SUGGESTION_RECIPES) {
+  for (const sug of combinedPool) {
+    if (seenPoolIds.has(sug.id)) continue;
+    seenPoolIds.add(sug.id);
+
     const swipe = swipedMap.get(sug.id);
     if (swipe?.action === 'left') {
       dismissedCount++;
       continue;
     }
-    if (swipe?.action === 'right' || existingIds.has(sug.id) || existingTitles.has(sug.title.toLowerCase().trim())) {
+    if (
+      swipe?.action === 'right' ||
+      existingIds.has(sug.id) ||
+      existingTitles.has(sug.title.toLowerCase().trim())
+    ) {
       continue;
     }
 
@@ -1277,6 +1535,13 @@ export function getSuggestionsState() {
       costPerServing: Number(costPerServing.toFixed(2)),
     });
   }
+
+  // Ordenação determinística diária (muda 1x por dia com base na data YYYY-MM-DD)
+  available.sort((a, b) => {
+    const scoreA = hashSeed(`${todayKey}:${a.id}`);
+    const scoreB = hashSeed(`${todayKey}:${b.id}`);
+    return scoreA - scoreB;
+  });
 
   const lastSwipeRow = swipedRows[0] || null;
   const lastSwipe = lastSwipeRow
@@ -1291,5 +1556,6 @@ export function getSuggestionsState() {
     suggestions: available,
     dismissedCount,
     lastSwipe,
+    discoveryDate: todayKey,
   };
 }

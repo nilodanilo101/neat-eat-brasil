@@ -1,7 +1,14 @@
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { db, initDb, getAllRecipes, generateSmartMealPlan, getSuggestionsState } from './db.js';
+import {
+  db,
+  initDb,
+  getAllRecipes,
+  generateSmartMealPlan,
+  getSuggestionsState,
+  getTodayDateKey,
+} from './db.js';
 import { CURRENT_VERSION, RELEASE_NOTES } from './changelog.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -136,6 +143,7 @@ function getFullState() {
     suggestions: suggestionsState.suggestions,
     dismissedSuggestionsCount: suggestionsState.dismissedCount,
     lastSuggestionSwipe: suggestionsState.lastSwipe,
+    discoveryDate: suggestionsState.discoveryDate,
     releaseNotes: RELEASE_NOTES,
     currentVersion: CURRENT_VERSION,
     totals: {
@@ -147,8 +155,176 @@ function getFullState() {
   };
 }
 
+const DAILY_ROTATION_THEMES = [
+  {
+    title: 'Strogonoff Caseiro de Frango com Batata Palha',
+    category: 'Almoço',
+    prepTime: 25,
+    servings: 3,
+    calories: 460,
+    protein: 34,
+    carbs: 38,
+    fat: 18,
+    tags: ['Alta Proteína', 'Rápido', 'Econômico'],
+    portionWeight: '360g por porção',
+    ingredients: [
+      { name: 'Peito de frango', amount: 450, unit: 'g', aisle: 'Açougue', basePrice: 9.90 },
+      { name: 'Creme de leite', amount: 200, unit: 'g', aisle: 'Mercearia', basePrice: 3.50 },
+      { name: 'Molho de tomate', amount: 120, unit: 'g', aisle: 'Mercearia', basePrice: 1.80 },
+      { name: 'Arroz branco', amount: 200, unit: 'g', aisle: 'Mercearia', basePrice: 1.50 },
+    ],
+  },
+  {
+    title: 'Carne de Panela Desfiada com Mandioca Cozida',
+    category: 'Almoço',
+    prepTime: 40,
+    servings: 3,
+    calories: 490,
+    protein: 37,
+    carbs: 42,
+    fat: 19,
+    tags: ['Alta Proteína', 'Sem Glúten', 'Sem Lactose'],
+    portionWeight: '390g por porção',
+    ingredients: [
+      { name: 'Carne bovina (acém)', amount: 500, unit: 'g', aisle: 'Açougue', basePrice: 17.50 },
+      { name: 'Mandioca descascada', amount: 350, unit: 'g', aisle: 'Hortifruti', basePrice: 2.90 },
+      { name: 'Cebola', amount: 120, unit: 'g', aisle: 'Hortifruti', basePrice: 0.90 },
+      { name: 'Tomate', amount: 120, unit: 'g', aisle: 'Hortifruti', basePrice: 1.10 },
+    ],
+  },
+  {
+    title: 'Suflê Leve de Legumes com Queijo Gratinado',
+    category: 'Jantar',
+    prepTime: 30,
+    servings: 2,
+    calories: 310,
+    protein: 18,
+    carbs: 22,
+    fat: 16,
+    tags: ['Vegetariano', 'Econômico'],
+    portionWeight: '250g por porção',
+    ingredients: [
+      { name: 'Cenoura', amount: 150, unit: 'g', aisle: 'Hortifruti', basePrice: 1.20 },
+      { name: 'Chuchu ou abobrinha', amount: 150, unit: 'g', aisle: 'Hortifruti', basePrice: 1.30 },
+      { name: 'Ovo', amount: 3, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 2.70 },
+      { name: 'Queijo muçarela', amount: 80, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 3.90 },
+    ],
+  },
+  {
+    title: 'Panqueca Proteica de Espinafre com Frango e Ricota',
+    category: 'Jantar',
+    prepTime: 25,
+    servings: 2,
+    calories: 375,
+    protein: 33,
+    carbs: 28,
+    fat: 13,
+    tags: ['Alta Proteína', 'Econômico'],
+    portionWeight: '310g por porção',
+    ingredients: [
+      { name: 'Peito de frango', amount: 300, unit: 'g', aisle: 'Açougue', basePrice: 6.90 },
+      { name: 'Espinafre ou couve', amount: 80, unit: 'g', aisle: 'Hortifruti', basePrice: 1.80 },
+      { name: 'Ovo', amount: 2, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 1.80 },
+      { name: 'Leite integral', amount: 160, unit: 'ml', aisle: 'Laticínios e Ovos', basePrice: 1.10 },
+    ],
+  },
+  {
+    title: 'Sanduíche Natural de Frango Cremoso no Pão Integral',
+    category: 'Café da Manhã',
+    prepTime: 10,
+    servings: 2,
+    calories: 320,
+    protein: 24,
+    carbs: 32,
+    fat: 10,
+    tags: ['Rápido', 'Alta Proteína', 'Econômico'],
+    portionWeight: '210g por porção',
+    ingredients: [
+      { name: 'Pão integral', amount: 120, unit: 'g', aisle: 'Padaria', basePrice: 2.80 },
+      { name: 'Peito de frango', amount: 200, unit: 'g', aisle: 'Açougue', basePrice: 4.60 },
+      { name: 'Cenoura', amount: 80, unit: 'g', aisle: 'Hortifruti', basePrice: 0.65 },
+      { name: 'Requeijão cremoso', amount: 60, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 2.10 },
+    ],
+  },
+  {
+    title: 'Omelete Recheado com Queijo Minas e Ervas Finas',
+    category: 'Café da Manhã',
+    prepTime: 8,
+    servings: 1,
+    calories: 285,
+    protein: 21,
+    carbs: 5,
+    fat: 19,
+    tags: ['Low Carb', 'Sem Glúten', 'Rápido', 'Alta Proteína', 'Vegetariano'],
+    portionWeight: '180g por porção',
+    ingredients: [
+      { name: 'Ovo', amount: 3, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 2.70 },
+      { name: 'Queijo minas frescal', amount: 50, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 2.40 },
+      { name: 'Tomate', amount: 60, unit: 'g', aisle: 'Hortifruti', basePrice: 0.55 },
+    ],
+  },
+];
+
+let syncingDailyDate = null;
+
+async function syncDailyDiscoveryBatchOncePerDay() {
+  const todayKey = getTodayDateKey();
+  if (syncingDailyDate === todayKey) return;
+
+  const existingToday = db
+    .prepare('SELECT COUNT(*) as count FROM daily_discovered_recipes WHERE date_added = ?')
+    .get(todayKey).count;
+  if (existingToday > 0) {
+    syncingDailyDate = todayKey;
+    return;
+  }
+
+  syncingDailyDate = todayKey;
+  const daySeed = Number(todayKey.replace(/-/g, '')) || 1;
+  const idx1 = daySeed % DAILY_ROTATION_THEMES.length;
+  const idx2 = (daySeed + 3) % DAILY_ROTATION_THEMES.length;
+  const picks = [DAILY_ROTATION_THEMES[idx1], DAILY_ROTATION_THEMES[idx2]];
+
+  for (let i = 0; i < picks.length; i++) {
+    const item = picks[i];
+    const id = `sug-daily-${todayKey}-${i + 1}`;
+    const photos = await searchExactDishPhotos(item.title, item.ingredients);
+    const recipeObj = {
+      id,
+      title: item.title,
+      category: item.category,
+      prepTime: item.prepTime,
+      servings: item.servings,
+      calories: item.calories,
+      protein: item.protein,
+      carbs: item.carbs,
+      fat: item.fat,
+      tags: item.tags,
+      image: photos[0] || '/dishes/rec-5.jpg',
+      source: `Ficha Técnica — Descoberta do Dia (${todayKey.split('-').reverse().join('/')})`,
+      portionWeight: item.portionWeight,
+      platingInstructions:
+        'Dispor a porção centralizada em prato aquecido garantindo apresentação limpa e finalizar com ervas frescas.',
+      specificInstructions:
+        'Manter insumos refrigerados a 4°C até o preparo e respeitar as gramaturas do mise en place.',
+      ingredients: item.ingredients,
+      steps: [
+        'Separe e pese todos os insumos conforme a ficha técnica.',
+        'Prepare o insumo principal em fogo médio até atingir o ponto ideal.',
+        'Finalize a montagem conforme o padrão de serviço e sirva imediatamente.',
+      ],
+    };
+
+    db.prepare(`
+      INSERT OR REPLACE INTO daily_discovered_recipes (id, date_added, recipe_json)
+      VALUES (?, ?, ?)
+    `).run(id, todayKey, JSON.stringify(recipeObj));
+  }
+}
+
 export async function startServer(options = {}) {
   initDb();
+  syncDailyDiscoveryBatchOncePerDay().catch(() => {});
 
   const {
     port = process.env.PORT || 3000,
@@ -161,6 +337,7 @@ export async function startServer(options = {}) {
   app.use(express.json({ limit: '10mb' }));
 
   app.get('/api/state', (_req, res) => {
+    syncDailyDiscoveryBatchOncePerDay().catch(() => {});
     res.json({
       ...getFullState(),
       currentVersion: appVersion || CURRENT_VERSION,

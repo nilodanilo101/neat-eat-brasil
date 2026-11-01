@@ -131,9 +131,10 @@ export default function App() {
   const [tagFilter, setTagFilter] = useState('Todas');
   const [maxPricePerServing, setMaxPricePerServing] = useState(35);
 
-  // Tinder Suggestions tab state
+  // Suggestions (Descoberta de Pratos) tab state
   const [suggestionCatFilter, setSuggestionCatFilter] = useState('Todas');
   const [suggestionSearch, setSuggestionSearch] = useState('');
+  const [swapSearch, setSwapSearch] = useState('');
   const [dragState, setDragState] = useState({
     isDragging: false,
     startX: 0,
@@ -176,6 +177,19 @@ export default function App() {
 
   useEffect(() => {
     fetchState();
+  }, []);
+
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        setSelectedRecipeModal(null);
+        setRecipeFormModal(null);
+        setSwapSlotTarget(null);
+        setAuthModalOpen(false);
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   async function updateProfile(patch) {
@@ -1439,18 +1453,23 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 5: SUGESTÕES (ESTILO TINDER DE RECEITAS) */}
+        {/* TAB 5: SUGESTÕES (DESCOBERTA DE PRATOS) */}
         {activeTab === 'suggestions' && (
           <div className="max-w-3xl mx-auto space-y-6">
             {/* Top Bar: Instructions, Filters, Undo & Reset */}
             <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-xs space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                    <Flame className="w-5 h-5 text-rose-500" />
-                    Descoberta de Pratos — Estilo Tinder
-                  </h2>
-                  <p className="text-xs text-slate-500">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                      <Flame className="w-5 h-5 text-rose-500" />
+                      Descoberta de Pratos
+                    </h2>
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                      Atualizado 1x por dia {data.discoveryDate ? `(${data.discoveryDate.split('-').reverse().slice(0, 2).join('/')})` : ''}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
                     Arraste o card para a <strong className="text-rose-600">esquerda (❌ Passar)</strong> ou para a{' '}
                     <strong className="text-emerald-600">direita (💚 Adicionar)</strong> para incluir a Ficha Técnica no seu Catálogo de Receitas!
                   </p>
@@ -1612,6 +1631,15 @@ export default function App() {
                         });
                       }
                     }}
+                    onPointerCancel={() => {
+                      setDragState({
+                        isDragging: false,
+                        startX: 0,
+                        startY: 0,
+                        dx: 0,
+                        dy: 0,
+                      });
+                    }}
                     style={{
                       transform:
                         swipeAnim === 'right'
@@ -1628,7 +1656,7 @@ export default function App() {
                     }}
                     className="relative z-10 w-full bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden cursor-grab active:cursor-grabbing"
                   >
-                    {/* Dynamic TINDER STAMPS ("ADICIONAR" vs "PASSAR") */}
+                    {/* Dynamic STAMPS ("ADICIONAR" vs "PASSAR") */}
                     {(dragState.dx > 35 || swipeAnim === 'right') && (
                       <div className="absolute top-6 left-6 z-20 px-4 py-1.5 rounded-xl border-4 border-emerald-500 bg-emerald-500/90 text-white font-black text-lg uppercase tracking-widest -rotate-12 shadow-lg">
                         💚 ADICIONAR
@@ -1646,6 +1674,9 @@ export default function App() {
                         src={activeSuggestion.image}
                         alt={activeSuggestion.title}
                         draggable={false}
+                        onError={(e) => {
+                          e.currentTarget.src = '/dishes/rec-5.jpg';
+                        }}
                         className="w-full h-full object-cover select-none pointer-events-none"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
@@ -2559,6 +2590,41 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Etiquetas / Classificação Dietética */}
+              <div>
+                <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700 block mb-2">
+                  Classificação & Etiquetas da Ficha Técnica
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {DIETARY_OPTIONS.filter((t) => t !== 'Todas').map((tag) => {
+                    const selected = (recipeFormModal.tags || []).includes(tag);
+                    return (
+                      <button
+                        type="button"
+                        key={tag}
+                        onClick={() => {
+                          const current = recipeFormModal.tags || [];
+                          const next = selected
+                            ? current.filter((t) => t !== tag)
+                            : [...current, tag];
+                          setRecipeFormModal({
+                            ...recipeFormModal,
+                            tags: next.length > 0 ? next : ['Econômico'],
+                          });
+                        }}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                          selected
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
+                            : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        {tag}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="flex justify-end gap-3 pt-3 border-t border-slate-200">
                 <button
                   type="button"
@@ -2607,15 +2673,41 @@ export default function App() {
               </button>
             </div>
 
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                placeholder="Buscar receita para este horário..."
+                value={swapSearch}
+                onChange={(e) => setSwapSearch(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+
             <div className="space-y-2.5">
-              {recipes.map((r) => {
-                const cost = getRecipeMealCost(r);
-                return (
-                  <button
-                    key={r.id}
-                    onClick={() => handleSwapSlotRecipe(r.id)}
-                    className="w-full p-3 rounded-2xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 flex items-center justify-between gap-3 text-left transition cursor-pointer"
-                  >
+              {[...recipes]
+                .filter(
+                  (r) =>
+                    !swapSearch.trim() ||
+                    r.title.toLowerCase().includes(swapSearch.toLowerCase()) ||
+                    r.category.toLowerCase().includes(swapSearch.toLowerCase())
+                )
+                .sort((a, b) => {
+                  const aMatch = a.category === swapSlotTarget.slot ? 0 : 1;
+                  const bMatch = b.category === swapSlotTarget.slot ? 0 : 1;
+                  return aMatch - bMatch;
+                })
+                .map((r) => {
+                  const cost = getRecipeMealCost(r);
+                  return (
+                    <button
+                      key={r.id}
+                      onClick={() => {
+                        handleSwapSlotRecipe(r.id);
+                        setSwapSearch('');
+                      }}
+                      className="w-full p-3 rounded-2xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 flex items-center justify-between gap-3 text-left transition cursor-pointer"
+                    >
                     <div className="flex items-center gap-3">
                       <img
                         src={r.image}
