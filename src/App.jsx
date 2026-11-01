@@ -1520,51 +1520,53 @@ export default function App() {
                           </span>
                         </div>
 
-                        <div className="space-y-1.5 pt-1">
+                        <div className="space-y-2 pt-1">
                           {visibleItems.map((item) => (
                           <div
                             key={item.key}
                             onClick={() => handleToggleShoppingCheck(item.key)}
-                            className={`py-2.5 px-3 rounded-2xl flex items-center justify-between gap-3 transition cursor-pointer border ${
+                            className={`py-2.5 px-3.5 rounded-2xl flex items-center justify-between gap-3 transition cursor-pointer border ${
                               item.checked
-                                ? 'bg-slate-100/40 text-slate-400 border-transparent line-through'
-                                : 'bg-white/30 hover:bg-white/70 border-slate-200/50 text-slate-800 shadow-2xs'
+                                ? 'bg-slate-100/40 dark:bg-slate-900/35 text-slate-400 dark:text-slate-500 border-transparent opacity-60 line-through'
+                                : 'bg-white/70 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800/80 border-slate-200/80 dark:border-white/10 text-slate-800 dark:text-slate-100 shadow-2xs backdrop-blur-sm'
                             }`}
                           >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
                               <div
-                                className={`w-5 h-5 rounded-lg flex items-center justify-center border transition ${
+                                className={`w-5 h-5 rounded-lg flex items-center justify-center border transition shrink-0 ${
                                   item.checked
-                                    ? 'bg-emerald-600 border-emerald-600 text-white'
-                                    : 'border-slate-300 bg-white'
+                                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs'
+                                    : 'border-slate-300 dark:border-slate-600 bg-white/90 dark:bg-slate-900/80'
                                 }`}
                               >
-                                {item.checked && <Check className="w-3.5 h-3.5" />}
+                                {item.checked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                               </div>
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-base leading-none">
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="text-base leading-none shrink-0">
                                     {getIngredientEmoji(item.name, item.aisle)}
                                   </span>
                                   <span
-                                    className={`text-sm font-bold ${
-                                      item.checked ? 'line-through' : ''
+                                    className={`text-sm font-bold text-slate-900 dark:text-slate-100 ${
+                                      item.checked ? 'line-through text-slate-400 dark:text-slate-500' : ''
                                     }`}
                                   >
                                     {item.name}
                                   </span>
-                                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
+                                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200/70 dark:border-white/10 shrink-0">
                                     {item.amount} {item.unit}
                                   </span>
                                   {item.inFridge && (
-                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-500/30 shrink-0">
                                       Já tem na geladeira
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-[11px] text-slate-400 mt-0.5">
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                                   Usado em {item.Occurrences} refeição(ões):{' '}
-                                  {item.recipesUsed.slice(0, 2).join(', ')}
+                                  <span className="text-slate-700 dark:text-slate-300 font-medium">
+                                    {item.recipesUsed.slice(0, 2).join(', ')}
+                                  </span>
                                 </p>
                               </div>
                             </div>
@@ -1573,8 +1575,8 @@ export default function App() {
                               <span
                                 className={`text-sm font-extrabold ${
                                   item.inFridge
-                                    ? 'line-through text-emerald-600'
-                                    : 'text-slate-900'
+                                    ? 'line-through text-emerald-600 dark:text-emerald-400 opacity-60'
+                                    : 'text-slate-900 dark:text-emerald-400'
                                 }`}
                               >
                                 {formatBRL(item.estimatedPrice)}
@@ -2749,42 +2751,42 @@ export default function App() {
               {/* Bloco "Anote aí..." — Dicas do Chef, Conservação e Segredos */}
               {selectedRecipeModal.chefTips && (
                 <div className="space-y-3">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
                     <span>📝 Anote aí... (Dicas do Chef, Conservação & Segredos)</span>
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {selectedRecipeModal.chefTips.intro && (
-                      <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200/90 space-y-1.5 shadow-2xs">
-                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-emerald-800">
-                          <Lightbulb className="w-4 h-4 text-emerald-600" />
+                      <div className="p-4 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/90 dark:border-emerald-500/30 space-y-1.5 shadow-2xs backdrop-blur-md">
+                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+                          <Lightbulb className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                           <span>Dica & Variações</span>
                         </div>
-                        <p className="text-xs text-slate-700 leading-relaxed">
+                        <p className="text-xs text-slate-700 dark:text-slate-100 leading-relaxed">
                           {selectedRecipeModal.chefTips.intro}
                         </p>
                       </div>
                     )}
 
                     {selectedRecipeModal.chefTips.storage && (
-                      <div className="p-4 rounded-2xl bg-sky-50/80 border border-sky-200/90 space-y-1.5 shadow-2xs">
-                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-sky-800">
-                          <Snowflake className="w-4 h-4 text-sky-600" />
+                      <div className="p-4 rounded-2xl bg-sky-50/80 dark:bg-sky-950/40 border border-sky-200/90 dark:border-sky-500/30 space-y-1.5 shadow-2xs backdrop-blur-md">
+                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-sky-800 dark:text-sky-300">
+                          <Snowflake className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                           <span>Conservação & Congelamento</span>
                         </div>
-                        <p className="text-xs text-slate-700 leading-relaxed">
+                        <p className="text-xs text-slate-700 dark:text-slate-100 leading-relaxed">
                           {selectedRecipeModal.chefTips.storage}
                         </p>
                       </div>
                     )}
 
                     {selectedRecipeModal.chefTips.secret && (
-                      <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/90 space-y-1.5 shadow-2xs">
-                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-amber-800">
-                          <Flame className="w-4 h-4 text-amber-600" />
+                      <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-500/30 space-y-1.5 shadow-2xs backdrop-blur-md">
+                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+                          <Flame className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                           <span>Segredo da Textura & Ponto</span>
                         </div>
-                        <p className="text-xs text-slate-700 leading-relaxed">
+                        <p className="text-xs text-slate-700 dark:text-slate-100 leading-relaxed">
                           {selectedRecipeModal.chefTips.secret}
                         </p>
                       </div>
