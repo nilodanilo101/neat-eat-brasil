@@ -240,6 +240,43 @@ function createEmptyFichaTecnica() {
   };
 }
 
+// ============================================================================
+// CAMADA DE SEGURANÇA: TOKEN DE SESSÃO CRIPTOGRÁFICO & ANTI-CSRF
+// Protege a comunicação entre a janela do Electron e o servidor local
+// ============================================================================
+const sessionSecurityToken = (() => {
+  if (typeof window === 'undefined') return '';
+  try {
+    const urlParam = new URLSearchParams(window.location.search).get('token');
+    if (urlParam) {
+      sessionStorage.setItem('neateat_session_token', urlParam);
+      // Remove o token da barra de endereço para não vazar no histórico ou cópia de tela
+      const cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, document.title, cleanUrl);
+      return urlParam;
+    }
+    return sessionStorage.getItem('neateat_session_token') || '';
+  } catch {
+    return '';
+  }
+})();
+
+// Interceptor transparente de segurança para todas as requisições /api/*
+if (typeof window !== 'undefined' && sessionSecurityToken) {
+  const originalFetch = window.fetch;
+  window.fetch = (input, init = {}) => {
+    const urlStr = typeof input === 'string' ? input : input?.url || '';
+    if (urlStr.startsWith('/api') || urlStr.includes('127.0.0.1')) {
+      const headers = new Headers(init.headers || {});
+      if (!headers.has('X-NeatEat-Token')) {
+        headers.set('X-NeatEat-Token', sessionSecurityToken);
+      }
+      return originalFetch(input, { ...init, headers });
+    }
+    return originalFetch(input, init);
+  };
+}
+
 export default function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -598,8 +635,8 @@ export default function App() {
       setData(json);
       setBudgetDraft(json.user.weekly_budget);
       if (json.user) {
-        setGeminiKeyInput(json.user.gemini_api_key || '');
-        setUnsplashKeyInput(json.user.unsplash_access_key || '');
+        setGeminiKeyInput('');
+        setUnsplashKeyInput('');
       }
       if (json.currentVersion && json.user.last_seen_version !== json.currentVersion) {
         setChangelogModalOpen(true);
@@ -824,18 +861,21 @@ export default function App() {
     if (e) e.preventDefault();
     setSavingApiKeys(true);
     try {
+      const payload = {};
+      if (geminiKeyInput !== undefined) payload.gemini_api_key = geminiKeyInput;
+      if (unsplashKeyInput !== undefined) payload.unsplash_access_key = unsplashKeyInput;
+
       const res = await fetch('/api/user/api-keys', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          gemini_api_key: geminiKeyInput,
-          unsplash_access_key: unsplashKeyInput,
-        }),
+        body: JSON.stringify(payload),
       });
       const json = await res.json();
       setData(json);
+      setGeminiKeyInput('');
+      setUnsplashKeyInput('');
       playStockFridgeChime();
-      setApiKeysToast('Chaves de API salvas e conectadas com sucesso!');
+      setApiKeysToast('Chaves de API atualizadas e salvas com segurança!');
       setTimeout(() => setApiKeysToast(''), 4000);
     } catch (err) {
       console.error('Erro ao salvar chaves:', err);
@@ -5958,28 +5998,48 @@ export default function App() {
                   </div>
                   <span
                     className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${
-                      geminiKeyInput.trim()
+                      user?.has_gemini_key || geminiKeyInput.trim()
                         ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
                         : 'bg-slate-800 text-slate-400 border-white/5'
                     }`}
                   >
-                    {geminiKeyInput.trim() ? '🟢 Conectado' : '⚪ Chave Opcional'}
+                    {user?.has_gemini_key || geminiKeyInput.trim() ? '🟢 Conectado' : '⚪ Chave Opcional'}
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Lê e estrutura qualquer link de receita (ou foto de receita de família) em formato JSON de restaurante: ingredientes precisos em gramas, tempo, porções, passos e modo de empratamento.
+                  Lê e estrutura qualquer link de receita em formato JSON de restaurante: ingredientes precisos em gramas, tempo, porções, passos e modo de empratamento.
                 </p>
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">
-                    Chave de API do Google Gemini (GEMINI_API_KEY):
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-slate-300 block">
+                      Chave de API do Google Gemini (GEMINI_API_KEY):
+                    </label>
+                    {user?.has_gemini_key && !geminiKeyInput && (
+                      <button
+                        type="button"
+                        onClick={() => setGeminiKeyInput('__CLEAR__')}
+                        className="text-[10px] font-bold text-rose-400 hover:text-rose-300 cursor-pointer"
+                      >
+                        Desconectar chave
+                      </button>
+                    )}
+                  </div>
                   <input
                     type="password"
-                    placeholder="AIzaSy..."
-                    value={geminiKeyInput}
+                    placeholder={
+                      user?.has_gemini_key
+                        ? `Chave salva e ativa (${user.gemini_api_key_masked}) — digite para alterar`
+                        : 'Cole sua chave da Gemini API: AIzaSy...'
+                    }
+                    value={geminiKeyInput === '__CLEAR__' ? '' : geminiKeyInput}
                     onChange={(e) => setGeminiKeyInput(e.target.value)}
-                    className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-amber-400 font-mono"
+                    className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400 font-mono"
                   />
+                  {geminiKeyInput === '__CLEAR__' && (
+                    <span className="text-[11px] font-bold text-rose-400 block mt-1">
+                      ⚠️ A chave do Gemini será excluída ao clicar em Salvar Conexões.
+                    </span>
+                  )}
                   <span className="text-[10px] text-slate-500 mt-1 block">
                     Cota gratuita oficial disponível em:{' '}
                     <a
@@ -6023,28 +6083,48 @@ export default function App() {
                   </div>
                   <span
                     className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${
-                      unsplashKeyInput.trim()
+                      user?.has_unsplash_key || unsplashKeyInput.trim()
                         ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
                         : 'bg-sky-500/20 text-sky-300 border-sky-500/30'
                     }`}
                   >
-                    {unsplashKeyInput.trim() ? '🟢 Conectado' : '🔵 Curadoria Ativa'}
+                    {user?.has_unsplash_key || unsplashKeyInput.trim() ? '🟢 Conectado' : '🔵 Curadoria Ativa'}
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 leading-relaxed">
                   Fotos culinárias profissionais com iluminação de estúdio para pratos e etapas de preparo, com fallback automático para o acervo gastronômico integrado.
                 </p>
                 <div>
-                  <label className="text-[11px] font-bold text-slate-300 block mb-1">
-                    Unsplash Access Key (Opcional):
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-slate-300 block">
+                      Unsplash Access Key (Opcional):
+                    </label>
+                    {user?.has_unsplash_key && !unsplashKeyInput && (
+                      <button
+                        type="button"
+                        onClick={() => setUnsplashKeyInput('__CLEAR__')}
+                        className="text-[10px] font-bold text-rose-400 hover:text-rose-300 cursor-pointer"
+                      >
+                        Desconectar chave
+                      </button>
+                    )}
+                  </div>
                   <input
                     type="password"
-                    placeholder="Cole sua Access Key do Unsplash..."
-                    value={unsplashKeyInput}
+                    placeholder={
+                      user?.has_unsplash_key
+                        ? `Chave salva e ativa (${user.unsplash_access_key_masked}) — digite para alterar`
+                        : 'Cole sua Access Key do Unsplash...'
+                    }
+                    value={unsplashKeyInput === '__CLEAR__' ? '' : unsplashKeyInput}
                     onChange={(e) => setUnsplashKeyInput(e.target.value)}
-                    className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-sky-400 font-mono"
+                    className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-sky-400 font-mono"
                   />
+                  {unsplashKeyInput === '__CLEAR__' && (
+                    <span className="text-[11px] font-bold text-rose-400 block mt-1">
+                      ⚠️ A chave do Unsplash será excluída ao clicar em Salvar Conexões.
+                    </span>
+                  )}
                   <span className="text-[10px] text-slate-500 mt-1 block">
                     Cadastre-se gratuitamente em:{' '}
                     <a

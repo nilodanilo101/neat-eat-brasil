@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog, shell } from 'electron';
 import pkg from 'electron-updater';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const { autoUpdater } = pkg;
@@ -9,6 +10,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 let mainWindow = null;
 let serverInstance = null;
 let serverPort = null;
+let sessionToken = crypto.randomBytes(32).toString('hex');
 
 function setupAutoUpdater() {
   autoUpdater.autoDownload = true;
@@ -67,6 +69,7 @@ async function createWindow() {
       isPackaged: true,
       distPath,
       appVersion: app.getVersion(),
+      sessionToken,
     });
 
     serverInstance = server;
@@ -96,10 +99,37 @@ async function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      webSecurity: true,
+      allowRunningInsecureContent: false,
     },
   });
 
-  await mainWindow.loadURL(`http://127.0.0.1:${serverPort}`);
+  await mainWindow.loadURL(`http://127.0.0.1:${serverPort}/?token=${sessionToken}`);
+
+  // Bloqueia tentativas de navegação da janela principal para domínios remotos (Anti-Phishing/XSS)
+  mainWindow.webContents.on('will-navigate', (e, url) => {
+    try {
+      const parsed = new URL(url);
+      if (parsed.origin !== `http://127.0.0.1:${serverPort}`) {
+        e.preventDefault();
+        shell.openExternal(url);
+      }
+    } catch {
+      e.preventDefault();
+    }
+  });
+
+  mainWindow.webContents.on('will-redirect', (e, url) => {
+    try {
+      const parsed = new URL(url);
+      if (parsed.origin !== `http://127.0.0.1:${serverPort}`) {
+        e.preventDefault();
+        shell.openExternal(url);
+      }
+    } catch {
+      e.preventDefault();
+    }
+  });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);

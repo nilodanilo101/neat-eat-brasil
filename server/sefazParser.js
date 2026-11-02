@@ -34,6 +34,24 @@ function stripHtml(html) {
 }
 
 /**
+ * Higieniza PII (Personally Identifiable Information - LGPD)
+ * Remove CPFs, RGs, nomes de consumidores e Chaves de Acesso de 44 dígitos
+ */
+export function sanitizeFiscalPii(textOrHtml = '') {
+  if (!textOrHtml || typeof textOrHtml !== 'string') return '';
+  return textOrHtml
+    // 1. Remove CPFs formatados: 000.000.000-00
+    .replace(/\b\d{3}\.\d{3}\.\d{3}-\d{2}\b/g, '[CPF ANONIMIZADO]')
+    // 2. Remove CPF numérico declarado: "CPF: 12345678901" ou "Consumidor CPF: ..."
+    .replace(/(?:CPF|Consumidor|Cliente)[\s\.:\-_]*([0-9]{11})\b/gi, 'CPF: [PROTEGIDO]')
+    // 3. Remove Chave de Acesso de 44 dígitos (em blocos de 4 ou corrida)
+    .replace(/\b\d{4}\s*\d{4}\s*\d{4}\s*\d{4}\s*\d{4}\s*\d{4}\s*\d{4}\s*\d{4}\s*\d{4}\s*\d{4}\s*\d{4}\b/g, '[CHAVE FISCAL ANONIMIZADA]')
+    .replace(/\b\d{44}\b/g, '[CHAVE FISCAL ANONIMIZADA]')
+    // 4. Remove nome do consumidor declarado na nota fiscal
+    .replace(/(?:Nome\s*do\s*Consumidor|Consumidor\s*Nome|Nome\s*Cliente)[\s\.:\-_]*([A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ\s]{3,35})(?=<br|<\/td|\n|,|$)/gi, 'Consumidor: [PROTEGIDO]');
+}
+
+/**
  * Parser de HTML da SEFAZ (compatível com SP, RJ, MG, RS, PR, BA, DF e padrão ENCAT)
  */
 export function parseSefazHtml(html) {
@@ -41,12 +59,15 @@ export function parseSefazHtml(html) {
     throw new Error('Conteúdo HTML da SEFAZ vazio ou inválido.');
   }
 
+  // Sanitização LGPD prévia contra vazamento de dados pessoais
+  const safeHtml = sanitizeFiscalPii(html);
+
   // Verifica se o HTML é uma mensagem de rejeição do firewall da Fazenda (F5 BIG-IP)
   const isRejected =
-    html.includes('Request Rejected') ||
-    html.includes('The requested URL was rejected') ||
-    html.toLowerCase().includes('support id is') ||
-    html.toLowerCase().includes('request rejected');
+    safeHtml.includes('Request Rejected') ||
+    safeHtml.includes('The requested URL was rejected') ||
+    safeHtml.toLowerCase().includes('support id is') ||
+    safeHtml.toLowerCase().includes('request rejected');
 
   if (isRejected) {
     throw new Error(
@@ -187,8 +208,11 @@ export function parseSefazText(text) {
     throw new Error('Texto da nota fiscal não informado.');
   }
 
+  // Sanitização LGPD prévia contra vazamento de dados pessoais
+  const safeText = sanitizeFiscalPii(text);
+
   // Verifica se o texto é uma mensagem de rejeição de WAF / Firewall da Fazenda
-  const lower = text.toLowerCase();
+  const lower = safeText.toLowerCase();
   if (
     lower.includes('request rejected') ||
     lower.includes('the requested url was rejected') ||
@@ -201,7 +225,7 @@ export function parseSefazText(text) {
     );
   }
 
-  const rawLines = text
+  const rawLines = safeText
     .split('\n')
     .map((l) => l.trim())
     .filter(Boolean);

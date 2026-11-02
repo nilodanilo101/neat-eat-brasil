@@ -149,6 +149,51 @@ function buildShoppingList(mealPlan, allRecipes, householdSize, fridgeItems, che
   );
 }
 
+/**
+ * Validador Anti-SSRF: Bloqueia requisições para IPs privados, loopback ou redes internas
+ */
+export function isPrivateOrBlockedUrl(rawUrl = '') {
+  try {
+    const u = new URL(rawUrl);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+      return true;
+    }
+    const host = u.hostname.toLowerCase();
+    if (
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host === '0.0.0.0' ||
+      host === '::1' ||
+      host === '[::1]' ||
+      host.endsWith('.local') ||
+      host.endsWith('.internal') ||
+      host.endsWith('.onion')
+    ) {
+      return true;
+    }
+    // Bloqueia faixas privadas e link-local
+    if (/^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+    if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+    if (/^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+    if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+    if (/^169\.254\.\d{1,3}\.\d{1,3}$/.test(host)) return true;
+
+    return false;
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Mascara chaves secretas para não vazar credenciais cruas no frontend
+ */
+function maskSecretKey(key = '') {
+  const str = String(key || '').trim();
+  if (!str) return '';
+  if (str.length <= 8) return '••••••••';
+  return str.slice(0, 4) + '••••••••' + str.slice(-4);
+}
+
 function getFullState() {
   const user = db.prepare('SELECT * FROM users ORDER BY id ASC LIMIT 1').get();
   const allUsers = db.prepare('SELECT id, name, email, household_code FROM users ORDER BY id ASC').all();
@@ -175,8 +220,21 @@ function getFullState() {
   const groceryHistory = getGroceryHistory();
   const suggestionsState = getSuggestionsState(fridgeItems, marketPrices);
 
+  // Proteção de privacidade: mascara chaves de API secretas
+  const safeUser = user
+    ? {
+        ...user,
+        has_gemini_key: Boolean(user.gemini_api_key && user.gemini_api_key.trim()),
+        has_unsplash_key: Boolean(user.unsplash_access_key && user.unsplash_access_key.trim()),
+        gemini_api_key_masked: maskSecretKey(user.gemini_api_key),
+        unsplash_access_key_masked: maskSecretKey(user.unsplash_access_key),
+        gemini_api_key: '',
+        unsplash_access_key: '',
+      }
+    : null;
+
   return {
-    user,
+    user: safeUser,
     allUsers,
     recipes,
     mealPlan,
@@ -378,10 +436,37 @@ export async function startServer(options = {}) {
     isPackaged = false,
     distPath = path.join(__dirname, '..', 'dist'),
     appVersion = CURRENT_VERSION,
+    sessionToken = process.env.NEATEAT_SESSION_TOKEN || '',
   } = options;
 
   const app = express();
   app.use(express.json({ limit: '10mb' }));
+
+  // ============================================================================
+  // MIDDLEWARE DE SEGURANÇA: CABEÇALHOS HTTP E ANTI-CSRF / SESSION TOKEN
+  // ============================================================================
+  app.use((req, res, next) => {
+    // Cabeçalhos de Segurança Padrão
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'self' http://127.0.0.1:* ws://127.0.0.1:*; img-src 'self' data: blob: http://127.0.0.1:* https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:*; script-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self';"
+    );
+
+    // Validação de Token Secreto de Sessão em rotas /api/* (Anti-CSRF / Navegadores Externos)
+    if (sessionToken && req.path.startsWith('/api')) {
+      const clientToken = req.headers['x-neateat-token'] || req.query.token;
+      if (clientToken !== sessionToken) {
+        return res.status(403).json({
+          error: 'Acesso não autorizado. Token de sessão de segurança ausente ou inválido.',
+        });
+      }
+    }
+    next();
+  });
+
   app.use('/cache/step-images', express.static(CACHE_DIR, { maxAge: '7d' }));
 
   app.get('/api/state', (_req, res) => {
@@ -399,9 +484,10 @@ export async function startServer(options = {}) {
     res.json({ images });
   });
 
+  // PROXY DE IMAGENS COM VALIDAÇÃO ANTI-SSRF E MIME-TYPE ESTREITO
   app.get('/api/image-proxy', async (req, res) => {
     const targetUrl = String(req.query.url || '').trim();
-    if (!targetUrl.startsWith('https://')) {
+    if (!targetUrl || isPrivateOrBlockedUrl(targetUrl)) {
       return res.redirect('/dishes/rec-5.jpg');
     }
     try {
@@ -413,14 +499,27 @@ export async function startServer(options = {}) {
       if (urlObj.hostname.includes('receiteria')) {
         headers['Referer'] = 'https://www.receiteria.com.br/';
       }
-      const upstream = await fetch(targetUrl, { headers });
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const upstream = await fetch(targetUrl, { headers, signal: controller.signal });
+      clearTimeout(timeoutId);
+
       if (!upstream.ok) {
         return res.redirect('/dishes/rec-5.jpg');
       }
-      const contentType = upstream.headers.get('content-type') || 'image/jpeg';
+
+      const contentType = (upstream.headers.get('content-type') || '').toLowerCase();
+      const allowedImageMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif'];
+      const isValidImage = allowedImageMimes.some((m) => contentType.includes(m));
+      if (!isValidImage) {
+        return res.redirect('/dishes/rec-5.jpg');
+      }
+
       const buf = Buffer.from(await upstream.arrayBuffer());
-      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Type', contentType.split(';')[0]);
       res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
       res.send(buf);
     } catch {
       res.redirect('/dishes/rec-5.jpg');
@@ -452,16 +551,37 @@ export async function startServer(options = {}) {
     res.json(nutrition);
   });
 
-  // CONFIGURAÇÃO DE CHAVES DE API DO USUÁRIO (GEMINI E UNSPLASH)
+  // CONFIGURAÇÃO DE CHAVES DE API DO USUÁRIO (GEMINI E UNSPLASH) COM PROTEÇÃO DE PRIVACIDADE
   app.put('/api/user/api-keys', (req, res) => {
-    const { gemini_api_key = '', unsplash_access_key = '' } = req.body;
-    const user = db.prepare('SELECT id FROM users ORDER BY id ASC LIMIT 1').get();
+    const { gemini_api_key, unsplash_access_key } = req.body;
+    const user = db.prepare('SELECT id, gemini_api_key, unsplash_access_key FROM users ORDER BY id ASC LIMIT 1').get();
     if (user) {
+      let nextGemini = user.gemini_api_key;
+      let nextUnsplash = user.unsplash_access_key;
+
+      if (gemini_api_key !== undefined) {
+        const val = String(gemini_api_key).trim();
+        if (val === '__CLEAR__') {
+          nextGemini = '';
+        } else if (val && !val.includes('•') && !val.includes('*')) {
+          nextGemini = val;
+        }
+      }
+
+      if (unsplash_access_key !== undefined) {
+        const val = String(unsplash_access_key).trim();
+        if (val === '__CLEAR__') {
+          nextUnsplash = '';
+        } else if (val && !val.includes('•') && !val.includes('*')) {
+          nextUnsplash = val;
+        }
+      }
+
       db.prepare(`
         UPDATE users
         SET gemini_api_key = ?, unsplash_access_key = ?
         WHERE id = ?
-      `).run(String(gemini_api_key).trim(), String(unsplash_access_key).trim(), user.id);
+      `).run(nextGemini, nextUnsplash, user.id);
     }
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
@@ -664,12 +784,19 @@ export async function startServer(options = {}) {
       if (isDemo) {
         invoice = getDemoSefazInvoice();
       } else if (url && url.trim()) {
-        invoice = await parseSefazUrl(url.trim());
+        const cleanUrl = url.trim();
+        if (isPrivateOrBlockedUrl(cleanUrl)) {
+          return res.status(400).json({ error: 'URL da nota fiscal bloqueada por motivos de segurança (endereço local ou privado).' });
+        }
+        invoice = await parseSefazUrl(cleanUrl);
       } else if (html && html.trim()) {
         invoice = parseSefazHtml(html.trim());
       } else if (rawText && rawText.trim()) {
         const trimmed = rawText.trim();
         if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+          if (isPrivateOrBlockedUrl(trimmed)) {
+            return res.status(400).json({ error: 'URL da nota fiscal bloqueada por motivos de segurança (endereço local ou privado).' });
+          }
           invoice = await parseSefazUrl(trimmed);
         } else if (trimmed.startsWith('<html') || trimmed.startsWith('<!DOCTYPE') || (trimmed.includes('<span') && trimmed.includes('</span>')) || trimmed.includes('<tr')) {
           invoice = parseSefazHtml(trimmed);
@@ -1008,10 +1135,10 @@ export async function startServer(options = {}) {
 
     const raw = input.trim();
     const isUrl = raw.startsWith('http://') || raw.startsWith('https://');
-    if (!isUrl) {
+    if (!isUrl || isPrivateOrBlockedUrl(raw)) {
       return res.status(400).json({
         error:
-          'Apenas links válidos são aceitos (iniciando com http:// ou https://). A digitação de texto puro foi desativada para garantir a integridade dos dados e evitar anomalias.',
+          'Apenas links públicos válidos são aceitos (iniciando com http:// ou https://). Endereços privados ou locais são bloqueados por segurança.',
       });
     }
 
