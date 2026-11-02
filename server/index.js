@@ -25,6 +25,7 @@ import { parseRecipeWithGemini } from './geminiService.js';
 import { searchOpenFoodFacts } from './openFoodFactsService.js';
 import { searchHighResDishPhotos } from './foodImageService.js';
 import { calculateRecipeNutritionTaco, findTacoNutrition } from './tacoDatabase.js';
+import { extractRecipeFromHtml, extractStepTimerSeconds } from './recipeWebScraper.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -394,6 +395,16 @@ async function syncDailyDiscoveryBatchOncePerDay() {
     const item = picks[i];
     const id = `sug-daily-${todayKey}-${i + 1}`;
     const photos = await searchExactDishPhotos(item.title, item.ingredients);
+    const heroImage = photos[0] || item.image || '/dishes/rec-5.jpg';
+
+    const finalStepDetails = await ensureRecipeStepDetails(
+      item.title,
+      item.steps,
+      item.ingredients,
+      item.stepDetails || [],
+      heroImage
+    );
+
     const recipeObj = {
       id,
       title: item.title,
@@ -405,19 +416,18 @@ async function syncDailyDiscoveryBatchOncePerDay() {
       carbs: item.carbs,
       fat: item.fat,
       tags: item.tags,
-      image: photos[0] || '/dishes/rec-5.jpg',
+      image: heroImage,
       source: `Ficha Técnica — Descoberta do Dia (${todayKey.split('-').reverse().join('/')})`,
       portionWeight: item.portionWeight,
       platingInstructions:
+        item.platingInstructions ||
         'Dispor a porção centralizada em prato aquecido garantindo apresentação limpa e finalizar com ervas frescas.',
       specificInstructions:
+        item.specificInstructions ||
         'Manter insumos refrigerados a 4°C até o preparo e respeitar as gramaturas do mise en place.',
       ingredients: item.ingredients,
-      steps: [
-        'Separe e pese todos os insumos conforme a ficha técnica.',
-        'Prepare o insumo principal em fogo médio até atingir o ponto ideal.',
-        'Finalize a montagem conforme o padrão de serviço e sirva imediatamente.',
-      ],
+      steps: item.steps,
+      stepDetails: finalStepDetails,
     };
 
     db.prepare(`
@@ -1180,7 +1190,53 @@ export async function startServer(options = {}) {
       // continua
     }
 
-    // 1. TENTA EXTRAÇÃO PROFISSIONAL VIA GEMINI API (GOOGLE AI)
+    let rawIngs = [];
+    let importSteps = [];
+    let providedStepDetails = [];
+    let finalCategory = category;
+    let prepTime = 25;
+    let servings = 2;
+    let tags = ['Econômico', 'Rápido', 'Importada', 'Passo a Passo com Fotos'];
+    let platingInstructions = '';
+    let specificInstructions = '';
+
+    // 1. EXTRAÇÃO GASTRONÔMICA ESTRUTURADA VIA SCHEMA.ORG JSON-LD E DOM SEMÂNTICO
+    let webScraped = null;
+    if (pageHtml) {
+      try {
+        webScraped = extractRecipeFromHtml(pageHtml, raw);
+        if (webScraped) {
+          if (webScraped.title) title = webScraped.title;
+          if (webScraped.heroImage) heroImage = webScraped.heroImage;
+          if (webScraped.prepTime) prepTime = webScraped.prepTime;
+          if (webScraped.servings) servings = webScraped.servings;
+          if (Array.isArray(webScraped.ingredients) && webScraped.ingredients.length > 0) {
+            rawIngs = webScraped.ingredients;
+          }
+          if (Array.isArray(webScraped.rawSteps) && webScraped.rawSteps.length > 0) {
+            importSteps = webScraped.rawSteps.map((s) => s.text);
+            providedStepDetails = webScraped.rawSteps.map((s, idx) => ({
+              stepNumber: idx + 1,
+              section: s.section || 'Preparo da Receita',
+              text: s.text,
+              image: s.image
+                ? (s.image.startsWith('/api') || s.image.startsWith('/dishes')
+                    ? s.image
+                    : `/api/image-proxy?url=${encodeURIComponent(s.image)}`)
+                : null,
+              alt: `Passo ${idx + 1}: ${s.text.slice(0, 50)}...`,
+              tip: 'Acompanhe com atenção o tempo e ponto culinário indicado.',
+              isKeyFrame: !!s.image,
+              timerSeconds: extractStepTimerSeconds(s.text),
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn('Erro na extração web estruturada da receita:', err.message);
+      }
+    }
+
+    // 2. TENTA ENRIQUECIMENTO PROFISSIONAL VIA GEMINI API (GOOGLE AI)
     const userSettings = db.prepare('SELECT gemini_api_key, unsplash_access_key FROM users ORDER BY id ASC LIMIT 1').get();
     const geminiKey = userSettings?.gemini_api_key || process.env.GEMINI_API_KEY;
 
@@ -1189,30 +1245,41 @@ export async function startServer(options = {}) {
       geminiResult = await parseRecipeWithGemini(pageHtml, raw, geminiKey);
     }
 
-    let rawIngs = [];
-    let importSteps = [];
-    let finalCategory = category;
-    let prepTime = 25;
-    let servings = 2;
-    let tags = ['Econômico', 'Rápido', 'Importada', 'Passo a Passo com Fotos'];
-    let platingInstructions = '';
-    let specificInstructions = '';
-
     if (geminiResult) {
       title = geminiResult.title || title;
       finalCategory = geminiResult.category || category;
-      prepTime = Number(geminiResult.prepTime) || 25;
-      servings = Math.max(1, Number(geminiResult.servings) || 2);
+      prepTime = Number(geminiResult.prepTime) || prepTime || 25;
+      servings = Math.max(1, Number(geminiResult.servings) || servings || 2);
       if (Array.isArray(geminiResult.tags) && geminiResult.tags.length > 0) {
         tags = [...new Set([...tags, ...geminiResult.tags])];
       }
       platingInstructions = geminiResult.platingInstructions || '';
       specificInstructions = geminiResult.specificInstructions || '';
-      rawIngs = geminiResult.ingredients || [];
-      importSteps = geminiResult.steps || [];
+      if (rawIngs.length === 0 && Array.isArray(geminiResult.ingredients) && geminiResult.ingredients.length > 0) {
+        rawIngs = geminiResult.ingredients;
+      }
+      // Se a extração web não encontrou passos, usa os passos do Gemini
+      if (importSteps.length === 0 && Array.isArray(geminiResult.steps) && geminiResult.steps.length > 0) {
+        importSteps = geminiResult.steps;
+        providedStepDetails = geminiResult.steps.map((text, idx) => ({
+          stepNumber: idx + 1,
+          section:
+            idx === 0
+              ? 'Mise en Place'
+              : idx === geminiResult.steps.length - 1
+              ? 'Finalização & Empratamento'
+              : 'Preparo e Cocção',
+          text,
+          image: null,
+          alt: `Passo ${idx + 1}: ${text.slice(0, 50)}...`,
+          tip: 'Respeite a ordem técnica dos insumos e o ponto indicado.',
+          isKeyFrame: true,
+          timerSeconds: extractStepTimerSeconds(text),
+        }));
+      }
     }
 
-    // Fallback de ingredientes se o Gemini não estiver configurado
+    // Fallback de ingredientes se o Gemini e o scraper não estiverem disponíveis
     if (rawIngs.length === 0) {
       const lower = title.toLowerCase();
       if (lower.includes('frango')) {
@@ -1256,13 +1323,15 @@ export async function startServer(options = {}) {
 
     if (importSteps.length === 0) {
       importSteps = [
-        'Realize o mise en place pesando e higienizando todos os insumos conforme a ficha técnica.',
-        'Aqueça a frigideira ou panela no fogo médio com o azeite e refogue os ingredientes principais até dourarem.',
-        'Cozinhe até o ponto ideal, ajuste o sal e os temperos, e finalize a montagem do prato com ervas frescas.'
+        `Pese e higienize cuidadosamente todos os insumos selecionados (${rawIngs.map((i) => i.name).slice(0, 3).join(', ')}), deixando organizados na bancada de trabalho.`,
+        'Aqueça uma frigideira ou panela de fundo grosso em fogo médio com o azeite de oliva e sele os ingredientes principais até dourarem por igual.',
+        'Acrescente os temperos aromáticos (cebola, alho e ervas), refogando em fogo brando até liberarem seus aromas característicos.',
+        'Cozinhe em temperatura controlada, ajustando o ponto de sal e textura até que todos os insumos atinjam consistência macia e aveludada.',
+        'Desligue o fogo, verifique a acidez e os temperos, e finalize o empratamento com ervas frescas servindo imediatamente.',
       ];
     }
 
-    // 2. CALIBRAÇÃO INTELIGENTE DE CUSTOS VIA PREÇOS DE MERCADO
+    // 3. CALIBRAÇÃO INTELIGENTE DE CUSTOS VIA PREÇOS DE MERCADO
     const currentMarketPrices = getMarketPrices();
     const marketMap = new Map(currentMarketPrices.map((mp) => [mp.ingredient_key, mp]));
     const ingredients = rawIngs.map((ing) => ({
@@ -1270,7 +1339,7 @@ export async function startServer(options = {}) {
       basePrice: computeCulinaryPortionCost(ing.name, ing.amount, ing.unit, marketMap),
     }));
 
-    // 3. CÁLCULO NUTRICIONAL BRASILEIRO OFICIAL (TACO / TBCA)
+    // 4. CÁLCULO NUTRICIONAL BRASILEIRO OFICIAL (TACO / TBCA)
     const tacoNutrition = calculateRecipeNutritionTaco(ingredients, servings);
     const calories = tacoNutrition.perServing.calories || geminiResult?.calories || 420;
     const protein = tacoNutrition.perServing.protein || geminiResult?.protein || 28;
@@ -1291,7 +1360,7 @@ export async function startServer(options = {}) {
       cleanTitle,
       importSteps,
       ingredients,
-      [],
+      providedStepDetails,
       finalHero
     );
 

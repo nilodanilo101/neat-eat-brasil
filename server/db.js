@@ -254,6 +254,34 @@ export function initDb() {
     }
   }
 
+  // Migração segura: garante que nenhuma receita em daily_discovered_recipes tenha passos genéricos ou fique sem stepDetails
+  try {
+    const dailyRows = db.prepare('SELECT id, recipe_json FROM daily_discovered_recipes').all();
+    for (const row of dailyRows) {
+      const r = JSON.parse(row.recipe_json);
+      const isGeneric = (r.steps && r.steps.length <= 3 && r.steps.some(s => s.includes('Separe e pese') || s.includes('Prepare o insumo')));
+      const needsStepDetails = !r.stepDetails || r.stepDetails.length === 0;
+      if (isGeneric || needsStepDetails) {
+        const vaultMatch = ROBUST_RECIPE_VAULT.find(
+          (v) => v.title.toLowerCase().trim() === r.title.toLowerCase().trim() || v.id === r.id
+        );
+        const stepsToUse = vaultMatch && vaultMatch.steps ? vaultMatch.steps : r.steps;
+        r.steps = stepsToUse;
+        r.stepDetails = stepsToUse.map((stepText, idx) => ({
+          stepNumber: idx + 1,
+          section: idx === 0 ? 'Mise en Place' : idx === stepsToUse.length - 1 ? 'Finalização & Empratamento' : 'Preparo e Cocção',
+          text: stepText,
+          image: r.image || '/dishes/rec-5.jpg',
+          alt: `Passo ${idx + 1}: ${stepText.slice(0, 50)}...`,
+          tip: idx === 0 ? 'Pese e organize os insumos na bancada.' : 'Mantenha fogo constante para cozimento uniforme.',
+          isKeyFrame: true,
+          timerSeconds: 120,
+        }));
+        db.prepare('UPDATE daily_discovered_recipes SET recipe_json = ? WHERE id = ?').run(JSON.stringify(r), row.id);
+      }
+    }
+  } catch {}
+
   // Recalcula custos das receitas com os preços gastronômicos de referência
   try {
     recalcRecipesCost();

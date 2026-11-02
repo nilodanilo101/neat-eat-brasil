@@ -8,16 +8,26 @@ export async function parseRecipeWithGemini(pageHtml, recipeUrl, apiKey = proces
     return null; // Fallback para parser interno
   }
 
-  // Limita o HTML aos primeiros 60.000 caracteres para economia de tokens
+  // Preserva blocos JSON-LD de receita (Schema.org) que contêm HowToStep e ingredientes precisos
+  const jsonLdBlocks = (pageHtml.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi) || [])
+    .slice(0, 3)
+    .join('\n');
+
+  // Limita o HTML aos primeiros 50.000 caracteres para economia de tokens
   const snippet = pageHtml
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<svg[\s\S]*?<\/svg>/gi, ' ')
     .replace(/\s+/g, ' ')
-    .slice(0, 50000);
+    .slice(0, 45000);
 
   const prompt = `Você é um chef executivo e nutricionista sênior brasileiro especialista em fichas técnicas gastronômicas.
 Analise a página da receita abaixo (URL: ${recipeUrl}) e extraia uma Ficha Técnica Culinária Completa e Profissional.
+
+ATENÇÃO MÁXIMA E OBRIGATÓRIA PARA OS PASSOS DA RECEITA:
+- JAMAIS resuma, sintetize ou reduza o modo de preparo em 3 passos genéricos ("separar", "cozinhar", "servir").
+- Extraia TODOS os passos individuais originais detalhados da receita do site (se a receita tiver 6, 8, 10, 13 ou mais etapas, extraia rigorosamente todas elas).
+- Cada passo deve descrever a técnica culinária, o tempo, a temperatura, o ponto visual do insumo e o cuidado necessário.
 
 Retorne OBRIGATORIAMENTE um JSON estrito conforme o schema:
 {
@@ -42,17 +52,20 @@ Retorne OBRIGATORIAMENTE um JSON estrito conforme o schema:
     }
   ],
   "steps": [
-    "Instrução passo 1 detalhada...",
-    "Instrução passo 2..."
+    "Instrução passo 1 detalhada com técnica e ponto...",
+    "Instrução passo 2 com fogo, tempo e textura...",
+    "Instrução passo 3..."
   ]
 }
 
-Conteúdo da página:
+${jsonLdBlocks ? `DADOS ESTRUTURADOS (JSON-LD) ENCONTRADOS NA PÁGINA:\n${jsonLdBlocks.slice(0, 15000)}\n` : ''}
+
+Conteúdo textual da página:
 ${snippet}`;
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    const timeoutId = setTimeout(() => controller.abort(), 14000);
 
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey.trim()}`;
     const res = await fetch(endpoint, {
@@ -69,7 +82,7 @@ ${snippet}`;
         ],
         generationConfig: {
           response_mime_type: 'application/json',
-          temperature: 0.2,
+          temperature: 0.1,
         },
       }),
     });
