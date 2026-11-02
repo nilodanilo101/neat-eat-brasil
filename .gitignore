@@ -1,7 +1,5 @@
 node_modules/
 dist/
 release/
-*.sqlite
-*.sqlite-journal
-*.sqlite-wal
+*.sqlite*
 .DS_Store

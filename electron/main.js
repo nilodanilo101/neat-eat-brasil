@@ -8,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 let mainWindow = null;
 let serverInstance = null;
+let serverPort = null;
 
 function setupAutoUpdater() {
   autoUpdater.autoDownload = true;
@@ -57,17 +58,20 @@ async function createWindow() {
   // Salva o SQLite na pasta segura do sistema operacional para preservar dados em atualizações
   process.env.NEATEAT_DATA_DIR = app.getPath('userData');
 
-  const { startServer } = await import('../server/index.js');
-  const distPath = path.join(__dirname, '..', 'dist');
+  if (!serverInstance) {
+    const { startServer } = await import('../server/index.js');
+    const distPath = path.join(__dirname, '..', 'dist');
 
-  const { server, port } = await startServer({
-    port: 0,
-    isPackaged: true,
-    distPath,
-    appVersion: app.getVersion(),
-  });
+    const { server, port } = await startServer({
+      port: 0,
+      isPackaged: true,
+      distPath,
+      appVersion: app.getVersion(),
+    });
 
-  serverInstance = server;
+    serverInstance = server;
+    serverPort = port;
+  }
 
   const iconPath = path.join(__dirname, '..', 'build', 'icon.png');
   if (process.platform === 'darwin' && app.dock && !app.isPackaged) {
@@ -85,7 +89,7 @@ async function createWindow() {
     minHeight: 640,
     icon: iconPath,
     title: 'NeatEat Brasil — Planejador de Refeições & Ficha Técnica',
-    backgroundColor: '#EEF4F8',
+    backgroundColor: '#020617',
     vibrancy: 'under-window',
     visualEffectState: 'active',
     titleBarStyle: 'default',
@@ -95,7 +99,7 @@ async function createWindow() {
     },
   });
 
-  await mainWindow.loadURL(`http://127.0.0.1:${port}`);
+  await mainWindow.loadURL(`http://127.0.0.1:${serverPort}`);
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
@@ -116,10 +120,14 @@ app.whenReady().then(async () => {
   });
 });
 
-app.on('window-all-closed', () => {
+app.on('before-quit', () => {
   if (serverInstance) {
     serverInstance.close();
+    serverInstance = null;
   }
+});
+
+app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }

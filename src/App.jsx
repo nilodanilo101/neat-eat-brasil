@@ -107,7 +107,9 @@ const QUICK_FRIDGE_SUGGESTIONS = [
 ];
 
 function formatBRL(value) {
-  return Number(value || 0).toLocaleString('pt-BR', {
+  const num = Number(value);
+  const safe = Number.isFinite(num) ? num : 0;
+  return safe.toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   });
@@ -619,7 +621,6 @@ export default function App() {
         setSelectedRecipeModal(null);
         setRecipeFormModal(null);
         setSwapSlotTarget(null);
-        setAuthModalOpen(false);
         setChangelogModalOpen(false);
         setSefazModalOpen(false);
         setCookingDrawerOpen(false);
@@ -880,6 +881,9 @@ export default function App() {
         }),
       });
       const json = await res.json();
+      if (!res.ok || json.error) {
+        throw new Error(json.error || 'Falha ao adicionar produto à geladeira');
+      }
       setData(json);
       playPopCheck();
       setOffModalOpen(false);
@@ -1156,12 +1160,15 @@ export default function App() {
 
   function getRecipeMealCost(recipe) {
     if (!recipe) return 0;
-    return Number((recipe.costPerServing * user.household_size).toFixed(2));
+    const cps = Number(recipe.costPerServing) || (Number(recipe.baseCost) || 0) / Math.max(1, Number(recipe.servings) || 1);
+    const size = Math.max(1, Number(user?.household_size) || 1);
+    return Number((cps * size).toFixed(2)) || 0;
   }
 
   function getRecipeServingCost(recipe) {
     if (!recipe) return 0;
-    return Number(recipe.costPerServing.toFixed(2));
+    const cps = Number(recipe.costPerServing) || (Number(recipe.baseCost) || 0) / Math.max(1, Number(recipe.servings) || 1);
+    return Number(cps.toFixed(2)) || 0;
   }
 
   const filteredCatalog = recipes.filter((r) => {
@@ -2188,9 +2195,9 @@ export default function App() {
                                   )}
                                 </div>
                                 <p className="text-[11px] text-slate-400 mt-0.5 truncate">
-                                  Usado em {item.Occurrences} refeição(ões):{' '}
+                                  Usado em {item.Occurrences || item.occurrences || 1} refeição(ões):{' '}
                                   <span className="text-slate-300 font-semibold">
-                                    {item.recipesUsed.slice(0, 2).join(', ')}
+                                    {(item.recipesUsed || []).slice(0, 2).join(', ')}
                                   </span>
                                 </p>
                               </div>
@@ -5777,7 +5784,7 @@ export default function App() {
                     >
                       <div className="flex items-center gap-3 min-w-[200px]">
                         <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-lg shrink-0 border border-white/5">
-                          {renderIngredientEmoji(item.name, item.aisle)}
+                          {getIngredientEmoji(item.name, item.aisle)}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">

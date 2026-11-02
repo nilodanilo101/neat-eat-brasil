@@ -29,48 +29,13 @@ import { calculateRecipeNutritionTaco, findTacoNutrition } from './tacoDatabase.
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function searchExactDishPhotos(dishTitle, _ingredients = []) {
-  const fetchFromReceiteria = async (q) => {
-    const res = await fetch(
-      'https://www.receiteria.com.br/?s=' + encodeURIComponent(q),
-      {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        },
-      }
-    );
-    const html = await res.text();
-    const matches = [
-      ...html.matchAll(
-        /https:\/\/www\.receiteria\.com\.br\/wp-content\/uploads\/[^"'\s>]+\.(?:jpg|jpeg|png)/gi
-      ),
-    ]
-      .map((m) => m[0].replace(/-\d+x\d+\.(jpg|jpeg|png)$/i, '.$1'))
-      .filter(
-        (u) =>
-          !u.includes('logo') &&
-          !u.includes('icon') &&
-          !u.includes('avatar') &&
-          !u.includes('banner')
-      );
-    return [...new Set(matches)];
-  };
-
   try {
-    const clean = String(dishTitle || '')
-      .replace(/\([^)]*\)/g, ' ')
-      .trim();
-    let results = await fetchFromReceiteria(clean);
-    if (results.length === 0) {
-      const firstWords = clean.split(/\s+/).slice(0, 2).join(' ');
-      if (firstWords) {
-        results = await fetchFromReceiteria(firstWords);
-      }
-    }
-    if (results.length > 0) {
-      return results
-        .slice(0, 6)
-        .map((u) => `/api/image-proxy?url=${encodeURIComponent(u)}`);
+    const userRow = db.prepare('SELECT unsplash_access_key FROM users ORDER BY id ASC LIMIT 1').get();
+    const unsplashKey = userRow?.unsplash_access_key || process.env.UNSPLASH_ACCESS_KEY;
+    const clean = String(dishTitle || '').replace(/\([^)]*\)/g, ' ').trim();
+    const photos = await searchHighResDishPhotos(clean, unsplashKey);
+    if (Array.isArray(photos) && photos.length > 0) {
+      return photos.slice(0, 6).map((u) => (u.startsWith('/') ? u : `/api/image-proxy?url=${encodeURIComponent(u)}`));
     }
   } catch (err) {
     console.error('Erro ao buscar foto culinária do prato:', err);
@@ -155,7 +120,8 @@ function buildShoppingList(mealPlan, allRecipes, householdSize, fridgeItems, che
       if (existing) {
         existing.amount = Number((existing.amount + scaledAmount).toFixed(1));
         existing.estimatedPrice = Number((existing.estimatedPrice + scaledPrice).toFixed(2));
-        existing.Occurrences += 1;
+        existing.Occurrences = (existing.Occurrences || 0) + 1;
+        existing.occurrences = existing.Occurrences;
         if (!existing.recipesUsed.includes(recipe.title)) {
           existing.recipesUsed.push(recipe.title);
         }
@@ -171,6 +137,7 @@ function buildShoppingList(mealPlan, allRecipes, householdSize, fridgeItems, che
           inFridge,
           checked: Boolean(checkedMap.get(key)) || inFridge,
           Occurrences: 1,
+          occurrences: 1,
           recipesUsed: [recipe.title],
         });
       }
@@ -438,13 +405,15 @@ export async function startServer(options = {}) {
       return res.redirect('/dishes/rec-5.jpg');
     }
     try {
-      const upstream = await fetch(targetUrl, {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-          Referer: 'https://www.receiteria.com.br/',
-        },
-      });
+      const urlObj = new URL(targetUrl);
+      const headers = {
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      };
+      if (urlObj.hostname.includes('receiteria')) {
+        headers['Referer'] = 'https://www.receiteria.com.br/';
+      }
+      const upstream = await fetch(targetUrl, { headers });
       if (!upstream.ok) {
         return res.redirect('/dishes/rec-5.jpg');
       }
@@ -618,6 +587,33 @@ export async function startServer(options = {}) {
       VALUES (?, ?, ?)
       ON CONFLICT(day, slot) DO UPDATE SET recipe_id = excluded.recipe_id
     `).run(day, slot, recipe_id);
+
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
+  });
+
+  // ADICIONAR OU INCREMENTAR ITEM NA GELADEIRA (EX: DO OPEN FOOD FACTS OU FORMULÁRIO)
+  app.post('/api/fridge', (req, res) => {
+    const { name, category = 'Mercearia', amount = 1, unit = 'un' } = req.body;
+    if (!name || !name.trim()) return res.status(400).json({ error: 'Nome inválido' });
+    const trimmed = name.trim();
+    const numAmount = Math.max(0.1, Number(amount) || 1);
+    const trimmedUnit = String(unit || 'un').trim();
+    const existing = db.prepare('SELECT id, amount FROM fridge_items WHERE LOWER(name) = LOWER(?)').get(trimmed);
+
+    if (existing) {
+      db.prepare(`
+        UPDATE fridge_items
+        SET amount = ROUND(amount + ?, 2),
+            unit = ?,
+            last_updated = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).run(numAmount, trimmedUnit, existing.id);
+    } else {
+      db.prepare(`
+        INSERT INTO fridge_items (name, category, amount, unit, last_updated)
+        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `).run(trimmed, category, numAmount, trimmedUnit);
+    }
 
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
