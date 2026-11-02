@@ -51,6 +51,8 @@ import {
   VolumeX,
   MoreVertical,
   CalendarDays,
+  Layers,
+  LayoutGrid,
 } from 'lucide-react';
 import {
   playChefServiceBell,
@@ -1211,6 +1213,169 @@ export default function App() {
     return Number(cps.toFixed(2)) || 0;
   }
 
+  function renderPlannerMealCard(day, slot, recipe, isMatrix = false) {
+    if (!recipe) return null;
+    const mealCost = getRecipeMealCost(recipe);
+    const isMenuOpen = activeMealMenu?.day === day && activeMealMenu?.slot === slot;
+
+    return (
+      <div
+        key={`${day}-${slot}`}
+        data-meal-menu
+        className="group relative rounded-2xl border border-white/5 bg-slate-950/70 hover:bg-slate-900/90 hover:border-emerald-500/40 p-2.5 transition-all duration-200 flex flex-col justify-between gap-2 shadow-sm"
+      >
+        {/* 1. Header do Card: Turno Discreto + Preço em Tipografia Limpa */}
+        <div className="flex items-center justify-between">
+          <span
+            className={`text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+              slot === 'Café da Manhã'
+                ? 'text-amber-300 bg-amber-500/10 border-amber-500/20'
+                : slot === 'Almoço'
+                ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20'
+                : 'text-indigo-300 bg-indigo-500/10 border-indigo-500/20'
+            }`}
+          >
+            {slot === 'Café da Manhã' ? '🌅 Café' : slot === 'Almoço' ? '☀️ Almoço' : '🌙 Jantar'}
+          </span>
+          <span className="text-xs font-bold text-slate-200">
+            {formatBRL(mealCost)}
+          </span>
+        </div>
+
+        {/* 2. Top Thumbnail com Progressive Disclosure em Hover */}
+        <div
+          onClick={() => setSelectedRecipeModal(recipe)}
+          className="relative w-full h-24 rounded-xl overflow-hidden cursor-pointer bg-slate-900 border border-white/5 shrink-0"
+        >
+          <img
+            src={recipe.image}
+            alt={recipe.title}
+            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/20" />
+
+          {/* Micro-Ações Flutuantes no Hover (Sem poluição estática na interface) */}
+          <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2 backdrop-blur-[2px]">
+            <button
+              type="button"
+              title="Modo Cozinhar"
+              onClick={(e) => {
+                e.stopPropagation();
+                openCookingMode(recipe, e);
+              }}
+              className="w-8 h-8 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow-lg transition transform hover:scale-110 cursor-pointer"
+            >
+              <Play className="w-3.5 h-3.5 fill-white" />
+            </button>
+            <button
+              type="button"
+              title="Repetir Sobra / Marmita"
+              onClick={(e) => {
+                e.stopPropagation();
+                setRepeatRecipeTarget({ recipe, sourceDay: day, sourceSlot: slot });
+              }}
+              className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 flex items-center justify-center shadow-lg transition transform hover:scale-110 cursor-pointer"
+            >
+              <Repeat className="w-3.5 h-3.5 text-slate-300" />
+            </button>
+            <button
+              type="button"
+              title="Trocar Receita"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSwapSlotTarget({ day, slot });
+              }}
+              className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 flex items-center justify-center shadow-lg transition transform hover:scale-110 cursor-pointer"
+            >
+              <ArrowRightLeft className="w-3.5 h-3.5 text-slate-300" />
+            </button>
+          </div>
+
+          {/* Menu de Contexto 3 Pontinhos (Acessível no Touch e Desktop) */}
+          <div className="absolute top-1.5 right-1.5 z-10" onClick={(e) => e.stopPropagation()}>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setActiveMealMenu(isMenuOpen ? null : { day, slot })}
+                title="Mais opções da refeição"
+                className={`w-6 h-6 rounded-md flex items-center justify-center transition cursor-pointer backdrop-blur-md ${
+                  isMenuOpen ? 'bg-slate-800 text-white' : 'bg-black/50 text-white/80 hover:bg-black/75'
+                }`}
+              >
+                <MoreVertical className="w-3.5 h-3.5" />
+              </button>
+
+              {isMenuOpen && (
+                <div
+                  className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl py-1.5 z-40 divide-y divide-white/5 animate-in fade-in zoom-in-95 duration-100"
+                >
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        setActiveMealMenu(null);
+                        openCookingMode(recipe, e);
+                      }}
+                      className="w-full px-3 py-1.5 text-left text-xs font-semibold text-emerald-300 hover:bg-emerald-950/50 flex items-center gap-2 cursor-pointer transition"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-emerald-300" />
+                      <span>Modo Cozinhar</span>
+                    </button>
+                  </div>
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveMealMenu(null);
+                        setRepeatRecipeTarget({ recipe, sourceDay: day, sourceSlot: slot });
+                      }}
+                      className="w-full px-3 py-1.5 text-left text-xs font-semibold text-slate-300 hover:bg-slate-800 flex items-center gap-2 cursor-pointer transition"
+                    >
+                      <Repeat className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Repetir (Sobra)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveMealMenu(null);
+                        setSwapSlotTarget({ day, slot });
+                      }}
+                      className="w-full px-3 py-1.5 text-left text-xs font-semibold text-slate-300 hover:bg-slate-800 flex items-center gap-2 cursor-pointer transition"
+                    >
+                      <ArrowRightLeft className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Trocar Receita</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Título Completo sem Truncamento (Largura Total do Card, até 2 linhas) */}
+        <div
+          onClick={() => setSelectedRecipeModal(recipe)}
+          className="cursor-pointer group/title"
+        >
+          <h4 className="text-xs font-bold text-slate-100 group-hover/title:text-emerald-300 line-clamp-2 leading-snug min-h-[2.5rem] flex items-center transition-colors">
+            {recipe.title}
+          </h4>
+        </div>
+
+        {/* 4. Metadados Secundários Harmônicos (Tempo & Calorias) */}
+        <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-slate-400">
+          <span className="flex items-center gap-1 font-medium">
+            <Clock className="w-3 h-3 text-slate-500" /> {recipe.prepTime} min
+          </span>
+          <span className="flex items-center gap-1 font-medium">
+            <Flame className="w-3 h-3 text-slate-500" /> {recipe.calories} kcal
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   const filteredCatalog = recipes.filter((r) => {
     const matchesSearch =
       r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1463,15 +1628,15 @@ export default function App() {
         {activeTab === 'planner' && (
           <div className="space-y-6">
             {/* TOP BAR / CONTROL CENTER: DUAS ZONAS CLARAS */}
-            <section className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl backdrop-blur-xl space-y-5">
-              {/* ZONA A: CONFIGURAÇÃO DE PARÂMETROS */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-                {/* Orçamento Semanal com Slider & Feedback Vivo */}
-                <div className="lg:col-span-5 space-y-2 bg-slate-950/70 p-4 rounded-2xl border border-white/5">
+            <section className="bg-slate-900/95 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl backdrop-blur-xl space-y-5">
+              {/* ZONA 1: CONFIGURAÇÃO DE PARÂMETROS */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+                {/* Slider de Orçamento com Feedback Imediato */}
+                <div className="lg:col-span-5 bg-slate-950/80 p-4 rounded-2xl border border-white/5 flex flex-col justify-between space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                       <Wallet className="w-4 h-4 text-emerald-400" />
-                      Orçamento Semanal
+                      <span>Orçamento Semanal</span>
                     </label>
                     <span className="text-xl font-black text-emerald-400 tracking-tight">
                       {formatBRL(budgetDraft)}
@@ -1495,19 +1660,19 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Pessoas na Casa & Preferência Alimentar */}
-                <div className="lg:col-span-4 grid grid-cols-2 gap-3 bg-slate-950/70 p-4 rounded-2xl border border-white/5">
+                {/* Seletores: Pessoas & Preferências Alimentares */}
+                <div className="lg:col-span-4 bg-slate-950/80 p-4 rounded-2xl border border-white/5 grid grid-cols-2 gap-3 items-center">
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1 mb-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-1.5">
                       <Users className="w-3.5 h-3.5 text-emerald-400" />
-                      Pessoas
+                      <span>Pessoas</span>
                     </label>
                     <select
                       value={user.household_size}
                       onChange={(e) =>
                         updateProfile({ household_size: Number(e.target.value) })
                       }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-semibold text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-bold text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer"
                     >
                       {[1, 2, 3, 4, 5, 6].map((n) => (
                         <option key={n} value={n}>
@@ -1518,14 +1683,14 @@ export default function App() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1 mb-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-1.5">
                       <Filter className="w-3.5 h-3.5 text-emerald-400" />
-                      Preferência
+                      <span>Preferência</span>
                     </label>
                     <select
                       value={user.dietary_filter}
                       onChange={(e) => updateProfile({ dietary_filter: e.target.value })}
-                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-semibold text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer"
+                      className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-bold text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer"
                     >
                       {DIETARY_OPTIONS.map((opt) => (
                         <option key={opt} value={opt}>
@@ -1546,29 +1711,29 @@ export default function App() {
                     <span>Recalcular Cardápio</span>
                   </button>
                   <p className="text-[11px] text-slate-400 text-center mt-1.5 font-medium">
-                    Otimizado para {formatBRL(budgetDraft)}
+                    Meta: {formatBRL(budgetDraft)} para {user.household_size} {user.household_size === 1 ? 'pessoa' : 'pessoas'}
                   </p>
                 </div>
               </div>
 
-              {/* ZONA B: RESUMO FINANCEIRO & STATUS CONSOLIDADO */}
+              {/* ZONA 2: RESUMO FINANCEIRO & STATUS CONSOLIDADO */}
               <div
                 className={`p-4 rounded-2xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                   isOverBudget
-                    ? 'bg-rose-950/30 border-rose-800/50 text-rose-200'
-                    : 'bg-emerald-950/30 border-emerald-800/40 text-emerald-200'
+                    ? 'bg-rose-950/30 border-rose-800/40 text-rose-200'
+                    : 'bg-slate-950/80 border-white/5 text-slate-200'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                      isOverBudget ? 'bg-rose-900/60 text-rose-400' : 'bg-emerald-900/60 text-emerald-400'
+                      isOverBudget ? 'bg-rose-900/60 text-rose-400' : 'bg-emerald-950 text-emerald-400 border border-emerald-500/30'
                     }`}
                   >
                     {isOverBudget ? <AlertTriangle className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />}
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span
                         className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
                           isOverBudget
@@ -1578,19 +1743,17 @@ export default function App() {
                       >
                         {isOverBudget ? 'Acima da Meta' : 'Dentro do Orçamento'}
                       </span>
-                      <span className="text-xs font-semibold text-slate-300">
-                        Custo semanal estimado:{' '}
-                        <strong className="text-white">{formatBRL(totals.weeklyActualCost)}</strong>
+                      <span className="text-xs text-slate-300 font-semibold">
+                        Custo total estimado: <strong className="text-white">{formatBRL(totals.weeklyActualCost)}</strong>
+                      </span>
+                      <span className="text-xs text-slate-400 font-medium">
+                        • Saldo restante: <strong className={isOverBudget ? 'text-rose-400' : 'text-emerald-400'}>{formatBRL(totals.budgetRemaining)}</strong>
                       </span>
                     </div>
                     <p className="text-xs text-slate-400 mt-0.5">
                       {isOverBudget
-                        ? `O cardápio planejado excede a meta em ${formatBRL(
-                            Math.abs(totals.budgetRemaining)
-                          )}. Clique em "Recalcular Cardápio" para reequilibrar receitas.`
-                        : `Plano com 21 refeições para ${user.household_size} ${
-                            user.household_size === 1 ? 'pessoa' : 'pessoas'
-                          } com saldo livre de ${formatBRL(totals.budgetRemaining)} no orçamento.`}
+                        ? `Cardápio excede a meta em ${formatBRL(Math.abs(totals.budgetRemaining))}. Clique em "Recalcular Cardápio" para opções mais econômicas.`
+                        : `21 refeições balanceadas para ${user.household_size} ${user.household_size === 1 ? 'pessoa' : 'pessoas'} com economia inteligente de compras.`}
                     </p>
                   </div>
                 </div>
@@ -1598,7 +1761,7 @@ export default function App() {
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => setActiveTab('shopping')}
-                    className="px-4 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-white/10 text-xs font-bold text-slate-100 flex items-center gap-2 transition cursor-pointer hover:border-emerald-500/40"
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/10 text-xs font-bold text-slate-100 flex items-center gap-2 transition cursor-pointer hover:border-emerald-500/40 shadow-sm"
                   >
                     <ShoppingCart className="w-3.5 h-3.5 text-emerald-400" />
                     <span>Ver Lista Consolidada →</span>
@@ -1606,7 +1769,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* VIEW SWITCHER CAPSULE: VISÃO SEMANAL vs FOCO DIÁRIO */}
+              {/* SEGMENTED CONTROL: 3 MODOS DE VISUALIZAÇÃO */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-white/5">
                 <div className="flex items-center gap-1.5 p-1 bg-slate-950/80 rounded-2xl border border-white/5">
                   <button
@@ -1620,6 +1783,18 @@ export default function App() {
                   >
                     <Calendar className="w-3.5 h-3.5" />
                     <span>Visão Semanal (7 Dias)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPlannerViewMode('matrix')}
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                      plannerViewMode === 'matrix'
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Visão Matriz (Por Turno)</span>
                   </button>
                   <button
                     type="button"
@@ -1637,174 +1812,102 @@ export default function App() {
 
                 <div className="text-xs text-slate-400 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span>Clique no prato para abrir a ficha técnica ou use os 3 pontinhos para ações rápidas</span>
+                  <span>Clique no prato para ver o preparo • Passe o mouse para ações rápidas</span>
                 </div>
               </div>
             </section>
 
             {/* MODO 1: GRADE SEMANAL (7 COLUNAS × 3 REFEIÇÕES COM PROGRESSIVE DISCLOSURE) */}
             {plannerViewMode === 'week' && (
-              <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-3.5">
-                {DAYS.map((day) => {
-                  const daySlots = SLOTS.map((slot) => {
-                    const found = mealPlan.find((m) => m.day === day && m.slot === slot);
-                    const recipe = found ? recipeMap.get(found.recipe_id) : recipes[0];
-                    return { slot, recipe };
-                  });
+              <section className="overflow-x-auto pb-4 scrollbar-thin">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3.5 min-w-[980px] xl:min-w-0">
+                  {DAYS.map((day) => {
+                    const daySlots = SLOTS.map((slot) => {
+                      const found = mealPlan.find((m) => m.day === day && m.slot === slot);
+                      const recipe = found ? recipeMap.get(found.recipe_id) : recipes[0];
+                      return { slot, recipe };
+                    });
 
-                  const dayCost = daySlots.reduce(
-                    (acc, s) => acc + getRecipeMealCost(s.recipe),
-                    0
-                  );
-                  const dayCals = daySlots.reduce(
-                    (acc, s) => acc + (s.recipe?.calories || 0),
-                    0
-                  );
+                    const dayCost = daySlots.reduce(
+                      (acc, s) => acc + getRecipeMealCost(s.recipe),
+                      0
+                    );
+                    const dayCals = daySlots.reduce(
+                      (acc, s) => acc + (s.recipe?.calories || 0),
+                      0
+                    );
 
-                  return (
-                    <div
-                      key={day}
-                      className="bg-slate-900/70 rounded-2xl border border-slate-800/90 shadow-md flex flex-col overflow-hidden transition hover:border-slate-700"
-                    >
-                      {/* Day Column Header Consolidado */}
-                      <div className="p-3 bg-slate-900/95 border-b border-white/5 flex items-center justify-between">
-                        <div>
-                          <h3 className="font-extrabold text-sm text-slate-100">{day}</h3>
-                          <p className="text-[11px] text-slate-400">{dayCals} kcal/dia</p>
+                    return (
+                      <div
+                        key={day}
+                        className="bg-slate-900/80 rounded-2xl border border-slate-800/80 shadow-md flex flex-col overflow-hidden transition hover:border-slate-700/80"
+                      >
+                        {/* Cabeçalho do Dia Consolidado e Sutil */}
+                        <div className="px-3.5 py-2.5 bg-slate-950/90 border-b border-white/5 flex items-center justify-between">
+                          <div>
+                            <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-100">{day}</h3>
+                            <p className="text-[10px] text-slate-400">{dayCals} kcal/dia</p>
+                          </div>
+                          <span className="text-xs font-bold text-slate-300">
+                            {formatBRL(dayCost)}
+                          </span>
                         </div>
-                        <span className="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 font-bold text-xs border border-emerald-500/25">
-                          {formatBRL(dayCost)}
-                        </span>
+
+                        {/* Meal Cards */}
+                        <div className="p-2 space-y-2.5 flex-1 flex flex-col justify-between">
+                          {daySlots.map(({ slot, recipe }) => renderPlannerMealCard(day, slot, recipe, false))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* MODO 2: VISÃO MATRIZ EXECUTIVA (LINHAS = CAFÉ, ALMOÇO, JANTAR × DIAS) */}
+            {plannerViewMode === 'matrix' && (
+              <section className="overflow-x-auto pb-4 scrollbar-thin">
+                <div className="min-w-[1050px] space-y-4">
+                  {SLOTS.map((slot) => (
+                    <div key={slot} className="bg-slate-900/80 rounded-3xl border border-slate-800/80 p-4 space-y-3 shadow-md">
+                      {/* Slot Row Header */}
+                      <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                        <div className="flex items-center gap-2.5">
+                          <span
+                            className={`text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-xl border ${
+                              slot === 'Café da Manhã'
+                                ? 'text-amber-300 bg-amber-500/10 border-amber-500/20'
+                                : slot === 'Almoço'
+                                ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20'
+                                : 'text-indigo-300 bg-indigo-500/10 border-indigo-500/20'
+                            }`}
+                          >
+                            {slot === 'Café da Manhã' ? '🌅 Café da Manhã' : slot === 'Almoço' ? '☀️ Almoço' : '🌙 Jantar'}
+                          </span>
+                          <span className="text-xs text-slate-400 font-medium">
+                            Planejamento Semanal (Segunda a Domingo)
+                          </span>
+                        </div>
                       </div>
 
-                      {/* Meal Cards */}
-                      <div className="p-2 space-y-2.5 flex-1 flex flex-col justify-between">
-                        {daySlots.map(({ slot, recipe }) => {
-                          if (!recipe) return null;
-                          const mealCost = getRecipeMealCost(recipe);
-                          const isMenuOpen =
-                            activeMealMenu?.day === day && activeMealMenu?.slot === slot;
-
+                      {/* 7 Colunas para este Turno */}
+                      <div className="grid grid-cols-7 gap-3">
+                        {DAYS.map((day) => {
+                          const found = mealPlan.find((m) => m.day === day && m.slot === slot);
+                          const recipe = found ? recipeMap.get(found.recipe_id) : recipes[0];
                           return (
-                            <div
-                              key={slot}
-                              data-meal-menu
-                              className="group relative rounded-xl border border-slate-800/90 bg-slate-900/50 hover:bg-slate-800/80 hover:border-emerald-500/40 p-2.5 transition-all flex flex-col justify-between gap-2 shadow-2xs"
-                            >
-                              {/* Card Header: Slot Name + Price + 3-Dot Dropdown */}
-                              <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                                  {slot}
-                                </span>
-                                <div className="flex items-center gap-1">
-                                  <span className="text-xs font-black text-emerald-400">
-                                    {formatBRL(mealCost)}
-                                  </span>
-
-                                  {/* 3-Dot Context Menu (Progressive Disclosure) */}
-                                  <div className="relative">
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setActiveMealMenu(isMenuOpen ? null : { day, slot });
-                                      }}
-                                      title="Opções da refeição"
-                                      className={`w-6 h-6 rounded-md flex items-center justify-center transition cursor-pointer ${
-                                        isMenuOpen
-                                          ? 'bg-slate-700 text-white'
-                                          : 'text-slate-400 hover:text-slate-100 hover:bg-slate-700/60'
-                                      }`}
-                                    >
-                                      <MoreVertical className="w-3.5 h-3.5" />
-                                    </button>
-
-                                    {/* Dropdown Flutuante */}
-                                    {isMenuOpen && (
-                                      <div
-                                        className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl py-1.5 z-40 divide-y divide-white/5 animate-in fade-in zoom-in-95 duration-100"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        <div className="py-1">
-                                          <button
-                                            type="button"
-                                            onClick={(e) => {
-                                              setActiveMealMenu(null);
-                                              openCookingMode(recipe, e);
-                                            }}
-                                            className="w-full px-3 py-1.5 text-left text-xs font-semibold text-emerald-300 hover:bg-emerald-950/50 flex items-center gap-2 cursor-pointer transition"
-                                          >
-                                            <Play className="w-3 h-3 fill-emerald-300" />
-                                            <span>Modo Cozinhar</span>
-                                          </button>
-                                        </div>
-                                        <div className="py-1">
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              setActiveMealMenu(null);
-                                              setRepeatRecipeTarget({
-                                                recipe,
-                                                sourceDay: day,
-                                                sourceSlot: slot,
-                                              });
-                                            }}
-                                            className="w-full px-3 py-1.5 text-left text-xs font-semibold text-slate-300 hover:bg-slate-800 flex items-center gap-2 cursor-pointer transition"
-                                          >
-                                            <Repeat className="w-3 h-3 text-slate-400" />
-                                            <span>Repetir (Sobra)</span>
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              setActiveMealMenu(null);
-                                              setSwapSlotTarget({ day, slot });
-                                            }}
-                                            className="w-full px-3 py-1.5 text-left text-xs font-semibold text-slate-300 hover:bg-slate-800 flex items-center gap-2 cursor-pointer transition"
-                                          >
-                                            <ArrowRightLeft className="w-3 h-3 text-slate-400" />
-                                            <span>Trocar Receita</span>
-                                          </button>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
+                            <div key={day} className="space-y-1.5">
+                              <div className="text-[10px] font-bold uppercase text-slate-400 text-center tracking-wider pb-0.5">
+                                {day}
                               </div>
-
-                              {/* Clickable Card Body: Direct Access to Recipe Details */}
-                              <div
-                                onClick={() => setSelectedRecipeModal(recipe)}
-                                className="flex gap-2.5 items-start cursor-pointer group/title"
-                              >
-                                <img
-                                  src={recipe.image}
-                                  alt={recipe.title}
-                                  className="w-12 h-12 rounded-lg object-cover shrink-0 bg-slate-800 ring-1 ring-white/10 group-hover/title:scale-105 transition-transform"
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="text-xs font-bold text-slate-100 group-hover/title:text-emerald-300 line-clamp-2 leading-snug transition-colors">
-                                    {recipe.title}
-                                  </h4>
-                                </div>
-                              </div>
-
-                              {/* Subtle Secondary Metadata Badges: Prep Time + Calories */}
-                              <div className="pt-1.5 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
-                                <span className="flex items-center gap-1 font-medium">
-                                  <Clock className="w-3 h-3 text-slate-500" /> {recipe.prepTime}m
-                                </span>
-                                <span className="flex items-center gap-1 font-medium">
-                                  <Flame className="w-3 h-3 text-amber-500/70" /> {recipe.calories} kcal
-                                </span>
-                              </div>
+                              {renderPlannerMealCard(day, slot, recipe, true)}
                             </div>
                           );
                         })}
                       </div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </section>
             )}
 
