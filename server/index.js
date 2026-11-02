@@ -21,6 +21,10 @@ import { CACHE_DIR } from './imageCache.js';
 import { parseSefazUrl, parseSefazHtml, parseSefazText, getDemoSefazInvoice } from './sefazParser.js';
 import { CANONICAL_INGREDIENTS, computeCulinaryPortionCost } from './ingredientMatcher.js';
 import { ROBUST_RECIPE_VAULT } from './suggestionEngine.js';
+import { parseRecipeWithGemini } from './geminiService.js';
+import { searchOpenFoodFacts } from './openFoodFactsService.js';
+import { searchHighResDishPhotos } from './foodImageService.js';
+import { calculateRecipeNutritionTaco, findTacoNutrition } from './tacoDatabase.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -452,6 +456,45 @@ export async function startServer(options = {}) {
     } catch {
       res.redirect('/dishes/rec-5.jpg');
     }
+  });
+
+  // OPEN FOOD FACTS (CONSULTA DE RÓTULOS, MARCAS E CÓDIGO DE BARRAS)
+  app.get('/api/open-food-facts/search', async (req, res) => {
+    const q = String(req.query.q || '').trim();
+    if (!q) return res.json({ products: [] });
+    const products = await searchOpenFoodFacts(q);
+    res.json({ products });
+  });
+
+  // UNSPLASH & FOTOGRAFIA CULINÁRIA PROFISSIONAL EM ALTA RESOLUÇÃO
+  app.get('/api/recipes/search-food-photos', async (req, res) => {
+    const q = String(req.query.q || '').trim();
+    if (!q) return res.json({ photos: [] });
+    const userRow = db.prepare('SELECT unsplash_access_key FROM users ORDER BY id ASC LIMIT 1').get();
+    const unsplashKey = userRow?.unsplash_access_key || process.env.UNSPLASH_ACCESS_KEY;
+    const photos = await searchHighResDishPhotos(q, unsplashKey);
+    res.json({ photos });
+  });
+
+  // BASE NUTRICIONAL BRASILEIRA OFICIAL (TACO / TBCA)
+  app.post('/api/nutrition/calculate', (req, res) => {
+    const { ingredients = [], servings = 1 } = req.body;
+    const nutrition = calculateRecipeNutritionTaco(ingredients, servings);
+    res.json(nutrition);
+  });
+
+  // CONFIGURAÇÃO DE CHAVES DE API DO USUÁRIO (GEMINI E UNSPLASH)
+  app.put('/api/user/api-keys', (req, res) => {
+    const { gemini_api_key = '', unsplash_access_key = '' } = req.body;
+    const user = db.prepare('SELECT id FROM users ORDER BY id ASC LIMIT 1').get();
+    if (user) {
+      db.prepare(`
+        UPDATE users
+        SET gemini_api_key = ?, unsplash_access_key = ?
+        WHERE id = ?
+      `).run(String(gemini_api_key).trim(), String(unsplash_access_key).trim(), user.id);
+    }
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
   // TINDER-STYLE SUGGESTION SWIPE (LEFT = PASS, RIGHT = ADD TO CATALOG)
@@ -979,6 +1022,7 @@ export async function startServer(options = {}) {
     let title = 'Receita Importada';
     let source = 'Web';
     let heroImage = '';
+    let pageHtml = '';
 
     try {
       const urlObj = new URL(raw);
@@ -988,7 +1032,7 @@ export async function startServer(options = {}) {
         .replace(/[-_]/g, ' ')
         .replace(/\b\w/g, (l) => l.toUpperCase());
 
-      // Tenta baixar a página para extrair o título real do H1 e og:image
+      // Baixa a página da receita
       const pageRes = await fetch(raw, {
         headers: {
           'User-Agent':
@@ -997,7 +1041,7 @@ export async function startServer(options = {}) {
         },
       });
       if (pageRes.ok) {
-        const pageHtml = await pageRes.text();
+        pageHtml = await pageRes.text();
         const ogTitle = pageHtml.match(/<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i);
         const h1Title = pageHtml.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
         const pageTitle = ogTitle ? ogTitle[1] : (h1Title ? h1Title[1].replace(/<[^>]+>/g, '').trim() : null);
@@ -1010,51 +1054,92 @@ export async function startServer(options = {}) {
         }
       }
     } catch {
-      // continua com slug
+      // continua
     }
 
-    const lower = title.toLowerCase();
-    const rawIngs = [];
+    // 1. TENTA EXTRAÇÃO PROFISSIONAL VIA GEMINI API (GOOGLE AI)
+    const userSettings = db.prepare('SELECT gemini_api_key, unsplash_access_key FROM users ORDER BY id ASC LIMIT 1').get();
+    const geminiKey = userSettings?.gemini_api_key || process.env.GEMINI_API_KEY;
 
-    if (lower.includes('frango')) {
-      rawIngs.push({ name: 'Peito de frango', amount: 300, unit: 'g', aisle: 'Açougue' });
-    }
-    if (lower.includes('carne') || lower.includes('bife') || lower.includes('patinho') || lower.includes('bolonhesa')) {
-      rawIngs.push({ name: 'Carne moída (acém ou patinho)', amount: 300, unit: 'g', aisle: 'Açougue' });
-    }
-    if (lower.includes('ovo') || lower.includes('omelete') || lower.includes('panqueca')) {
-      rawIngs.push({ name: 'Ovo', amount: 3, unit: 'un', aisle: 'Laticínios e Ovos' });
-    }
-    if (lower.includes('queijo') || lower.includes('pizza') || lower.includes('lasanha') || lower.includes('gratinado')) {
-      rawIngs.push({ name: 'Queijo muçarela', amount: 80, unit: 'g', aisle: 'Laticínios e Ovos' });
-    }
-    if (lower.includes('macarrão') || lower.includes('pasta') || lower.includes('espaguete')) {
-      rawIngs.push({ name: 'Macarrão espaguete ou penne', amount: 200, unit: 'g', aisle: 'Mercearia' });
-    }
-    if (lower.includes('arroz') || lower.includes('risoto')) {
-      rawIngs.push({ name: 'Arroz branco', amount: 150, unit: 'g', aisle: 'Mercearia' });
-    }
-    if (lower.includes('batata') || lower.includes('nhoque') || lower.includes('purê')) {
-      rawIngs.push({ name: 'Batata inglesa', amount: 250, unit: 'g', aisle: 'Hortifruti' });
+    let geminiResult = null;
+    if (pageHtml && geminiKey) {
+      geminiResult = await parseRecipeWithGemini(pageHtml, raw, geminiKey);
     }
 
+    let rawIngs = [];
+    let importSteps = [];
+    let finalCategory = category;
+    let prepTime = 25;
+    let servings = 2;
+    let tags = ['Econômico', 'Rápido', 'Importada', 'Passo a Passo com Fotos'];
+    let platingInstructions = '';
+    let specificInstructions = '';
+
+    if (geminiResult) {
+      title = geminiResult.title || title;
+      finalCategory = geminiResult.category || category;
+      prepTime = Number(geminiResult.prepTime) || 25;
+      servings = Math.max(1, Number(geminiResult.servings) || 2);
+      if (Array.isArray(geminiResult.tags) && geminiResult.tags.length > 0) {
+        tags = [...new Set([...tags, ...geminiResult.tags])];
+      }
+      platingInstructions = geminiResult.platingInstructions || '';
+      specificInstructions = geminiResult.specificInstructions || '';
+      rawIngs = geminiResult.ingredients || [];
+      importSteps = geminiResult.steps || [];
+    }
+
+    // Fallback de ingredientes se o Gemini não estiver configurado
     if (rawIngs.length === 0) {
-      rawIngs.push(
-        { name: 'Tomate', amount: 120, unit: 'g', aisle: 'Hortifruti' },
-        { name: 'Cebola', amount: 80, unit: 'g', aisle: 'Hortifruti' },
-        { name: 'Alho', amount: 10, unit: 'g', aisle: 'Hortifruti' },
-        { name: 'Azeite de oliva', amount: 15, unit: 'ml', aisle: 'Mercearia' },
-        { name: 'Queijo coalho ou minas', amount: 80, unit: 'g', aisle: 'Laticínios e Ovos' }
-      );
-    } else {
-      rawIngs.push(
-        { name: 'Cebola', amount: 60, unit: 'g', aisle: 'Hortifruti' },
-        { name: 'Alho', amount: 10, unit: 'g', aisle: 'Hortifruti' },
-        { name: 'Azeite de oliva', amount: 10, unit: 'ml', aisle: 'Mercearia' }
-      );
+      const lower = title.toLowerCase();
+      if (lower.includes('frango')) {
+        rawIngs.push({ name: 'Peito de frango', amount: 300, unit: 'g', aisle: 'Açougue' });
+      }
+      if (lower.includes('carne') || lower.includes('bife') || lower.includes('patinho') || lower.includes('bolonhesa')) {
+        rawIngs.push({ name: 'Carne moída (acém ou patinho)', amount: 300, unit: 'g', aisle: 'Açougue' });
+      }
+      if (lower.includes('ovo') || lower.includes('omelete') || lower.includes('panqueca')) {
+        rawIngs.push({ name: 'Ovo', amount: 3, unit: 'un', aisle: 'Laticínios e Ovos' });
+      }
+      if (lower.includes('queijo') || lower.includes('pizza') || lower.includes('lasanha') || lower.includes('gratinado')) {
+        rawIngs.push({ name: 'Queijo muçarela', amount: 80, unit: 'g', aisle: 'Laticínios e Ovos' });
+      }
+      if (lower.includes('macarrão') || lower.includes('pasta') || lower.includes('espaguete')) {
+        rawIngs.push({ name: 'Macarrão espaguete ou penne', amount: 200, unit: 'g', aisle: 'Mercearia' });
+      }
+      if (lower.includes('arroz') || lower.includes('risoto')) {
+        rawIngs.push({ name: 'Arroz branco', amount: 150, unit: 'g', aisle: 'Mercearia' });
+      }
+      if (lower.includes('batata') || lower.includes('nhoque') || lower.includes('purê')) {
+        rawIngs.push({ name: 'Batata inglesa', amount: 250, unit: 'g', aisle: 'Hortifruti' });
+      }
+
+      if (rawIngs.length === 0) {
+        rawIngs.push(
+          { name: 'Tomate', amount: 120, unit: 'g', aisle: 'Hortifruti' },
+          { name: 'Cebola', amount: 80, unit: 'g', aisle: 'Hortifruti' },
+          { name: 'Alho', amount: 10, unit: 'g', aisle: 'Hortifruti' },
+          { name: 'Azeite de oliva', amount: 15, unit: 'ml', aisle: 'Mercearia' },
+          { name: 'Queijo coalho ou minas', amount: 80, unit: 'g', aisle: 'Laticínios e Ovos' }
+        );
+      } else {
+        rawIngs.push(
+          { name: 'Cebola', amount: 60, unit: 'g', aisle: 'Hortifruti' },
+          { name: 'Alho', amount: 10, unit: 'g', aisle: 'Hortifruti' },
+          { name: 'Azeite de oliva', amount: 10, unit: 'ml', aisle: 'Mercearia' }
+        );
+      }
     }
 
-    // Calibração inteligente dos custos unitários via base de preços de mercado
+    if (importSteps.length === 0) {
+      importSteps = [
+        'Realize o mise en place pesando e higienizando todos os insumos conforme a ficha técnica.',
+        'Aqueça a frigideira ou panela no fogo médio com o azeite e refogue os ingredientes principais até dourarem.',
+        'Cozinhe até o ponto ideal, ajuste o sal e os temperos, e finalize a montagem do prato com ervas frescas.'
+      ];
+    }
+
+    // 2. CALIBRAÇÃO INTELIGENTE DE CUSTOS VIA PREÇOS DE MERCADO
     const currentMarketPrices = getMarketPrices();
     const marketMap = new Map(currentMarketPrices.map((mp) => [mp.ingredient_key, mp]));
     const ingredients = rawIngs.map((ing) => ({
@@ -1062,22 +1147,22 @@ export async function startServer(options = {}) {
       basePrice: computeCulinaryPortionCost(ing.name, ing.amount, ing.unit, marketMap),
     }));
 
+    // 3. CÁLCULO NUTRICIONAL BRASILEIRO OFICIAL (TACO / TBCA)
+    const tacoNutrition = calculateRecipeNutritionTaco(ingredients, servings);
+    const calories = tacoNutrition.perServing.calories || geminiResult?.calories || 420;
+    const protein = tacoNutrition.perServing.protein || geminiResult?.protein || 28;
+    const carbs = tacoNutrition.perServing.carbs || geminiResult?.carbs || 36;
+    const fat = tacoNutrition.perServing.fat || geminiResult?.fat || 14;
+
     const cleanTitle = title.length > 65 ? title.slice(0, 62) + '...' : title;
     const exactPhotos = await searchExactDishPhotos(cleanTitle, ingredients);
     const finalHero = heroImage
       ? (heroImage.startsWith('/api') || heroImage.startsWith('/dishes') ? heroImage : `/api/image-proxy?url=${encodeURIComponent(heroImage)}`)
       : exactPhotos[0];
     const totalWeightGrams = ingredients.reduce((s, i) => s + (Number(i.amount) || 0), 0);
-    const portionWeight = `${Math.max(180, Math.round(totalWeightGrams / 2))}g por porção`;
+    const portionWeight = geminiResult?.portionWeight || `${Math.max(180, Math.round(totalWeightGrams / servings))}g por porção`;
 
     const id = 'rec-custom-' + Date.now();
-    const tags = ['Econômico', 'Rápido', 'Importada', 'Passo a Passo com Fotos'];
-
-    const importSteps = [
-      'Realize o mise en place pesando e higienizando todos os insumos conforme a ficha técnica.',
-      'Aqueça a frigideira ou panela no fogo médio com o azeite e refogue os ingredientes principais até dourarem.',
-      'Cozinhe até o ponto ideal, ajuste o sal e os temperos, e finalize a montagem do prato com ervas frescas.'
-    ];
 
     const finalStepDetails = await ensureRecipeStepDetails(
       cleanTitle,
@@ -1089,14 +1174,21 @@ export async function startServer(options = {}) {
 
     const sections = [
       { name: 'Mise en Place & Pré-preparo', stepRange: [1, 1] },
-      { name: 'Cocção & Finalização', stepRange: [2, 3] },
+      { name: 'Cocção & Finalização', stepRange: [2, Math.max(2, importSteps.length)] },
     ];
 
     const chefTips = {
-      intro: `Receita prática de ${cleanTitle} otimizada com foco em rendimento e sabor autêntico brasileiro.`,
-      storage: 'Manter refrigerado em pote hermético de vidro por até 3 dias. Reaquecer em fogo baixo com gotas de água ou azeite.',
-      secret: 'O mise en place antecipado garante que todos os ingredientes atinjam o ponto exato de cocção sem ressecar.',
+      intro: `Receita de ${cleanTitle} com ficha técnica calibrada segundo a Tabela Nutricional Brasileira (TACO) e custos médios de mercado.`,
+      storage: 'Manter refrigerado em pote hermético de vidro por até 3 dias. Reaquecer em fogo brando.',
+      secret: 'O preparo e pesagem prévia dos insumos evita desperdício e garante sabor uniforme.',
     };
+
+    if (!platingInstructions) {
+      platingInstructions = `Dispor a porção (${portionWeight}) no centro de um prato aquecido, garantindo volume e altura, e finalizar com ervas frescas e fio de azeite.`;
+    }
+    if (!specificInstructions) {
+      specificInstructions = 'Manter os insumos perecíveis refrigerados a 4°C até o preparo. Consumir em até 48h se mantido refrigerado.';
+    }
 
     db.prepare(`
       INSERT INTO recipes (
@@ -1109,21 +1201,21 @@ export async function startServer(options = {}) {
     `).run(
       id,
       cleanTitle,
-      category,
-      20,
-      2,
-      440,
-      28,
-      42,
-      15,
+      finalCategory,
+      prepTime,
+      servings,
+      calories,
+      protein,
+      carbs,
+      fat,
       JSON.stringify(tags),
       finalHero,
       source,
       JSON.stringify(ingredients),
       JSON.stringify(importSteps),
       portionWeight,
-      `Dispor a porção (${portionWeight}) no centro de um prato aquecido, garantindo volume e altura, e finalizar com ervas frescas e fio de azeite.`,
-      'Manter os insumos perecíveis refrigerados a 4°C até o preparo. Consumir em até 48h se mantido refrigerado em recipiente hermético.',
+      platingInstructions,
+      specificInstructions,
       JSON.stringify(sections),
       JSON.stringify(finalStepDetails),
       JSON.stringify(chefTips)

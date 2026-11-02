@@ -133,6 +133,8 @@ export function initDb() {
     `ALTER TABLE fridge_items ADD COLUMN amount REAL NOT NULL DEFAULT 1.0`,
     `ALTER TABLE fridge_items ADD COLUMN unit TEXT NOT NULL DEFAULT 'un'`,
     `ALTER TABLE fridge_items ADD COLUMN last_updated TEXT NOT NULL DEFAULT ''`,
+    `ALTER TABLE users ADD COLUMN gemini_api_key TEXT NOT NULL DEFAULT ''`,
+    `ALTER TABLE users ADD COLUMN unsplash_access_key TEXT NOT NULL DEFAULT ''`,
   ];
   for (const sql of safeMigrations) {
     try {

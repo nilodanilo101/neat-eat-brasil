@@ -576,12 +576,29 @@ export default function App() {
   const [recalculatingPrices, setRecalculatingPrices] = useState(false);
   const [priceSuccessToast, setPriceSuccessToast] = useState('');
 
+  // APIs & Integrations (Gemini, Open Food Facts, Unsplash, TACO)
+  const [apiKeysModalOpen, setApiKeysModalOpen] = useState(false);
+  const [geminiKeyInput, setGeminiKeyInput] = useState('');
+  const [unsplashKeyInput, setUnsplashKeyInput] = useState('');
+  const [savingApiKeys, setSavingApiKeys] = useState(false);
+  const [apiKeysToast, setApiKeysToast] = useState('');
+
+  // Open Food Facts lookup state
+  const [offModalOpen, setOffModalOpen] = useState(false);
+  const [offSearchQuery, setOffSearchQuery] = useState('');
+  const [offSearching, setOffSearching] = useState(false);
+  const [offResults, setOffResults] = useState([]);
+
   async function fetchState() {
     try {
       const res = await fetch('/api/state');
       const json = await res.json();
       setData(json);
       setBudgetDraft(json.user.weekly_budget);
+      if (json.user) {
+        setGeminiKeyInput(json.user.gemini_api_key || '');
+        setUnsplashKeyInput(json.user.unsplash_access_key || '');
+      }
       if (json.currentVersion && json.user.last_seen_version !== json.currentVersion) {
         setChangelogModalOpen(true);
       }
@@ -609,6 +626,8 @@ export default function App() {
         setCookingSession(null);
         setRepeatRecipeTarget(null);
         setPricesModalOpen(false);
+        setApiKeysModalOpen(false);
+        setOffModalOpen(false);
       }
     }
     window.addEventListener('keydown', handleKeyDown);
@@ -797,6 +816,75 @@ export default function App() {
       console.error('Erro ao recalcular custos:', err);
     } finally {
       setRecalculatingPrices(false);
+    }
+  }
+
+  async function handleSaveApiKeys(e) {
+    if (e) e.preventDefault();
+    setSavingApiKeys(true);
+    try {
+      const res = await fetch('/api/user/api-keys', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          gemini_api_key: geminiKeyInput,
+          unsplash_access_key: unsplashKeyInput,
+        }),
+      });
+      const json = await res.json();
+      setData(json);
+      playStockFridgeChime();
+      setApiKeysToast('Chaves de API salvas e conectadas com sucesso!');
+      setTimeout(() => setApiKeysToast(''), 4000);
+    } catch (err) {
+      console.error('Erro ao salvar chaves:', err);
+    } finally {
+      setSavingApiKeys(false);
+    }
+  }
+
+  async function handleSearchOpenFoodFacts(query) {
+    if (!query || query.trim().length < 2) return;
+    setOffSearching(true);
+    try {
+      const res = await fetch(`/api/open-food-facts/search?q=${encodeURIComponent(query.trim())}`);
+      const json = await res.json();
+      setOffResults(json.products || []);
+    } catch (err) {
+      console.error('Erro ao buscar Open Food Facts:', err);
+    } finally {
+      setOffSearching(false);
+    }
+  }
+
+  async function handleAddOffProductToFridge(product) {
+    if (!product) return;
+    try {
+      const aisle = product.categories?.[0] || 'Mercearia';
+      const cleanAisle = aisle.toLowerCase().includes('latic') || aisle.toLowerCase().includes('queijo') || aisle.toLowerCase().includes('leite')
+        ? 'Laticínios e Ovos'
+        : aisle.toLowerCase().includes('carne') || aisle.toLowerCase().includes('frango') || aisle.toLowerCase().includes('peixe')
+        ? 'Açougue'
+        : aisle.toLowerCase().includes('horti') || aisle.toLowerCase().includes('fruta') || aisle.toLowerCase().includes('legume')
+        ? 'Hortifruti'
+        : 'Mercearia';
+
+      const res = await fetch('/api/fridge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `${product.name} ${product.brand ? `(${product.brand})` : ''}`.trim(),
+          category: cleanAisle,
+          amount: 1,
+          unit: product.quantity || 'un',
+        }),
+      });
+      const json = await res.json();
+      setData(json);
+      playPopCheck();
+      setOffModalOpen(false);
+    } catch (err) {
+      console.error('Erro ao adicionar produto:', err);
     }
   }
 
@@ -1221,8 +1309,18 @@ export default function App() {
             </div>
           </div>
 
-          {/* Controls: Audio Sound FX */}
+          {/* Controls: Audio Sound FX & APIs */}
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setApiKeysModalOpen(true)}
+              title="Configurar Conexões & APIs (Gemini, Open Food Facts, Unsplash, TACO)"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs font-bold transition cursor-pointer shadow-sm bg-slate-900/80 hover:bg-slate-800 text-amber-300 border-amber-500/30 hover:border-amber-400/50 active:scale-95"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">APIs & IA</span>
+            </button>
+
             <button
               onClick={() => {
                 const next = toggleSound();
@@ -2188,6 +2286,37 @@ export default function App() {
                     className="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 shadow-xs shrink-0 cursor-pointer transition flex items-center gap-1 active:scale-95"
                   >
                     <span>Ver / Ajustar</span>
+                  </button>
+                </div>
+
+                {/* Card Consulta Rótulos & Códigos de Barras (Open Food Facts Brasil) */}
+                <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-white/10 flex items-center justify-between gap-3 shadow-md">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30 shrink-0">
+                      <ScanLine className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-bold text-white truncate">Consultar Rótulo / Código de Barras</p>
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-500/30 shrink-0">
+                          Open Food Facts
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 font-medium truncate">
+                        Busque marcas brasileiras por nome ou código EAN para abastecer com peso e foto
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOffModalOpen(true);
+                      setOffResults([]);
+                      setOffSearchQuery('');
+                    }}
+                    className="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-500/30 shadow-xs shrink-0 cursor-pointer transition flex items-center gap-1 active:scale-95"
+                  >
+                    <span>Buscar Produto</span>
                   </button>
                 </div>
 
@@ -5758,6 +5887,359 @@ export default function App() {
               >
                 Concluir
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 9: GERENCIADOR DE APIS & CONEXÕES INTELIGENTES */}
+      {apiKeysModalOpen && (
+        <div
+          onClick={() => setApiKeysModalOpen(false)}
+          className="fixed inset-0 z-60 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-slate-900/95 text-slate-100 rounded-3xl max-w-3xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-7 shadow-2xl border border-white/10 space-y-6 backdrop-blur-2xl"
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center shadow-md shadow-amber-500/25 shrink-0">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg sm:text-xl font-black text-white">
+                      APIs & Conexões Externas
+                    </h2>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      4 Motores Integrados
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Conecte inteligência artificial, acervo de fotos em alta definição e bancos abertos de nutrição e alimentos para potencializar o NeatEat.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setApiKeysModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition cursor-pointer shrink-0 border border-white/10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Success Toast */}
+            {apiKeysToast && (
+              <div className="p-3.5 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-xs font-bold flex items-center gap-2 animate-fade-in shadow-xs">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{apiKeysToast}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveApiKeys} className="space-y-4">
+              {/* Card 1: Google Gemini API */}
+              <div className="p-4 rounded-2xl bg-slate-950/70 border border-white/10 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">✨</span>
+                    <h3 className="font-extrabold text-sm text-white">
+                      1. Google Gemini 2.0 Flash (IA de Fichas Técnicas)
+                    </h3>
+                  </div>
+                  <span
+                    className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${
+                      geminiKeyInput.trim()
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                        : 'bg-slate-800 text-slate-400 border-white/5'
+                    }`}
+                  >
+                    {geminiKeyInput.trim() ? '🟢 Conectado' : '⚪ Chave Opcional'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Lê e estrutura qualquer link de receita (ou foto de receita de família) em formato JSON de restaurante: ingredientes precisos em gramas, tempo, porções, passos e modo de empratamento.
+                </p>
+                <div>
+                  <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                    Chave de API do Google Gemini (GEMINI_API_KEY):
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="AIzaSy..."
+                    value={geminiKeyInput}
+                    onChange={(e) => setGeminiKeyInput(e.target.value)}
+                    className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-amber-400 font-mono"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    Cota gratuita oficial disponível em:{' '}
+                    <a
+                      href="https://aistudio.google.com/app/apikey"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-amber-400 hover:underline font-semibold"
+                    >
+                      aistudio.google.com → Obter Chave Grátis
+                    </a>
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 2: Open Food Facts */}
+              <div className="p-4 rounded-2xl bg-slate-950/70 border border-white/10 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <ScanLine className="w-4 h-4 text-indigo-400" />
+                    <h3 className="font-extrabold text-sm text-white">
+                      2. Open Food Facts (Banco Aberto de Alimentos do Brasil)
+                    </h3>
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    🟢 100% Conectado (Gratuito)
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Mais de 3 milhões de produtos cadastrados. Permite consultar rótulos reais por nome de marca ou código de barras (EAN-13), trazendo pesos líquidos exatos, fotos da embalagem, Nutri-Score e índice de ultraprocessados (Classificação NOVA).
+                </p>
+              </div>
+
+              {/* Card 3: Unsplash Food API */}
+              <div className="p-4 rounded-2xl bg-slate-950/70 border border-white/10 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-sky-400" />
+                    <h3 className="font-extrabold text-sm text-white">
+                      3. Unsplash Food API (Fotografia Gastronômica de Alta Resolução)
+                    </h3>
+                  </div>
+                  <span
+                    className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${
+                      unsplashKeyInput.trim()
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                        : 'bg-sky-500/20 text-sky-300 border-sky-500/30'
+                    }`}
+                  >
+                    {unsplashKeyInput.trim() ? '🟢 Conectado' : '🔵 Curadoria Ativa'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Fotos culinárias profissionais com iluminação de estúdio para pratos e etapas de preparo, com fallback automático para o acervo gastronômico integrado.
+                </p>
+                <div>
+                  <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                    Unsplash Access Key (Opcional):
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Cole sua Access Key do Unsplash..."
+                    value={unsplashKeyInput}
+                    onChange={(e) => setUnsplashKeyInput(e.target.value)}
+                    className="w-full rounded-xl bg-slate-900 border border-white/10 px-3.5 py-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-sky-400 font-mono"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    Cadastre-se gratuitamente em:{' '}
+                    <a
+                      href="https://unsplash.com/developers"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sky-400 hover:underline font-semibold"
+                    >
+                      unsplash.com/developers →
+                    </a>
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 4: Tabela TACO / TBCA */}
+              <div className="p-4 rounded-2xl bg-slate-950/70 border border-white/10 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Scale className="w-4 h-4 text-emerald-400" />
+                    <h3 className="font-extrabold text-sm text-white">
+                      4. Tabela TACO / TBCA (USP & UNICAMP)
+                    </h3>
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    🟢 100% Integrado no SQLite (Oficial / Offline)
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Tabela Brasileira de Composição de Alimentos. O NeatEat calcula macronutrientes (calorias, proteínas, carboidratos, gorduras, fibras e sódio) com base científica oficial para carnes, leguminosas e vegetais do cardápio nacional.
+                </p>
+              </div>
+
+              {/* Save Button */}
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setApiKeysModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer transition border border-white/10"
+                >
+                  Fechar
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingApiKeys}
+                  className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer transition active:scale-95 disabled:opacity-50"
+                >
+                  <Sparkles className="w-4 h-4 text-slate-950" />
+                  <span>{savingApiKeys ? 'Salvando...' : 'Salvar Configurações de API'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 10: CONSULTA DE PRODUTOS & CÓDIGO DE BARRAS (OPEN FOOD FACTS) */}
+      {offModalOpen && (
+        <div
+          onClick={() => setOffModalOpen(false)}
+          className="fixed inset-0 z-60 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-slate-900/95 text-slate-100 rounded-3xl max-w-3xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-7 shadow-2xl border border-white/10 space-y-6 backdrop-blur-2xl"
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/25 shrink-0">
+                  <ScanLine className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg sm:text-xl font-black text-white">
+                      Consulta de Rótulos & Código de Barras
+                    </h2>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                      Open Food Facts Brasil
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Digite o nome de uma marca/produto (ex: <em>Arroz Camil</em>, <em>Leite Ninho</em>, <em>Azeite Gallo</em>) ou cole o código de barras (EAN-13).
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOffModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition cursor-pointer shrink-0 border border-white/10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Search Input Bar */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSearchOpenFoodFacts(offSearchQuery);
+              }}
+              className="flex gap-2"
+            >
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                <input
+                  type="text"
+                  placeholder="Nome do produto ou código EAN (ex: 7891000100103 ou Leite Moça)..."
+                  value={offSearchQuery}
+                  onChange={(e) => setOffSearchQuery(e.target.value)}
+                  className="w-full rounded-xl bg-slate-950 border border-white/10 pl-10 pr-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-400"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={offSearching || !offSearchQuery.trim()}
+                className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-600/25 cursor-pointer transition disabled:opacity-50"
+              >
+                <ScanLine className={`w-4 h-4 ${offSearching ? 'animate-spin' : ''}`} />
+                <span>{offSearching ? 'Buscando...' : 'Consultar'}</span>
+              </button>
+            </form>
+
+            {/* Results Grid */}
+            <div className="space-y-3">
+              {offResults.length > 0 && (
+                <p className="text-xs font-bold text-slate-400">
+                  {offResults.length} produtos encontrados no banco oficial:
+                </p>
+              )}
+
+              {offResults.map((p, idx) => (
+                <div
+                  key={p.code || idx}
+                  className="p-4 rounded-2xl bg-slate-950/70 border border-white/10 flex flex-wrap items-center justify-between gap-4 hover:border-indigo-500/40 transition"
+                >
+                  <div className="flex items-center gap-3.5 min-w-[240px] flex-1">
+                    {p.image_url ? (
+                      <img
+                        src={p.image_url}
+                        alt={p.name}
+                        className="w-14 h-14 rounded-xl object-contain bg-slate-900 border border-white/10 p-1 shrink-0"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-xl bg-slate-900 border border-white/10 flex items-center justify-center text-xl shrink-0">
+                        📦
+                      </div>
+                    )}
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="font-black text-sm text-white">{p.name}</h4>
+                        {p.brand && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-white/5">
+                            {p.brand}
+                          </span>
+                        )}
+                        {p.quantity && (
+                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            {p.quantity}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Badges Nova & NutriScore */}
+                      <div className="flex flex-wrap items-center gap-2 mt-1.5 text-[11px] text-slate-400">
+                        {p.nova_group && (
+                          <span className="text-[10px] font-bold text-slate-300">
+                            Classificação NOVA: Grupo {p.nova_group}{' '}
+                            {p.nova_group === 1
+                              ? '(In natura)'
+                              : p.nova_group === 4
+                              ? '(Ultraprocessado)'
+                              : ''}
+                          </span>
+                        )}
+                        {p.nutriscore_grade && (
+                          <span className="text-[10px] font-black px-1.5 py-0.2 rounded bg-indigo-950 text-indigo-300 border border-indigo-500/30">
+                            Nutri-Score: {p.nutriscore_grade}
+                          </span>
+                        )}
+                        {p.nutriments?.kcal_100g > 0 && (
+                          <span>• {p.nutriments.kcal_100g} kcal/100g</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddOffProductToFridge(p)}
+                    className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-600/25 cursor-pointer transition shrink-0"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Adicionar à Geladeira</span>
+                  </button>
+                </div>
+              ))}
+
+              {!offSearching && offResults.length === 0 && offSearchQuery && (
+                <div className="text-center py-6 text-slate-500 text-xs">
+                  Nenhum produto encontrado para "{offSearchQuery}". Tente buscar por palavras mais curtas como "leite", "arroz" ou digite o código de barras numérico.
+                </div>
+              )}
             </div>
           </div>
         </div>
