@@ -1529,22 +1529,34 @@ export function computeCulinaryPortionCost(ingredientName, amount, unit, marketP
   const amt = Number(amount) || 0;
   if (amt <= 0) return 0.05;
 
-  // Busca no Map de preços de mercado
+  // Busca no Map de preços de mercado (suporta Map com objetos ou números)
   let priceEntry = null;
-  for (const [key, mp] of marketPricesMap.entries()) {
-    const normKey = key.replace(/_/g, ' ');
-    if (normName.includes(normKey) || normKey.includes(normName)) {
-      priceEntry = mp;
-      break;
+  if (marketPricesMap && typeof marketPricesMap.entries === 'function') {
+    for (const [key, mp] of marketPricesMap.entries()) {
+      if (!key) continue;
+      const normKey = String(key).replace(/_/g, ' ');
+      if (normName.includes(normKey) || normKey.includes(normName)) {
+        priceEntry = mp;
+        break;
+      }
     }
   }
 
-  // Se não encontrou no banco, busca nos canônicos
-  let unitPrice = priceEntry ? Number(priceEntry.avg_unit_price) : 0;
-  let stdUnit = priceEntry ? priceEntry.std_unit : 'kg';
+  // Se encontrou no Map, extrai o preço unitário e a unidade padrão
+  let unitPrice = 0;
+  let stdUnit = 'kg';
   let unitWeightGrams = 150;
 
-  if (!priceEntry) {
+  if (priceEntry !== null && priceEntry !== undefined) {
+    if (typeof priceEntry === 'object') {
+      unitPrice = Number(priceEntry.avg_unit_price || priceEntry.last_unit_price) || 0;
+      stdUnit = priceEntry.std_unit || 'kg';
+    } else {
+      unitPrice = Number(priceEntry) || 0;
+    }
+  }
+
+  if (unitPrice <= 0) {
     const matched = matchCanonicalIngredient(ingredientName);
     if (matched) {
       unitPrice = matched.defaultPricePerKg;

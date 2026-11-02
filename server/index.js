@@ -20,6 +20,7 @@ import { CURRENT_VERSION, RELEASE_NOTES } from './changelog.js';
 import { CACHE_DIR } from './imageCache.js';
 import { parseSefazUrl, parseSefazHtml, parseSefazText, getDemoSefazInvoice } from './sefazParser.js';
 import { CANONICAL_INGREDIENTS, computeCulinaryPortionCost } from './ingredientMatcher.js';
+import { ROBUST_RECIPE_VAULT } from './suggestionEngine.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -199,9 +200,9 @@ function getFullState() {
     .filter((item) => item.inFridge)
     .reduce((acc, item) => acc + item.estimatedPrice, 0);
   const netToBuyTotal = Math.max(0, grossTotal - fridgeSavings);
-  const suggestionsState = getSuggestionsState();
   const marketPrices = getMarketPrices();
   const groceryHistory = getGroceryHistory();
+  const suggestionsState = getSuggestionsState(fridgeItems, marketPrices);
 
   return {
     user,
@@ -216,6 +217,7 @@ function getFullState() {
     dismissedSuggestionsCount: suggestionsState.dismissedCount,
     lastSuggestionSwipe: suggestionsState.lastSwipe,
     discoveryDate: suggestionsState.discoveryDate,
+    tasteProfile: suggestionsState.tasteProfile,
     releaseNotes: RELEASE_NOTES,
     currentVersion: CURRENT_VERSION,
     totals: {
@@ -353,9 +355,11 @@ async function syncDailyDiscoveryBatchOncePerDay() {
 
   syncingDailyDate = todayKey;
   const daySeed = Number(todayKey.replace(/-/g, '')) || 1;
-  const idx1 = daySeed % DAILY_ROTATION_THEMES.length;
-  const idx2 = (daySeed + 3) % DAILY_ROTATION_THEMES.length;
-  const picks = [DAILY_ROTATION_THEMES[idx1], DAILY_ROTATION_THEMES[idx2]];
+  const vaultPool = ROBUST_RECIPE_VAULT.length > 0 ? ROBUST_RECIPE_VAULT : DAILY_ROTATION_THEMES;
+  const idx1 = daySeed % vaultPool.length;
+  const idx2 = (daySeed + 7) % vaultPool.length;
+  const idx3 = (daySeed + 13) % vaultPool.length;
+  const picks = [vaultPool[idx1], vaultPool[idx2], vaultPool[idx3]];
 
   for (let i = 0; i < picks.length; i++) {
     const item = picks[i];
