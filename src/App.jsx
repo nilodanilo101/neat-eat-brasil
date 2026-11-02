@@ -53,6 +53,9 @@ import {
   CalendarDays,
   Layers,
   LayoutGrid,
+  ChefHat,
+  Calculator,
+  Coins,
 } from 'lucide-react';
 import {
   playChefServiceBell,
@@ -106,6 +109,40 @@ const QUICK_FRIDGE_SUGGESTIONS = [
   { name: 'Aveia em flocos', category: 'Mercearia' },
   { name: 'Goma de tapioca', category: 'Mercearia' },
   { name: 'Carne moída (patinho ou acém)', category: 'Açougue' },
+];
+
+const BRAZILIAN_STAPLES = [
+  { name: 'Arroz branco', amount: 150, unit: 'g', aisle: 'Mercearia', basePrice: 1.0 },
+  { name: 'Feijão carioca', amount: 150, unit: 'g', aisle: 'Mercearia', basePrice: 1.35 },
+  { name: 'Peito de frango', amount: 200, unit: 'g', aisle: 'Açougue', basePrice: 4.8 },
+  { name: 'Carne moída (patinho)', amount: 200, unit: 'g', aisle: 'Açougue', basePrice: 7.2 },
+  { name: 'Ovos', amount: 2, unit: 'un', aisle: 'Laticínios', basePrice: 1.8 },
+  { name: 'Batata', amount: 200, unit: 'g', aisle: 'Hortifrúti', basePrice: 1.4 },
+  { name: 'Cebola', amount: 50, unit: 'g', aisle: 'Hortifrúti', basePrice: 0.4 },
+  { name: 'Alho', amount: 10, unit: 'g', aisle: 'Hortifrúti', basePrice: 0.25 },
+  { name: 'Tomate', amount: 100, unit: 'g', aisle: 'Hortifrúti', basePrice: 0.9 },
+  { name: 'Azeite de oliva', amount: 15, unit: 'ml', aisle: 'Mercearia', basePrice: 1.2 },
+];
+
+const SAMPLE_RECIPE_LINKS = [
+  {
+    title: 'Carne Louca com Miolo de Acém',
+    category: 'Almoço',
+    url: 'https://www.receiteria.com.br/receita/carne-louca-com-miolo-de-acem/',
+    badge: '13 Passos • Completa',
+  },
+  {
+    title: 'Strogonoff de Frango Simples',
+    category: 'Almoço',
+    url: 'https://www.receiteria.com.br/receita/strogonoff-de-frango-simples/',
+    badge: 'Passo a Passo com Fotos',
+  },
+  {
+    title: 'Escondidinho de Carne Seca',
+    category: 'Jantar',
+    url: 'https://www.receiteria.com.br/receita/escondidinho-de-carne-seca/',
+    badge: 'Chef Tradicional',
+  },
 ];
 
 function formatBRL(value) {
@@ -324,6 +361,9 @@ export default function App() {
   const [savingRecipe, setSavingRecipe] = useState(false);
   const [searchingPhotos, setSearchingPhotos] = useState(false);
   const [candidatePhotos, setCandidatePhotos] = useState([]);
+  const [calculatingNutrition, setCalculatingNutrition] = useState(false);
+  const [nutritionCalculatedNote, setNutritionCalculatedNote] = useState(null);
+  const [costCalibrationNote, setCostCalibrationNote] = useState(null);
 
   // Guided Step-by-Step Cooking Mode state (Botão Play)
   const [cookingSession, setCookingSession] = useState(null);
@@ -936,12 +976,16 @@ export default function App() {
 
   function openNewRecipeModal() {
     setCandidatePhotos([]);
+    setNutritionCalculatedNote(null);
+    setCostCalibrationNote(null);
     setRecipeFormModal(createEmptyFichaTecnica());
   }
 
   function openEditRecipeModal(recipe, e) {
     if (e) e.stopPropagation();
     setCandidatePhotos([]);
+    setNutritionCalculatedNote(null);
+    setCostCalibrationNote(null);
     setSelectedRecipeModal(null);
     setRecipeFormModal({
       id: recipe.id,
@@ -1054,6 +1098,109 @@ export default function App() {
     } finally {
       setSavingRecipe(false);
     }
+  }
+
+  async function handleAutoCalculateNutrition() {
+    if (!recipeFormModal || !recipeFormModal.ingredients || recipeFormModal.ingredients.length === 0) {
+      setNutritionCalculatedNote('Adicione pelo menos 1 insumo para calcular a nutrição.');
+      return;
+    }
+    setCalculatingNutrition(true);
+    setNutritionCalculatedNote(null);
+    try {
+      const res = await fetch('/api/nutrition/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ingredients: recipeFormModal.ingredients,
+          servings: recipeFormModal.servings || 1,
+        }),
+      });
+      const resJson = await res.json();
+      if (resJson && resJson.perServing) {
+        setRecipeFormModal((prev) => ({
+          ...prev,
+          calories: resJson.perServing.calories || prev.calories,
+          protein: resJson.perServing.protein || prev.protein,
+          carbs: resJson.perServing.carbs || prev.carbs,
+          fat: resJson.perServing.fat || prev.fat,
+        }));
+        setNutritionCalculatedNote(
+          `Nutrição calculada via TACO/TBCA: ${resJson.perServing.calories} kcal • ${resJson.perServing.protein}g proteína • ${resJson.perServing.carbs}g carboidrato • ${resJson.perServing.fat}g gordura (${resJson.confidencePct}% precisão de insumos)`
+        );
+      }
+    } catch {
+      setNutritionCalculatedNote('Erro ao conectar com a base laboratorial TACO/TBCA.');
+    } finally {
+      setCalculatingNutrition(false);
+    }
+  }
+
+  function handleCalibrateIngredientCosts() {
+    if (!recipeFormModal || !recipeFormModal.ingredients || recipeFormModal.ingredients.length === 0) return;
+    const mPrices = data?.marketPrices || [];
+    let updatedCount = 0;
+    const nextIngredients = recipeFormModal.ingredients.map((ing) => {
+      if (!ing.name || !ing.name.trim()) return ing;
+      const lower = ing.name.toLowerCase().trim();
+      const matched = mPrices.find((mp) => {
+        const mpName = (mp.name || '').toLowerCase();
+        const mpKey = (mp.key || '').toLowerCase();
+        return (
+          lower === mpName ||
+          lower.includes(mpName) ||
+          mpName.includes(lower) ||
+          (mpKey && (lower.includes(mpKey) || mpKey.includes(lower)))
+        );
+      });
+      if (matched && matched.price > 0) {
+        const amt = Number(ing.amount) || 100;
+        const unit = String(ing.unit || 'g').toLowerCase();
+        let cost = matched.price;
+        if (unit === 'g') cost = (amt / 1000) * matched.price;
+        else if (unit === 'kg') cost = amt * matched.price;
+        else if (unit === 'ml') cost = (amt / 1000) * matched.price;
+        else if (unit === 'l') cost = amt * matched.price;
+        else if (unit.includes('un') || unit.includes('ovo')) cost = amt * (matched.price / 12);
+        else if (unit.includes('colher')) cost = (amt * 15 / 1000) * matched.price;
+        else cost = (amt / 100) * matched.price;
+
+        cost = Math.max(0.1, Math.round(cost * 100) / 100);
+        updatedCount++;
+        return { ...ing, basePrice: cost, aisle: matched.aisle || ing.aisle };
+      }
+      return ing;
+    });
+
+    setRecipeFormModal((prev) => ({ ...prev, ingredients: nextIngredients }));
+    setCostCalibrationNote(
+      updatedCount > 0
+        ? `${updatedCount} insumo(s) calibrado(s) com sucesso com base nas cotações reais de mercado!`
+        : 'Insumos já estão alinhados com as cotações atuais de mercado.'
+    );
+  }
+
+  function handleAddStapleIngredient(staple) {
+    if (!recipeFormModal) return;
+    setRecipeFormModal((prev) => ({
+      ...prev,
+      ingredients: [...(prev.ingredients || []), { ...staple }],
+    }));
+  }
+
+  function handleLoadGastronomicTemplate() {
+    if (!recipeFormModal) return;
+    const templateSteps = [
+      'Higienize os vegetais e prepare o mise en place com todos os insumos medidos e picados.',
+      'Aqueça a panela ou frigideira em fogo médio com o azeite de oliva ou óleo.',
+      'Refogue o alho picado e a cebola em cubos até dourarem suavemente e liberarem aroma.',
+      'Adicione a proteína ou ingrediente principal, tempere a gosto e cozinhe no ponto exato de suculência.',
+      'Finalize o preparo ajustando o sal e temperos frescos, e monte o prato conforme o padrão de empratamento.',
+    ];
+    setRecipeFormModal((prev) => ({
+      ...prev,
+      stepsText: templateSteps.join('\n'),
+    }));
   }
 
   async function handleDismissChangelog() {
@@ -2619,6 +2766,32 @@ export default function App() {
                     <span className="text-[11px] text-slate-400 mt-1 block">
                       Apenas links diretos são permitidos para garantir a fidelidade dos insumos e fotos dos passos.
                     </span>
+
+                    <div className="mt-2.5 pt-2.5 border-t border-white/5">
+                      <span className="text-[11px] font-bold text-slate-400 block mb-1.5 flex items-center gap-1.5">
+                        <Sparkles className="w-3 h-3 text-emerald-400" />
+                        Ou teste com uma receita real (extrai 100% dos passos e fotos originais):
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {SAMPLE_RECIPE_LINKS.map((sample, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => {
+                              setImportInput(sample.url);
+                              setImportCategory(sample.category);
+                              if (importError) setImportError('');
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-slate-950/80 hover:bg-emerald-950/40 border border-white/10 hover:border-emerald-500/40 text-[11px] text-slate-300 hover:text-white transition flex items-center gap-1.5 cursor-pointer text-left"
+                          >
+                            <span className="font-semibold">{sample.title}</span>
+                            <span className="text-[9px] px-1 py-0.5 bg-emerald-500/20 text-emerald-300 rounded font-bold">
+                              {sample.badge}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   {importError && (
@@ -4091,27 +4264,68 @@ export default function App() {
                       <strong className="text-emerald-400">{formatBRL(formServingCost)}</strong>
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setRecipeFormModal({
-                        ...recipeFormModal,
-                        ingredients: [
-                          ...recipeFormModal.ingredients,
-                          {
-                            name: '',
-                            amount: 100,
-                            unit: 'g',
-                            aisle: 'Mercearia',
-                            basePrice: 1.5,
-                          },
-                        ],
-                      })
-                    }
-                    className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1 cursor-pointer transition"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Adicionar Insumo
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleCalibrateIngredientCosts}
+                      title="Calibra o custo unitário de cada insumo com base nas cotações de mercado"
+                      className="px-3 py-1.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition active:scale-95"
+                    >
+                      <Coins className="w-3.5 h-3.5 text-sky-400" />
+                      <span>Calibrar Custos de Mercado</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setRecipeFormModal({
+                          ...recipeFormModal,
+                          ingredients: [
+                            ...recipeFormModal.ingredients,
+                            {
+                              name: '',
+                              amount: 100,
+                              unit: 'g',
+                              aisle: 'Mercearia',
+                              basePrice: 1.5,
+                            },
+                          ],
+                        })
+                      }
+                      className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1 cursor-pointer transition active:scale-95"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Adicionar Insumo
+                    </button>
+                  </div>
+                </div>
+
+                {costCalibrationNote && (
+                  <div className="p-2.5 rounded-xl bg-sky-950/60 border border-sky-500/40 text-sky-200 text-xs font-semibold flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0" />
+                    <span>{costCalibrationNote}</span>
+                  </div>
+                )}
+
+                {/* Atalhos Rápidos da Despensa Brasileira */}
+                <div className="p-2.5 rounded-xl bg-slate-950/40 border border-white/5 space-y-1.5">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">
+                    + Insumos Frequentes da Cesta Básica (Toque para adicionar à receita):
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {BRAZILIAN_STAPLES.map((st, sIdx) => (
+                      <button
+                        key={sIdx}
+                        type="button"
+                        onClick={() => handleAddStapleIngredient(st)}
+                        className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-emerald-950/40 border border-white/10 hover:border-emerald-500/40 text-[11px] text-slate-300 hover:text-emerald-300 font-semibold transition flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus className="w-3 h-3 text-emerald-400" />
+                        <span>{st.name}</span>
+                        <span className="text-[10px] text-slate-500">
+                          ({st.amount}{st.unit})
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -4217,9 +4431,24 @@ export default function App() {
 
               {/* 4. Modo de Preparo */}
               <div>
-                <label className="text-xs font-extrabold uppercase tracking-wider text-slate-300 block mb-1">
-                  Modo de Preparo (1 etapa por linha) *
-                </label>
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-extrabold uppercase tracking-wider text-slate-300">
+                      Modo de Preparo (1 etapa por linha) *
+                    </label>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30">
+                      {(recipeFormModal.stepsText || '').split('\n').filter((s) => s.trim()).length} etapas definidas
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLoadGastronomicTemplate}
+                    className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold border border-white/10 transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <ChefHat className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Carregar Roteiro Gastronômico (5 Etapas)</span>
+                  </button>
+                </div>
                 <textarea
                   rows={4}
                   required
@@ -4299,59 +4528,89 @@ export default function App() {
                 </div>
               </div>
 
-              {/* 6. Informações Nutricionais & Tags */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-slate-300 block mb-1">
-                    Calorias (kcal/porção)
-                  </label>
-                  <input
-                    type="number"
-                    value={recipeFormModal.calories}
-                    onChange={(e) =>
-                      setRecipeFormModal({ ...recipeFormModal, calories: e.target.value })
-                    }
-                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                  />
+              {/* 6. Informações Nutricionais (TACO / TBCA) & Tags */}
+              <div className="space-y-3 p-3.5 rounded-2xl bg-slate-950/60 border border-white/10">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                      <Calculator className="w-4 h-4 text-emerald-400" />
+                      Informações Nutricionais por Porção
+                    </h4>
+                    <p className="text-[11px] text-slate-400">
+                      Calculado automaticamente a partir dos insumos com as tabelas oficiais TACO (Unicamp) & TBCA (USP).
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAutoCalculateNutrition}
+                    disabled={calculatingNutrition || !recipeFormModal.ingredients?.length}
+                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white text-xs font-extrabold flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-950/40 transition active:scale-95"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-200" />
+                    <span>{calculatingNutrition ? 'Calculando Nutrição...' : 'Calcular Nutrição TACO / TBCA'}</span>
+                  </button>
                 </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-300 block mb-1">
-                    Proteínas (g)
-                  </label>
-                  <input
-                    type="number"
-                    value={recipeFormModal.protein}
-                    onChange={(e) =>
-                      setRecipeFormModal({ ...recipeFormModal, protein: e.target.value })
-                    }
-                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-300 block mb-1">
-                    Carboidratos (g)
-                  </label>
-                  <input
-                    type="number"
-                    value={recipeFormModal.carbs}
-                    onChange={(e) =>
-                      setRecipeFormModal({ ...recipeFormModal, carbs: e.target.value })
-                    }
-                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-300 block mb-1">
-                    Gorduras (g)
-                  </label>
-                  <input
-                    type="number"
-                    value={recipeFormModal.fat}
-                    onChange={(e) =>
-                      setRecipeFormModal({ ...recipeFormModal, fat: e.target.value })
-                    }
-                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-                  />
+
+                {nutritionCalculatedNote && (
+                  <div className="p-2.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-xs font-semibold flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{nutritionCalculatedNote}</span>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                  <div>
+                    <label className="text-xs font-bold text-slate-300 block mb-1">
+                      Calorias (kcal/porção)
+                    </label>
+                    <input
+                      type="number"
+                      value={recipeFormModal.calories}
+                      onChange={(e) =>
+                        setRecipeFormModal({ ...recipeFormModal, calories: e.target.value })
+                      }
+                      className="w-full rounded-xl bg-slate-900 border border-white/10 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-300 block mb-1">
+                      Proteínas (g)
+                    </label>
+                    <input
+                      type="number"
+                      value={recipeFormModal.protein}
+                      onChange={(e) =>
+                        setRecipeFormModal({ ...recipeFormModal, protein: e.target.value })
+                      }
+                      className="w-full rounded-xl bg-slate-900 border border-white/10 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-300 block mb-1">
+                      Carboidratos (g)
+                    </label>
+                    <input
+                      type="number"
+                      value={recipeFormModal.carbs}
+                      onChange={(e) =>
+                        setRecipeFormModal({ ...recipeFormModal, carbs: e.target.value })
+                      }
+                      className="w-full rounded-xl bg-slate-900 border border-white/10 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-300 block mb-1">
+                      Gorduras (g)
+                    </label>
+                    <input
+                      type="number"
+                      value={recipeFormModal.fat}
+                      onChange={(e) =>
+                        setRecipeFormModal({ ...recipeFormModal, fat: e.target.value })
+                      }
+                      className="w-full rounded-xl bg-slate-900 border border-white/10 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
                 </div>
               </div>
 

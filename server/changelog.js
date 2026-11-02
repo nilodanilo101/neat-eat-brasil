@@ -1,6 +1,21 @@
-export const CURRENT_VERSION = '2.1.0';
+export const CURRENT_VERSION = '3.0.0';
 
 export const RELEASE_NOTES = [
+  {
+    version: '3.0.0',
+    date: '02/11/2026',
+    title: 'NeatEat Brasil 3.0 — Nova Central de Entrada de Pratos, Planejador Otimizado & Extração Fiel de Receitas',
+    summary:
+      'O lançamento oficial da versão 3.0 eleva o NeatEat Brasil ao mais alto padrão gastronômico e de usabilidade! Apresentamos a Central Inteligente de Entrada de Pratos com cálculo nutricional laboratorial automatizado via TACO/TBCA, calibração dinâmica de custos por insumo, atalhos de despensa brasileira, novo layout do planejador semanal livre de ruído com 3 modos de visualização e extração web com 100% de etapas e fotografias reais!',
+    items: [
+      '🍳 Central Inteligente de Entrada de Pratos: criação e edição de fichas técnicas com cálculo nutricional automático oficial (TACO/Unicamp e TBCA/USP), calibração instantânea de custos por insumo com base no mercado e atalhos rápidos da cesta básica brasileira.',
+      '👨‍🍳 Padrão Gastronômico Sem Passos Genéricos: substituição definitiva de passos resumidos por descrições completas e operacionais do chef em todas as receitas, sugestões diárias e importações via web.',
+      '🌐 Extração Fiel de Receitas Web: novo motor de raspagem semântica estruturada (JSON-LD Schema.org e DOM inteligente) que captura todas as etapas originais (ex: 13 passos na Carne Louca) com fotos reais de alta definição.',
+      '📅 Redesenho Completo do Planejador Semanal: redução drástica de carga cognitiva e eliminação de saturação de botões repetidos com Progressive Disclosure (menu de contexto discreto), títulos sem truncamento e 3 modos de visualização (Semana Completa, Matriz por Refeição e Visão Diária Detalhada).',
+      '💵 Barra de Controle Semanal Balanceada: separação intuitiva entre Parâmetros da Casa (pessoas, preferências e orçamento) e Resumo Financeiro Consolidado com saldo restante em tempo real.',
+      '🔒 Camada Reforçada de Segurança e Isolamento: proteção anti-SSRF com validação estrita de IP privado/loopback, cabeçalhos de segurança contra clique indevido e auditoria de integridade de dados.'
+    ]
+  },
   {
     version: '2.1.0',
     date: '02/11/2026',
