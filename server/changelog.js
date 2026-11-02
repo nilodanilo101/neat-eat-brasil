@@ -1,6 +1,22 @@
-export const CURRENT_VERSION = '2.0.0';
+export const CURRENT_VERSION = '2.1.0';
 
 export const RELEASE_NOTES = [
+  {
+    version: '2.1.0',
+    date: '02/11/2026',
+    title: 'NeatEat Brasil 2.1 — 4 APIs Inteligentes, Perfil de Paladar & Match com a Geladeira',
+    summary:
+      'Uma grande atualização com inteligência artificial multimodal, banco aberto de alimentos com código de barras, fotos gastronômicas de estúdio e cálculo nutricional laboratorial brasileiro!',
+    items: [
+      '✨ Google Gemini 2.0 Flash: extração com IA de qualquer link de receita diretamente para ficha técnica completa, com tempos, porcionamento e passos.',
+      '📦 Open Food Facts Brasil: consulta de marcas nacionais e códigos de barras (EAN-13), trazendo pesos líquidos reais, fotos de embalagens, Nutri-Score e grau de processamento (Classificação NOVA).',
+      '📸 Unsplash Food API: fotografias gastronômicas profissionais em alta definição com iluminação de estúdio para pratos e etapas.',
+      '🔬 Base Nutricional TACO (UNICAMP) & TBCA (USP): cálculo científico oficial de calorias, proteínas, carboidratos, gorduras e fibras para mais de 100 ingredientes e cortes brasileiros.',
+      '🧊 Match Inteligente com a Geladeira: cálculo em tempo real da economia financeira ao usar o estoque de casa e quais insumos faltam comprar.',
+      '⭐ Perfil de Paladar Ativo: aprendizado de padrões de aceitação e descarte, calculando a afinidade exata com seu estilo culinário.',
+      '⚖️ Inteligência de Preços de Mercado: calibrador com multiplicadores de embalagem (ex: pacotes de 5kg, bandejas de 30 ovos) e conversor gastronômico de porções.'
+    ]
+  },
   {
     version: '2.0.0',
     date: '01/11/2026',
