@@ -12,6 +12,7 @@ const dbPath = path.join(dataDir, 'neateat.sqlite');
 export const db = new DatabaseSync(dbPath);
 
 import { INITIAL_RECIPES } from "./recipesData.js";
+import { CANONICAL_INGREDIENTS, computeCulinaryPortionCost } from "./ingredientMatcher.js";
 
 export function initDb() {
   db.exec(`
@@ -211,6 +212,33 @@ export function initDb() {
   const planCount = db.prepare('SELECT COUNT(*) as count FROM meal_plans').get().count;
   if (planCount === 0) {
     generateSmartMealPlan(250.0, 'Todas', 2);
+  }
+
+  // Sincroniza / Inicializa Preços Canônicos de Mercado (Referência Nacional CEASA/PROCON)
+  const insertPrice = db.prepare(`
+    INSERT INTO ingredient_market_prices (
+      ingredient_key, display_name, aisle, std_unit, last_unit_price, avg_unit_price, sample_count, last_supermarket, updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, 0, 'Referência Oficial NeatEat', CURRENT_TIMESTAMP)
+    ON CONFLICT(ingredient_key) DO NOTHING
+  `);
+
+  for (const item of CANONICAL_INGREDIENTS) {
+    insertPrice.run(
+      item.key,
+      item.name,
+      item.aisle,
+      item.stdUnit,
+      item.defaultPricePerKg,
+      item.defaultPricePerKg
+    );
+  }
+
+  // Recalcula custos das receitas com os preços gastronômicos de referência
+  try {
+    recalcRecipesCost();
+  } catch (err) {
+    console.error('Aviso ao recalcular receitas:', err);
   }
 }
 
@@ -1196,7 +1224,10 @@ export function calibrateMarketPrices(items, supermarket = '') {
     VALUES (?, ?, ?, ?, ?, ?, 1, ?, CURRENT_TIMESTAMP)
     ON CONFLICT(ingredient_key) DO UPDATE SET
       last_unit_price = excluded.last_unit_price,
-      avg_unit_price = ROUND(((ingredient_market_prices.avg_unit_price * ingredient_market_prices.sample_count) + excluded.last_unit_price) / (ingredient_market_prices.sample_count + 1), 2),
+      avg_unit_price = CASE
+        WHEN ingredient_market_prices.sample_count <= 0 THEN excluded.last_unit_price
+        ELSE ROUND(((ingredient_market_prices.avg_unit_price * MIN(ingredient_market_prices.sample_count, 8)) + excluded.last_unit_price) / (MIN(ingredient_market_prices.sample_count, 8) + 1), 2)
+      END,
       sample_count = ingredient_market_prices.sample_count + 1,
       last_supermarket = excluded.last_supermarket,
       updated_at = CURRENT_TIMESTAMP
@@ -1212,12 +1243,12 @@ export function calibrateMarketPrices(items, supermarket = '') {
       item.stdUnit || 'kg',
       Number(item.pricePerStdUnit),
       Number(item.pricePerStdUnit),
-      supermarket || ''
+      supermarket || 'Supermercado'
     );
     calibratedCount++;
   }
 
-  // Após calibrar os preços médios no mercado, recalcula os custos nas fichas técnicas
+  // Após calibrar os preços médios no mercado, recalcula os custos nas fichas técnicas com precisão culinária
   try {
     recalcRecipesCost();
   } catch (err) {
@@ -1225,6 +1256,30 @@ export function calibrateMarketPrices(items, supermarket = '') {
   }
 
   return calibratedCount;
+}
+
+export function updateMarketPrice(key, newPrice, supermarket = 'Ajuste Manual do Usuário') {
+  const price = Number(newPrice);
+  if (!key || isNaN(price) || price <= 0) return null;
+
+  const stmt = db.prepare(`
+    UPDATE ingredient_market_prices
+    SET last_unit_price = ?,
+        avg_unit_price = ?,
+        sample_count = CASE WHEN sample_count <= 0 THEN 1 ELSE sample_count + 1 END,
+        last_supermarket = ?,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE ingredient_key = ?
+  `);
+  stmt.run(price, price, supermarket, key);
+
+  try {
+    recalcRecipesCost();
+  } catch (err) {
+    console.error('Erro ao recalcular receitas após ajuste:', err);
+  }
+
+  return getMarketPrices();
 }
 
 export function stockFridgeFromInvoice(items) {
@@ -1288,30 +1343,16 @@ export function recalcRecipesCost() {
 
     let modified = false;
     for (const ing of ingList) {
-      const normName = ing.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      for (const [key, mp] of priceMap.entries()) {
-        const normKey = key.replace(/_/g, ' ');
-        if (normName.includes(normKey) || normKey.includes(normName)) {
-          const amount = Number(ing.amount) || 0;
-          let calculatedPrice = ing.basePrice;
-          if (ing.unit === 'g' && mp.std_unit === 'kg') {
-            calculatedPrice = Number(((amount / 1000) * mp.avg_unit_price).toFixed(2));
-          } else if (ing.unit === 'kg' && mp.std_unit === 'kg') {
-            calculatedPrice = Number((amount * mp.avg_unit_price).toFixed(2));
-          } else if (ing.unit === 'ml' && mp.std_unit === 'l') {
-            calculatedPrice = Number(((amount / 1000) * mp.avg_unit_price).toFixed(2));
-          } else if (ing.unit === 'l' && mp.std_unit === 'l') {
-            calculatedPrice = Number((amount * mp.avg_unit_price).toFixed(2));
-          } else if (['un', 'dente', 'folhas', 'colher'].includes(ing.unit)) {
-            calculatedPrice = Number(Math.max(0.2, (amount * (mp.avg_unit_price / 10))).toFixed(2));
-          }
+      const calculatedPrice = computeCulinaryPortionCost(
+        ing.name,
+        ing.amount,
+        ing.unit,
+        priceMap
+      );
 
-          if (calculatedPrice > 0 && calculatedPrice !== ing.basePrice) {
-            ing.basePrice = calculatedPrice;
-            modified = true;
-          }
-          break;
-        }
+      if (calculatedPrice > 0 && Math.abs(calculatedPrice - (Number(ing.basePrice) || 0)) > 0.02) {
+        ing.basePrice = calculatedPrice;
+        modified = true;
       }
     }
 

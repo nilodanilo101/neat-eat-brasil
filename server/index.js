@@ -12,12 +12,14 @@ import {
   getGroceryHistory,
   saveGroceryInvoice,
   calibrateMarketPrices,
+  updateMarketPrice,
+  recalcRecipesCost,
   stockFridgeFromInvoice,
 } from './db.js';
 import { CURRENT_VERSION, RELEASE_NOTES } from './changelog.js';
 import { CACHE_DIR } from './imageCache.js';
 import { parseSefazUrl, parseSefazHtml, parseSefazText, getDemoSefazInvoice } from './sefazParser.js';
-import { CANONICAL_INGREDIENTS } from './ingredientMatcher.js';
+import { CANONICAL_INGREDIENTS, computeCulinaryPortionCost } from './ingredientMatcher.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -699,6 +701,37 @@ export async function startServer(options = {}) {
     res.json({ prices: getMarketPrices() });
   });
 
+  // 5. Ajustar Preço Médio Manualmente
+  app.put('/api/market-prices/:key', (req, res) => {
+    const { key } = req.params;
+    const { price, supermarket } = req.body;
+    const numPrice = Number(price);
+    if (!key || isNaN(numPrice) || numPrice <= 0) {
+      return res.status(400).json({ error: 'Preço inválido para o insumo.' });
+    }
+    const updatedPrices = updateMarketPrice(key, numPrice, supermarket || 'Ajuste Manual do Usuário');
+    res.json({
+      success: true,
+      message: 'Preço do insumo atualizado e fichas técnicas recalculadas.',
+      prices: updatedPrices,
+      fullState: getFullState(),
+    });
+  });
+
+  // 6. Forçar Recálculo de Custos em Lote
+  app.post('/api/market-prices/recalculate', (_req, res) => {
+    try {
+      recalcRecipesCost();
+      res.json({
+        success: true,
+        message: 'Todas as fichas técnicas foram recalculadas com os preços médios mais recentes.',
+        fullState: getFullState(),
+      });
+    } catch (err) {
+      res.status(500).json({ error: 'Erro ao recalcular custos: ' + err.message });
+    }
+  });
+
   // CREATE NEW RECIPE (FICHA TÉCNICA DE RESTAURANTE)
   app.post('/api/recipes', async (req, res) => {
     const {
@@ -977,45 +1010,53 @@ export async function startServer(options = {}) {
     }
 
     const lower = title.toLowerCase();
-    const ingredients = [];
+    const rawIngs = [];
 
     if (lower.includes('frango')) {
-      ingredients.push({ name: 'Peito de frango', amount: 300, unit: 'g', aisle: 'Açougue', basePrice: 6.90 });
+      rawIngs.push({ name: 'Peito de frango', amount: 300, unit: 'g', aisle: 'Açougue' });
     }
     if (lower.includes('carne') || lower.includes('bife') || lower.includes('patinho') || lower.includes('bolonhesa')) {
-      ingredients.push({ name: 'Carne moída (patinho ou acém)', amount: 300, unit: 'g', aisle: 'Açougue', basePrice: 10.50 });
+      rawIngs.push({ name: 'Carne moída (acém ou patinho)', amount: 300, unit: 'g', aisle: 'Açougue' });
     }
     if (lower.includes('ovo') || lower.includes('omelete') || lower.includes('panqueca')) {
-      ingredients.push({ name: 'Ovo', amount: 3, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 2.70 });
+      rawIngs.push({ name: 'Ovo', amount: 3, unit: 'un', aisle: 'Laticínios e Ovos' });
     }
     if (lower.includes('queijo') || lower.includes('pizza') || lower.includes('lasanha') || lower.includes('gratinado')) {
-      ingredients.push({ name: 'Queijo muçarela', amount: 80, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 3.90 });
+      rawIngs.push({ name: 'Queijo muçarela', amount: 80, unit: 'g', aisle: 'Laticínios e Ovos' });
     }
     if (lower.includes('macarrão') || lower.includes('pasta') || lower.includes('espaguete')) {
-      ingredients.push({ name: 'Macarrão espaguete ou penne', amount: 200, unit: 'g', aisle: 'Mercearia', basePrice: 2.10 });
+      rawIngs.push({ name: 'Macarrão espaguete ou penne', amount: 200, unit: 'g', aisle: 'Mercearia' });
     }
     if (lower.includes('arroz') || lower.includes('risoto')) {
-      ingredients.push({ name: 'Arroz branco', amount: 150, unit: 'g', aisle: 'Mercearia', basePrice: 1.30 });
+      rawIngs.push({ name: 'Arroz branco', amount: 150, unit: 'g', aisle: 'Mercearia' });
     }
     if (lower.includes('batata') || lower.includes('nhoque') || lower.includes('purê')) {
-      ingredients.push({ name: 'Batata inglesa', amount: 250, unit: 'g', aisle: 'Hortifruti', basePrice: 2.30 });
+      rawIngs.push({ name: 'Batata inglesa', amount: 250, unit: 'g', aisle: 'Hortifruti' });
     }
 
-    if (ingredients.length === 0) {
-      ingredients.push(
-        { name: 'Tomate', amount: 120, unit: 'g', aisle: 'Hortifruti', basePrice: 1.50 },
-        { name: 'Cebola', amount: 80, unit: 'g', aisle: 'Hortifruti', basePrice: 0.70 },
-        { name: 'Alho', amount: 10, unit: 'g', aisle: 'Hortifruti', basePrice: 0.40 },
-        { name: 'Azeite de oliva', amount: 15, unit: 'ml', aisle: 'Mercearia', basePrice: 1.20 },
-        { name: 'Queijo coalho ou minas', amount: 80, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 3.80 }
+    if (rawIngs.length === 0) {
+      rawIngs.push(
+        { name: 'Tomate', amount: 120, unit: 'g', aisle: 'Hortifruti' },
+        { name: 'Cebola', amount: 80, unit: 'g', aisle: 'Hortifruti' },
+        { name: 'Alho', amount: 10, unit: 'g', aisle: 'Hortifruti' },
+        { name: 'Azeite de oliva', amount: 15, unit: 'ml', aisle: 'Mercearia' },
+        { name: 'Queijo coalho ou minas', amount: 80, unit: 'g', aisle: 'Laticínios e Ovos' }
       );
     } else {
-      ingredients.push(
-        { name: 'Cebola', amount: 60, unit: 'g', aisle: 'Hortifruti', basePrice: 0.55 },
-        { name: 'Alho', amount: 10, unit: 'g', aisle: 'Hortifruti', basePrice: 0.40 },
-        { name: 'Azeite de oliva', amount: 10, unit: 'ml', aisle: 'Mercearia', basePrice: 0.90 }
+      rawIngs.push(
+        { name: 'Cebola', amount: 60, unit: 'g', aisle: 'Hortifruti' },
+        { name: 'Alho', amount: 10, unit: 'g', aisle: 'Hortifruti' },
+        { name: 'Azeite de oliva', amount: 10, unit: 'ml', aisle: 'Mercearia' }
       );
     }
+
+    // Calibração inteligente dos custos unitários via base de preços de mercado
+    const currentMarketPrices = getMarketPrices();
+    const marketMap = new Map(currentMarketPrices.map((mp) => [mp.ingredient_key, mp]));
+    const ingredients = rawIngs.map((ing) => ({
+      ...ing,
+      basePrice: computeCulinaryPortionCost(ing.name, ing.amount, ing.unit, marketMap),
+    }));
 
     const cleanTitle = title.length > 65 ? title.slice(0, 62) + '...' : title;
     const exactPhotos = await searchExactDishPhotos(cleanTitle, ingredients);

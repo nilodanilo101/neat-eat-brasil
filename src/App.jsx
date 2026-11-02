@@ -566,6 +566,15 @@ export default function App() {
   const [importSuccess, setImportSuccess] = useState('');
   const [newFridgeItem, setNewFridgeItem] = useState('');
 
+  // Market Prices Intelligence state
+  const [pricesModalOpen, setPricesModalOpen] = useState(false);
+  const [priceSearchQuery, setPriceSearchQuery] = useState('');
+  const [priceFilterAisle, setPriceFilterAisle] = useState('Todos');
+  const [editingPriceKey, setEditingPriceKey] = useState(null);
+  const [editingPriceValue, setEditingPriceValue] = useState('');
+  const [recalculatingPrices, setRecalculatingPrices] = useState(false);
+  const [priceSuccessToast, setPriceSuccessToast] = useState('');
+
   async function fetchState() {
     try {
       const res = await fetch('/api/state');
@@ -598,6 +607,7 @@ export default function App() {
         setCookingDrawerOpen(false);
         setCookingSession(null);
         setRepeatRecipeTarget(null);
+        setPricesModalOpen(false);
       }
     }
     window.addEventListener('keydown', handleKeyDown);
@@ -745,6 +755,47 @@ export default function App() {
       setImportError(err.message || 'Erro ao importar receita pelo link informado.');
     } finally {
       setImporting(false);
+    }
+  }
+
+  async function handleUpdateMarketPrice(key, newPrice) {
+    const num = parseFloat(String(newPrice).replace(',', '.'));
+    if (!key || isNaN(num) || num <= 0) return;
+    try {
+      const res = await fetch(`/api/market-prices/${encodeURIComponent(key)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ price: num }),
+      });
+      const json = await res.json();
+      if (json.fullState) {
+        setData(json.fullState);
+      }
+      playStockFridgeChime();
+      setEditingPriceKey(null);
+      setEditingPriceValue('');
+      setPriceSuccessToast('Preço médio calibrado e fichas técnicas recalculadas!');
+      setTimeout(() => setPriceSuccessToast(''), 4000);
+    } catch (err) {
+      console.error('Erro ao atualizar preço de mercado:', err);
+    }
+  }
+
+  async function handleRecalculatePrices() {
+    setRecalculatingPrices(true);
+    try {
+      const res = await fetch('/api/market-prices/recalculate', { method: 'POST' });
+      const json = await res.json();
+      if (json.fullState) {
+        setData(json.fullState);
+      }
+      playChefServiceBell();
+      setPriceSuccessToast('Todas as fichas técnicas foram recalculadas com sucesso!');
+      setTimeout(() => setPriceSuccessToast(''), 4000);
+    } catch (err) {
+      console.error('Erro ao recalcular custos:', err);
+    } finally {
+      setRecalculatingPrices(false);
     }
   }
 
@@ -1002,6 +1053,8 @@ export default function App() {
     suggestions = [],
     dismissedSuggestionsCount = 0,
     lastSuggestionSwipe = null,
+    marketPrices = [],
+    groceryHistory = [],
   } = data;
   const isOverBudget = totals.netToBuyTotal > user.weekly_budget;
   const budgetPct = Math.min(100, Math.round((totals.netToBuyTotal / Math.max(1, user.weekly_budget)) * 100));
@@ -2097,6 +2150,35 @@ export default function App() {
                     className="text-xs font-black px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shrink-0 cursor-pointer transition flex items-center gap-1 active:scale-95"
                   >
                     <span>Importar Cupom</span>
+                  </button>
+                </div>
+
+                {/* Card Inteligência de Preços Médios dos Ingredientes */}
+                <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-white/10 flex items-center justify-between gap-3 shadow-md">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center border border-sky-500/30 shrink-0">
+                      <Scale className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-bold text-white truncate">Preços Médios dos Ingredientes</p>
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-sky-950/60 text-sky-300 border border-sky-500/30 shrink-0">
+                          {marketPrices.length} Insumos
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 font-medium truncate">
+                        {marketPrices.filter((p) => p.sample_count > 0).length > 0
+                          ? `${marketPrices.filter((p) => p.sample_count > 0).length} calibrados via cupom real • Base CEASA`
+                          : 'Calibrado com base CEASA/PROCON • Atualize com cupom'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPricesModalOpen(true)}
+                    className="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 shadow-xs shrink-0 cursor-pointer transition flex items-center gap-1 active:scale-95"
+                  >
+                    <span>Ver / Ajustar</span>
                   </button>
                 </div>
 
@@ -5327,6 +5409,236 @@ export default function App() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 8: INTELIGÊNCIA DE PREÇOS MÉDIOS & GESTÃO DE INSUMOS */}
+      {pricesModalOpen && (
+        <div
+          onClick={() => {
+            setPricesModalOpen(false);
+            setEditingPriceKey(null);
+          }}
+          className="fixed inset-0 z-60 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-slate-900/95 text-slate-100 rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-hidden flex flex-col shadow-2xl border border-white/10 backdrop-blur-2xl"
+          >
+            {/* Header */}
+            <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between gap-4 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-sky-600/25 shrink-0">
+                  <Scale className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg sm:text-xl font-black text-white">
+                      Inteligência de Preços Médios dos Ingredientes
+                    </h2>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                      {marketPrices.length} Insumos
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Tabela base CEASA/PROCON calibrada dinamicamente via cupons fiscais (NFC-e). Define o custo real por porção de todas as receitas.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setPricesModalOpen(false);
+                  setEditingPriceKey(null);
+                }}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition cursor-pointer shrink-0 border border-white/10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Quick Actions & Filters Bar */}
+            <div className="p-4 sm:p-5 bg-slate-950/40 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 shrink-0">
+              <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-[260px]">
+                <div className="relative flex-1 min-w-[180px]">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    placeholder="Buscar insumo (ex: arroz, alho, peito de frango)..."
+                    value={priceSearchQuery}
+                    onChange={(e) => setPriceSearchQuery(e.target.value)}
+                    className="w-full rounded-xl bg-slate-900 border border-white/10 pl-9 pr-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-sky-400"
+                  />
+                </div>
+                <select
+                  value={priceFilterAisle}
+                  onChange={(e) => setPriceFilterAisle(e.target.value)}
+                  className="rounded-xl bg-slate-900 border border-white/10 px-3 py-2 text-xs font-bold text-slate-200 focus:outline-none cursor-pointer"
+                >
+                  <option value="Todos">Todos os Setores</option>
+                  <option value="Açougue">Açougue</option>
+                  <option value="Laticínios">Laticínios</option>
+                  <option value="Hortifruti">Hortifruti</option>
+                  <option value="Grãos e Cereais">Grãos e Cereais</option>
+                  <option value="Mercearia">Mercearia</option>
+                  <option value="Temperos">Temperos</option>
+                </select>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleRecalculatePrices}
+                disabled={recalculatingPrices}
+                className="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 active:scale-95 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md shadow-sky-600/25 cursor-pointer transition disabled:opacity-50"
+              >
+                <Sparkles className={`w-3.5 h-3.5 ${recalculatingPrices ? 'animate-spin' : ''}`} />
+                <span>{recalculatingPrices ? 'Recalculando Custos...' : 'Recalcular Receitas'}</span>
+              </button>
+            </div>
+
+            {/* Success Toast */}
+            {priceSuccessToast && (
+              <div className="mx-4 mt-3 p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-xs font-bold flex items-center gap-2 animate-fade-in">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{priceSuccessToast}</span>
+              </div>
+            )}
+
+            {/* Insumos List */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 divide-y divide-white/5 space-y-1">
+              {marketPrices
+                .filter((item) => {
+                  const matchQuery =
+                    !priceSearchQuery.trim() ||
+                    item.name.toLowerCase().includes(priceSearchQuery.toLowerCase()) ||
+                    item.key.toLowerCase().includes(priceSearchQuery.toLowerCase());
+                  const matchAisle =
+                    priceFilterAisle === 'Todos' || item.aisle === priceFilterAisle;
+                  return matchQuery && matchAisle;
+                })
+                .map((item) => {
+                  const isCalibrated = (item.sample_count || 0) > 0;
+                  const isEditing = editingPriceKey === item.key;
+
+                  return (
+                    <div
+                      key={item.key}
+                      className="py-3 px-3 rounded-2xl hover:bg-slate-800/40 transition flex flex-wrap items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3 min-w-[200px]">
+                        <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-lg shrink-0 border border-white/5">
+                          {renderIngredientEmoji(item.name, item.aisle)}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-sm text-white">{item.name}</h4>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-white/5">
+                              {item.aisle}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-400">
+                            Unidade base:{' '}
+                            <span className="font-semibold text-slate-300">
+                              1 {item.unit}
+                            </span>
+                            {item.supermarket && (
+                              <span> • Último: {item.supermarket}</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          {isEditing ? (
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs text-slate-400 font-bold">R$</span>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0.05"
+                                value={editingPriceValue}
+                                onChange={(e) => setEditingPriceValue(e.target.value)}
+                                className="w-20 rounded-lg bg-slate-950 border border-sky-400 px-2 py-1 text-xs font-black text-emerald-400 focus:outline-none"
+                                autoFocus
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleUpdateMarketPrice(item.key, editingPriceValue)
+                                }
+                                className="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold cursor-pointer"
+                              >
+                                Salvar
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingPriceKey(null)}
+                                className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-bold cursor-pointer"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          ) : (
+                            <div>
+                              <span className="text-sm sm:text-base font-black text-emerald-400">
+                                R$ {Number(item.avg_unit_price).toFixed(2)}
+                              </span>
+                              <span className="text-[10px] text-slate-400">/{item.unit}</span>
+                            </div>
+                          )}
+
+                          <div>
+                            {isCalibrated ? (
+                              <span className="text-[10px] font-bold text-emerald-400 flex items-center justify-end gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                Calibrado Cupom ({item.sample_count}x)
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-semibold text-slate-400 flex items-center justify-end gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+                                Referência CEASA
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {!isEditing && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingPriceKey(item.key);
+                              setEditingPriceValue(String(item.avg_unit_price));
+                            }}
+                            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-white/5 cursor-pointer transition active:scale-95"
+                            title="Editar preço de mercado"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 sm:p-5 border-t border-white/10 bg-slate-950/60 flex items-center justify-between shrink-0">
+              <span className="text-xs text-slate-400">
+                Os preços são ponderados automaticamente a cada nova nota fiscal inserida.
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setPricesModalOpen(false);
+                  setEditingPriceKey(null);
+                }}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs cursor-pointer transition border border-white/10"
+              >
+                Concluir
+              </button>
+            </div>
           </div>
         </div>
       )}
