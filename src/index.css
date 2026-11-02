@@ -1,31 +1,38 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    color-scheme: dark;
+  }
+
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Plus Jakarta Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1), color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    background-color: #060a14;
+    color: #f1f5f9;
     background-attachment: fixed;
+    overflow-x: hidden;
   }
 }
 
 /* ==========================================================================
-   APPLE LIQUID GLASS DESIGN SYSTEM (macOS Tahoe / iOS 26 / visionOS Style)
+   NEATEAT BRASIL PRO — macOS TAHOE LIQUID GLASS DESIGN SYSTEM (DARK NATIVE)
    ========================================================================== */
 
-/* 1. Ambient Refractive Mesh Wallpaper (Light Mode) */
+/* 1. Ambient Wallpaper & Canvas */
 body,
 .liquid-app-bg {
-  background-color: #eef4f8;
+  background-color: #060a14 !important;
   background-image:
-    radial-gradient(at 12% 8%, rgba(16, 185, 129, 0.20) 0px, transparent 48%),
-    radial-gradient(at 88% 12%, rgba(56, 189, 248, 0.22) 0px, transparent 50%),
-    radial-gradient(at 52% 48%, rgba(20, 184, 166, 0.12) 0px, transparent 58%),
-    radial-gradient(at 82% 85%, rgba(99, 102, 241, 0.14) 0px, transparent 52%),
-    radial-gradient(at 18% 88%, rgba(245, 158, 11, 0.12) 0px, transparent 50%),
-    linear-gradient(160deg, #f4f8fb 0%, #e8f1f5 50%, #eef5f3 100%) !important;
+    radial-gradient(at 12% 10%, rgba(16, 185, 129, 0.16) 0px, transparent 48%),
+    radial-gradient(at 88% 12%, rgba(14, 165, 233, 0.14) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(20, 184, 166, 0.08) 0px, transparent 55%),
+    radial-gradient(at 82% 86%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+    radial-gradient(at 15% 85%, rgba(245, 158, 11, 0.08) 0px, transparent 46%),
+    linear-gradient(160deg, #050811 0%, #09101f 55%, #060c18 100%) !important;
   background-attachment: fixed !important;
+  color: #f1f5f9 !important;
 }
 
 /* Ambient Floating Liquid Orbs */
@@ -45,503 +52,271 @@ body,
   animation: floatOrbSlow 22s ease-in-out infinite reverse;
 }
 
-/* 2. Liquid Glass Surfaces & Cards (Light Mode) */
-.bg-white,
-.bg-white\/95,
-.bg-white\/90,
-.liquid-glass-card {
+/* 2. Structured Elevation Surfaces */
+
+/* Level 1: Major Panels & Structural Sections */
+.pro-surface-1,
+.liquid-panel {
   background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.74) 0%,
-    rgba(255, 255, 255, 0.48) 55%,
-    rgba(255, 255, 255, 0.62) 100%
+    145deg,
+    rgba(15, 23, 42, 0.78) 0%,
+    rgba(15, 23, 42, 0.62) 100%
   ) !important;
   backdrop-filter: blur(28px) saturate(190%) !important;
   -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.78) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
   box-shadow:
-    0 12px 34px -8px rgba(15, 23, 42, 0.07),
-    0 2px 6px -1px rgba(15, 23, 42, 0.03),
-    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.92),
-    inset 0 -1px 0 0 rgba(255, 255, 255, 0.35) !important;
+    0 20px 48px -12px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.12) !important;
+  border-radius: 1.5rem;
 }
 
-/* Secondary Translucent GlassWells */
-.bg-slate-50\/70,
-.bg-slate-50\/50,
-.bg-slate-100,
-.bg-slate-100\/90 {
+/* Level 2: Secondary Interactive Cards & List Containers */
+.pro-surface-2,
+.liquid-card {
   background: linear-gradient(
     145deg,
-    rgba(255, 255, 255, 0.56) 0%,
-    rgba(241, 245, 249, 0.42) 100%
+    rgba(30, 41, 59, 0.65) 0%,
+    rgba(20, 29, 47, 0.55) 100%
   ) !important;
-  backdrop-filter: blur(20px) saturate(170%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(170%) !important;
-  border-color: rgba(255, 255, 255, 0.68) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.75),
-    0 4px 14px -4px rgba(15, 23, 42, 0.04) !important;
+    0 10px 28px -8px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.10) !important;
+  border-radius: 1.25rem;
+  transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Floating Apple Liquid Glass Header & Dock */
+.pro-surface-2:hover,
+.liquid-card:hover {
+  border-color: rgba(52, 211, 153, 0.35) !important;
+  background: linear-gradient(
+    145deg,
+    rgba(30, 41, 59, 0.82) 0%,
+    rgba(24, 34, 54, 0.70) 100%
+  ) !important;
+  box-shadow:
+    0 16px 36px -8px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+/* Level 3: Inset Wells, Filter Bars & Form Sub-Containers */
+.pro-surface-well,
+.liquid-well {
+  background: rgba(10, 16, 30, 0.82) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  box-shadow:
+    inset 0 1.5px 3px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.04) !important;
+  border-radius: 1rem;
+}
+
+/* Level 4: High-Contrast Frosted Glass Modals */
+.pro-modal-surface,
+.liquid-modal {
+  background: linear-gradient(
+    160deg,
+    rgba(15, 23, 42, 0.96) 0%,
+    rgba(10, 15, 28, 0.94) 100%
+  ) !important;
+  backdrop-filter: blur(34px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(34px) saturate(200%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow:
+    0 28px 65px -15px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.20) !important;
+  border-radius: 1.75rem;
+}
+
+/* 3. Navigation Header & Segmented Pill Dock */
 .liquid-header {
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.76) 0%,
-    rgba(255, 255, 255, 0.58) 100%
+    rgba(10, 16, 30, 0.82) 0%,
+    rgba(8, 13, 24, 0.70) 100%
   ) !important;
-  backdrop-filter: blur(34px) saturate(210%) !important;
-  -webkit-backdrop-filter: blur(34px) saturate(210%) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(32px) saturate(210%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(210%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09) !important;
   box-shadow:
-    0 10px 30px -10px rgba(15, 23, 42, 0.07),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.9) !important;
+    0 12px 36px -8px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.12) !important;
 }
 
-/* Apple Capsule Segmented Control (Navigation Pill Bar) */
 .liquid-nav-capsule {
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.55) 0%,
-    rgba(241, 245, 249, 0.38) 100%
+    rgba(15, 23, 42, 0.75) 0%,
+    rgba(22, 33, 53, 0.55) 100%
   );
   backdrop-filter: blur(24px) saturate(185%);
   -webkit-backdrop-filter: blur(24px) saturate(185%);
-  border: 1px solid rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.11);
   box-shadow:
-    inset 0 1px 2px rgba(15, 23, 42, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    0 6px 20px -6px rgba(15, 23, 42, 0.06);
+    inset 0 1px 2px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 8px 24px -6px rgba(0, 0, 0, 0.55);
 }
 
 .liquid-nav-tab-active {
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.94) 0%,
-    rgba(255, 255, 255, 0.76) 100%
+    rgba(16, 185, 129, 0.32) 0%,
+    rgba(20, 184, 166, 0.22) 100%
   ) !important;
-  color: #047857 !important;
-  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  color: #6ee7b7 !important;
+  border: 1px solid rgba(52, 211, 153, 0.45) !important;
   box-shadow:
-    0 6px 16px -4px rgba(16, 185, 129, 0.22),
-    0 2px 6px -1px rgba(15, 23, 42, 0.06),
-    inset 0 1.5px 0 0 rgba(255, 255, 255, 1) !important;
+    0 8px 20px -4px rgba(16, 185, 129, 0.36),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.25) !important;
 }
 
-/* Liquid Emerald Primary Buttons */
+/* 4. Interactive Buttons */
+.pro-btn-emerald,
 .bg-emerald-600 {
   background: linear-gradient(
     135deg,
-    rgba(16, 185, 129, 0.94) 0%,
-    rgba(5, 150, 105, 0.90) 55%,
-    rgba(13, 148, 136, 0.92) 100%
+    #10b981 0%,
+    #059669 55%,
+    #0d9488 100%
   ) !important;
-  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
   box-shadow:
-    0 8px 20px -4px rgba(16, 185, 129, 0.38),
-    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.48),
-    inset 0 -1px 0 0 rgba(6, 78, 59, 0.25) !important;
-  transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    0 8px 24px -4px rgba(16, 185, 129, 0.42),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.35) !important;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
+.pro-btn-emerald:hover,
 .bg-emerald-600:hover {
   transform: translateY(-1px);
   box-shadow:
-    0 12px 24px -4px rgba(16, 185, 129, 0.48),
-    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.62) !important;
+    0 12px 28px -4px rgba(16, 185, 129, 0.55),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.45) !important;
 }
 
-/* Tinted Refractive Glass Surfaces (Emerald / Sky / Amber / Rose) */
-.bg-emerald-50,
-.bg-emerald-50\/40,
-.bg-emerald-50\/50,
-.bg-emerald-50\/60,
-.bg-emerald-50\/70,
-.bg-emerald-50\/80,
-.bg-emerald-50\/90,
-.bg-emerald-100 {
-  background: linear-gradient(
-    135deg,
-    rgba(209, 250, 229, 0.68) 0%,
-    rgba(167, 243, 208, 0.38) 100%
-  ) !important;
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  border-color: rgba(16, 185, 129, 0.28) !important;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.75);
+.pro-btn-emerald:active,
+.bg-emerald-600:active {
+  transform: translateY(0px) scale(0.98);
 }
 
-.bg-sky-50,
-.bg-sky-50\/40,
-.bg-sky-50\/50,
-.bg-sky-50\/60,
-.bg-sky-50\/70,
-.bg-sky-50\/80,
-.bg-sky-50\/90,
-.bg-sky-100,
-.bg-blue-50,
-.bg-blue-50\/50,
-.bg-blue-50\/80,
-.bg-blue-100 {
-  background: linear-gradient(
-    135deg,
-    rgba(224, 242, 254, 0.72) 0%,
-    rgba(186, 230, 253, 0.42) 100%
-  ) !important;
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  border-color: rgba(14, 165, 233, 0.28) !important;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.75);
-}
-
-.bg-amber-50,
-.bg-amber-50\/40,
-.bg-amber-50\/50,
-.bg-amber-50\/60,
-.bg-amber-50\/70,
-.bg-amber-50\/80,
-.bg-amber-50\/90,
-.bg-amber-100 {
-  background: linear-gradient(
-    135deg,
-    rgba(254, 243, 199, 0.72) 0%,
-    rgba(253, 230, 138, 0.42) 100%
-  ) !important;
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  border-color: rgba(245, 158, 11, 0.3) !important;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.75);
-}
-
-.bg-rose-50,
-.bg-rose-100 {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 228, 230, 0.72) 0%,
-    rgba(254, 205, 211, 0.42) 100%
-  ) !important;
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  border-color: rgba(244, 63, 94, 0.28) !important;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.75);
-}
-
-/* Liquid Glass Inputs & Selects (Light Mode) */
+/* 5. Inputs, Selects & Textareas (Native Dark Precision) */
 input:not([type="range"]),
 select,
 textarea {
-  background: rgba(255, 255, 255, 0.65) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.85) !important;
-  box-shadow:
-    inset 0 1px 2px rgba(15, 23, 42, 0.04),
-    0 2px 6px rgba(15, 23, 42, 0.02) !important;
+  background: rgba(11, 17, 32, 0.75) !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.45) !important;
   transition: all 0.2s ease !important;
 }
 
 input:not([type="range"]):focus,
 select:focus,
 textarea:focus {
-  background: rgba(255, 255, 255, 0.88) !important;
-  border-color: rgba(16, 185, 129, 0.65) !important;
+  background: rgba(15, 23, 42, 0.90) !important;
+  border-color: rgba(52, 211, 153, 0.65) !important;
   box-shadow:
-    0 0 0 3px rgba(16, 185, 129, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+    0 0 0 3px rgba(16, 185, 129, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
   outline: none !important;
 }
 
-/* ==========================================================================
-   DARK MODE APPLE LIQUID GLASS OVERRIDES
-   ========================================================================== */
-html.dark {
-  color-scheme: dark;
+input::placeholder,
+textarea::placeholder {
+  color: #64748b !important;
 }
 
-html.dark body,
-html.dark .bg-slate-50,
-html.dark .liquid-app-bg {
-  background-color: #060b16 !important;
-  background-image:
-    radial-gradient(at 15% 10%, rgba(16, 185, 129, 0.22) 0px, transparent 50%),
-    radial-gradient(at 86% 14%, rgba(14, 165, 233, 0.20) 0px, transparent 52%),
-    radial-gradient(at 50% 50%, rgba(20, 184, 166, 0.10) 0px, transparent 58%),
-    radial-gradient(at 84% 88%, rgba(99, 102, 241, 0.16) 0px, transparent 50%),
-    radial-gradient(at 14% 85%, rgba(245, 158, 11, 0.10) 0px, transparent 48%),
-    linear-gradient(160deg, #050914 0%, #0a1326 55%, #07121e 100%) !important;
-  background-attachment: fixed !important;
-  color: #f8fafc !important;
-}
-
-html.dark .bg-white,
-html.dark .bg-white\/95,
-html.dark .bg-white\/90,
-html.dark .liquid-glass-card {
-  background: linear-gradient(
-    135deg,
-    rgba(30, 41, 59, 0.68) 0%,
-    rgba(15, 23, 42, 0.52) 60%,
-    rgba(30, 41, 59, 0.60) 100%
-  ) !important;
-  backdrop-filter: blur(30px) saturate(195%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(195%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow:
-    0 18px 42px -10px rgba(0, 0, 0, 0.52),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.22),
-    inset 0 -1px 0 0 rgba(255, 255, 255, 0.06) !important;
-}
-
-html.dark .liquid-header {
-  background: linear-gradient(
-    180deg,
-    rgba(15, 23, 42, 0.72) 0%,
-    rgba(15, 23, 42, 0.54) 100%
-  ) !important;
-  backdrop-filter: blur(36px) saturate(210%) !important;
-  -webkit-backdrop-filter: blur(36px) saturate(210%) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14) !important;
-  box-shadow:
-    0 12px 34px -8px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.18) !important;
-}
-
-html.dark .liquid-nav-capsule {
-  background: linear-gradient(
-    135deg,
-    rgba(15, 23, 42, 0.62) 0%,
-    rgba(30, 41, 59, 0.42) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 8px 24px -6px rgba(0, 0, 0, 0.45);
-}
-
-html.dark .liquid-nav-tab-active {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.30) 0%,
-    rgba(20, 184, 166, 0.18) 100%
-  ) !important;
+/* 6. Semantic Color Badges & Tinted Glass */
+.tint-emerald {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border: 1px solid rgba(52, 211, 153, 0.30) !important;
   color: #6ee7b7 !important;
-  border: 1px solid rgba(52, 211, 153, 0.42) !important;
-  box-shadow:
-    0 6px 18px -4px rgba(16, 185, 129, 0.32),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.28) !important;
 }
 
-html.dark .bg-slate-50\/70,
-html.dark .bg-slate-50\/50,
-html.dark .bg-slate-100,
-html.dark .bg-slate-100\/90 {
+.tint-amber {
+  background: rgba(245, 158, 11, 0.14) !important;
+  border: 1px solid rgba(251, 191, 36, 0.30) !important;
+  color: #fde047 !important;
+}
+
+.tint-rose {
+  background: rgba(244, 63, 94, 0.14) !important;
+  border: 1px solid rgba(251, 113, 133, 0.30) !important;
+  color: #fda4af !important;
+}
+
+.tint-sky {
+  background: rgba(14, 165, 233, 0.14) !important;
+  border: 1px solid rgba(56, 189, 248, 0.30) !important;
+  color: #7dd3fc !important;
+}
+
+/* 7. Backward-Compatibility Fallbacks for any untransformed white classes */
+.bg-white,
+.bg-white\/95,
+.bg-white\/90,
+.liquid-glass-card {
   background: linear-gradient(
     145deg,
-    rgba(15, 23, 42, 0.58) 0%,
-    rgba(30, 41, 59, 0.42) 100%
+    rgba(22, 33, 53, 0.72) 0%,
+    rgba(15, 23, 42, 0.65) 100%
   ) !important;
-  backdrop-filter: blur(20px) saturate(175%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(175%) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12) !important;
-}
-
-html.dark .bg-slate-200 {
-  background-color: rgba(51, 65, 85, 0.65) !important;
-}
-
-html.dark .hover\:bg-white:hover,
-html.dark .hover\:bg-slate-50:hover,
-html.dark .hover\:bg-slate-100:hover,
-html.dark .hover\:bg-slate-200:hover {
-  background: rgba(51, 65, 85, 0.62) !important;
-}
-
-/* Dark Mode Text Colors */
-html.dark .text-slate-900,
-html.dark .text-slate-800 {
+  backdrop-filter: blur(26px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
   color: #f8fafc !important;
 }
 
-html.dark .text-slate-700,
-html.dark .text-slate-600 {
+.bg-slate-50,
+.bg-slate-50\/80,
+.bg-slate-50\/70,
+.bg-slate-100,
+.bg-slate-100\/90 {
+  background: rgba(11, 17, 32, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #e2e8f0 !important;
+}
+
+.text-slate-900,
+.text-slate-800 {
+  color: #f8fafc !important;
+}
+
+.text-slate-700,
+.text-slate-600 {
   color: #cbd5e1 !important;
 }
 
-html.dark .text-slate-500,
-html.dark .text-slate-400 {
-  color: #94a3b8 !important;
+.border-slate-200,
+.border-slate-200\/90,
+.border-slate-200\/80,
+.border-slate-200\/70,
+.border-slate-100 {
+  border-color: rgba(255, 255, 255, 0.09) !important;
 }
 
-html.dark .text-emerald-700,
-html.dark .text-emerald-800,
-html.dark .text-emerald-900,
-html.dark .text-emerald-950 {
-  color: #34d399 !important;
+/* 8. Custom macOS Dark Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-html.dark .text-amber-800,
-html.dark .text-amber-900,
-html.dark .text-amber-950 {
-  color: #fcd34d !important;
+::-webkit-scrollbar-track {
+  background: rgba(11, 17, 32, 0.5);
 }
 
-html.dark .text-sky-700,
-html.dark .text-sky-800,
-html.dark .text-sky-900,
-html.dark .text-sky-950 {
-  color: #38bdf8 !important;
+::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.6);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
-html.dark .text-sky-600 {
-  color: #60a5fa !important;
-}
-
-html.dark .text-rose-900,
-html.dark .text-rose-600 {
-  color: #fb7185 !important;
-}
-
-html.dark .text-orange-900,
-html.dark .text-orange-600 {
-  color: #fdba74 !important;
-}
-
-/* Dark Mode Tinted Liquid Glass Surfaces */
-html.dark .bg-emerald-50,
-html.dark .bg-emerald-50\/40,
-html.dark .bg-emerald-50\/50,
-html.dark .bg-emerald-50\/60,
-html.dark .bg-emerald-50\/70,
-html.dark .bg-emerald-50\/80,
-html.dark .bg-emerald-50\/90,
-html.dark .bg-emerald-100 {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.22) 0%,
-    rgba(5, 150, 105, 0.10) 100%
-  ) !important;
-  border-color: rgba(52, 211, 153, 0.30) !important;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.14) !important;
-}
-
-html.dark .bg-sky-50,
-html.dark .bg-sky-50\/40,
-html.dark .bg-sky-50\/50,
-html.dark .bg-sky-50\/60,
-html.dark .bg-sky-50\/70,
-html.dark .bg-sky-50\/80,
-html.dark .bg-sky-50\/90,
-html.dark .bg-sky-100,
-html.dark .bg-blue-50,
-html.dark .bg-blue-50\/50,
-html.dark .bg-blue-50\/80,
-html.dark .bg-blue-100 {
-  background: linear-gradient(
-    135deg,
-    rgba(14, 165, 233, 0.22) 0%,
-    rgba(2, 132, 199, 0.10) 100%
-  ) !important;
-  border-color: rgba(56, 189, 248, 0.30) !important;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.14) !important;
-}
-
-html.dark .bg-amber-50,
-html.dark .bg-amber-50\/40,
-html.dark .bg-amber-50\/50,
-html.dark .bg-amber-50\/60,
-html.dark .bg-amber-50\/70,
-html.dark .bg-amber-50\/80,
-html.dark .bg-amber-50\/90,
-html.dark .bg-amber-100 {
-  background: linear-gradient(
-    135deg,
-    rgba(245, 158, 11, 0.20) 0%,
-    rgba(217, 119, 6, 0.10) 100%
-  ) !important;
-  border-color: rgba(251, 191, 36, 0.30) !important;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.14) !important;
-}
-
-html.dark .bg-rose-50,
-html.dark .bg-rose-100 {
-  background: linear-gradient(
-    135deg,
-    rgba(244, 63, 94, 0.22) 0%,
-    rgba(225, 29, 72, 0.10) 100%
-  ) !important;
-  border-color: rgba(251, 113, 133, 0.30) !important;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.14) !important;
-}
-
-html.dark .bg-orange-50\/70 {
-  background: linear-gradient(
-    135deg,
-    rgba(249, 115, 22, 0.20) 0%,
-    rgba(234, 88, 12, 0.10) 100%
-  ) !important;
-}
-
-/* Dark Mode Specular Borders & Dividers */
-html.dark .border-emerald-200,
-html.dark .border-emerald-200\/90,
-html.dark .border-emerald-200\/80,
-html.dark .border-emerald-200\/60 {
-  border-color: rgba(52, 211, 153, 0.30) !important;
-}
-
-html.dark .border-sky-200,
-html.dark .border-sky-200\/90,
-html.dark .border-sky-200\/80,
-html.dark .border-sky-200\/60,
-html.dark .border-blue-200 {
-  border-color: rgba(56, 189, 248, 0.30) !important;
-}
-
-html.dark .border-amber-200,
-html.dark .border-amber-200\/90,
-html.dark .border-amber-200\/80,
-html.dark .border-amber-200\/60 {
-  border-color: rgba(251, 191, 36, 0.30) !important;
-}
-
-html.dark .border-slate-200,
-html.dark .border-slate-200\/90,
-html.dark .border-slate-200\/80,
-html.dark .border-slate-200\/70,
-html.dark .border-slate-200\/60,
-html.dark .border-slate-200\/50,
-html.dark .border-slate-300,
-html.dark .border-slate-100 {
-  border-color: rgba(255, 255, 255, 0.13) !important;
-}
-
-html.dark .divide-slate-100 > :not(:last-child),
-html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
-  border-color: rgba(255, 255, 255, 0.10) !important;
-}
-
-/* Dark Mode Form Inputs, Selects & Textareas */
-html.dark input:not([type="range"]),
-html.dark select,
-html.dark textarea {
-  background: rgba(15, 23, 42, 0.62) !important;
-  color: #f8fafc !important;
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35) !important;
-}
-
-html.dark input:not([type="range"]):focus,
-html.dark select:focus,
-html.dark textarea:focus {
-  background: rgba(15, 23, 42, 0.85) !important;
-  border-color: rgba(52, 211, 153, 0.6) !important;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.22) !important;
-}
-
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: #64748b !important;
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.85);
+  background-clip: content-box;
 }

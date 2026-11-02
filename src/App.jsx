@@ -1079,98 +1079,103 @@ export default function App() {
     : 0;
 
   return (
-    <div className="min-h-screen flex flex-col liquid-app-bg text-slate-900 relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col liquid-app-bg text-slate-100 relative overflow-x-hidden">
       {/* AMBIENT APPLE LIQUID GLASS REFRACTIVE ORBS */}
       <div
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
       >
-        <div className="liquid-orb-1 absolute -top-24 -left-24 w-96 h-96 rounded-full bg-emerald-400/20 blur-3xl" />
-        <div className="liquid-orb-2 absolute top-1/4 -right-28 w-[28rem] h-[28rem] rounded-full bg-sky-400/18 blur-3xl" />
-        <div className="liquid-orb-1 absolute -bottom-32 left-1/3 w-[26rem] h-[26rem] rounded-full bg-teal-400/16 blur-3xl" />
+        <div className="liquid-orb-1 absolute -top-24 -left-24 w-96 h-96 rounded-full bg-emerald-500/15 blur-3xl" />
+        <div className="liquid-orb-2 absolute top-1/4 -right-28 w-[28rem] h-[28rem] rounded-full bg-sky-500/12 blur-3xl" />
+        <div className="liquid-orb-1 absolute -bottom-32 left-1/3 w-[26rem] h-[26rem] rounded-full bg-teal-500/12 blur-3xl" />
       </div>
 
-      {/* HEADER — APPLE LIQUID GLASS */}
+      {/* HEADER — macOS TAHOE PRO DARK GLASS TOOLBAR */}
       <header className="sticky top-0 z-30 liquid-header">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 pb-2.5 flex flex-wrap items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-3.5 pb-2.5 flex flex-wrap items-center justify-between gap-4">
           {/* Brand with Menu Icon */}
           <div className="flex items-center gap-3">
             <img
               src="/menu-icon.png"
               alt="Ícone Menu NeatEat"
-              className="w-10 h-10 object-contain drop-shadow-md transition-transform hover:scale-105"
+              className="w-10 h-10 object-contain drop-shadow-lg transition-transform hover:scale-105"
             />
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-xl tracking-tight text-slate-900">
-                  n<span className="text-emerald-600">EAT</span>
+                <span className="font-black text-xl tracking-tight text-white">
+                  n<span className="text-emerald-400">EAT</span>
                 </span>
-                <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300/60">
-                  Brasil
+                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-2xs">
+                  Brasil Pro
                 </span>
               </div>
-              <p className="text-xs text-slate-500 hidden sm:block">
+              <p className="text-[11px] text-slate-400 hidden sm:block font-medium">
                 Planejador Semanal & Fichas Técnicas de Restaurante
               </p>
             </div>
           </div>
 
-          {/* Live Budget Gauge Pill (Liquid Glass Capsule) */}
-          <div className="flex items-center gap-4 bg-slate-100/90 px-4 py-2 rounded-2xl border border-slate-200/80">
+          {/* Live Budget Gauge Pill (macOS Dark Glass Capsule) */}
+          <div className="flex items-center gap-4 bg-slate-900/80 px-4 py-2 rounded-2xl border border-white/10 shadow-lg backdrop-blur-md">
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-                <Wallet className="w-3.5 h-3.5 text-emerald-600" />
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400">
+                <Wallet className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Custo Médio da Lista:</span>
               </div>
               <div className="flex items-baseline gap-1.5 mt-0.5">
                 <span
-                  className={`text-base font-extrabold ${
-                    isOverBudget ? 'text-rose-600' : 'text-emerald-700'
+                  className={`text-base font-black ${
+                    isOverBudget ? 'text-rose-400' : 'text-emerald-400'
                   }`}
                 >
                   {formatBRL(totals.netToBuyTotal)}
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-400 font-medium">
                   / meta {formatBRL(user.weekly_budget)}
                 </span>
               </div>
             </div>
 
-            <div className="hidden md:block w-28">
-              <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+            <div className="hidden md:block w-32">
+              <div className="h-2 w-full bg-slate-950/80 rounded-full overflow-hidden border border-white/5">
                 <div
-                  className={`h-full transition-all duration-300 ${
-                    isOverBudget ? 'bg-rose-500' : 'bg-emerald-500'
+                  className={`h-full transition-all duration-300 rounded-full ${
+                    isOverBudget
+                      ? 'bg-rose-500 shadow-rose-500/50'
+                      : 'bg-gradient-to-r from-emerald-500 to-teal-400 shadow-emerald-500/50'
                   }`}
                   style={{ width: `${budgetPct}%` }}
                 />
               </div>
-              <p className="text-[11px] text-slate-500 mt-1 text-right">
-                {totals.fridgeSavings > 0
-                  ? `Economizou ${formatBRL(totals.fridgeSavings)} da geladeira`
-                  : `${budgetPct}% do orçamento`}
+              <p className="text-[10px] text-slate-400 mt-1 text-right font-medium">
+                {totals.fridgeSavings > 0 ? (
+                  <span className="text-emerald-300 font-semibold">
+                    Economizou {formatBRL(totals.fridgeSavings)} da geladeira
+                  </span>
+                ) : (
+                  `${budgetPct}% do orçamento`
+                )}
               </p>
             </div>
           </div>
 
-          {/* Dark Mode Toggle, Household & Auth Button */}
+          {/* Controls: Audio Sound FX */}
           <div className="flex items-center gap-2">
-            {/* Sound Effects Toggle */}
             <button
               onClick={() => {
                 const next = toggleSound();
                 setSoundOn(next);
               }}
               title={soundOn ? 'Sons de alta gastronomia ativados (clique para silenciar)' : 'Sons desativados (clique para ativar)'}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs font-semibold transition cursor-pointer ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-2xl border text-xs font-bold transition cursor-pointer shadow-sm ${
                 soundOn
-                  ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-600/30'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-white/10'
+                  ? 'bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border-emerald-500/40 shadow-emerald-950/30'
+                  : 'bg-slate-800/80 hover:bg-slate-700/80 text-slate-400 border-white/10'
               }`}
             >
               {soundOn ? (
                 <>
-                  <Volume2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <Volume2 className="w-4 h-4 text-emerald-400" />
                   <span className="hidden md:inline">Sons Ativos</span>
                 </>
               ) : (
@@ -1183,30 +1188,34 @@ export default function App() {
           </div>
         </div>
 
-        {/* Apple Liquid Glass Segmented Capsule Navigation Bar */}
+        {/* Apple Segmented Capsule Navigation Bar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-3 pt-1 flex justify-start sm:justify-center overflow-x-auto">
           <nav className="liquid-nav-capsule inline-flex items-center gap-1.5 p-1.5 rounded-full">
             {[
-              { id: 'planner', label: 'Planejador Semanal', icon: Calendar },
+              { id: 'planner', label: 'Planejador Semanal', icon: Calendar, count: null },
               {
                 id: 'shopping',
-                label: `Lista de Compras (${shoppingList.filter((i) => !i.inFridge).length})`,
+                label: 'Lista de Compras',
                 icon: ShoppingCart,
+                count: shoppingList.filter((i) => !i.inFridge).length,
               },
               {
                 id: 'fridge',
-                label: `Geladeira & IA (${fridgeItems.length})`,
+                label: 'Geladeira & IA',
                 icon: Refrigerator,
+                count: fridgeItems.length,
               },
               {
                 id: 'recipes',
-                label: `Catálogo de Receitas (${recipes.length})`,
+                label: 'Catálogo de Receitas',
                 icon: BookOpen,
+                count: recipes.length,
               },
               {
                 id: 'suggestions',
-                label: `Sugestões (${suggestions.length})`,
+                label: 'Sugestões',
                 icon: Flame,
+                count: suggestions.length,
               },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -1215,14 +1224,25 @@ export default function App() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-extrabold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                     active
-                      ? 'liquid-nav-tab-active'
-                      : 'border border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/40'
+                      ? 'liquid-nav-tab-active shadow-md'
+                      : 'border border-transparent text-slate-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
                   <span>{tab.label}</span>
+                  {tab.count !== null && (
+                    <span
+                      className={`text-[10px] font-black px-1.5 py-0.2 rounded-full border ${
+                        active
+                          ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
+                          : 'bg-slate-800/90 text-slate-400 border-white/5'
+                      }`}
+                    >
+                      {tab.count}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -1765,55 +1785,55 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-4 space-y-5">
               {/* PAINEL DO MERCADO (MODO FOCO & TOTAL DINÂMICO NO CARRINHO) */}
-              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs space-y-4">
+              <div className="bg-slate-900/85 rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-xl backdrop-blur-xl space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                      <ShoppingBag className="w-4 h-4" />
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+                      <ShoppingBag className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-sm text-slate-900">
+                      <h4 className="font-extrabold text-sm text-slate-100">
                         Modo Mercado
                       </h4>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-[11px] text-slate-400 font-medium">
                         Acompanhamento do carrinho em tempo real
                       </p>
                     </div>
                   </div>
-                  <span className="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                     {shoppingStats.pct}%
                   </span>
                 </div>
 
                 {/* Progress bar */}
-                <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                <div className="w-full h-2 rounded-full bg-slate-950/80 overflow-hidden border border-white/5">
                   <div
-                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-300"
+                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-300 shadow-emerald-500/50"
                     style={{ width: `${shoppingStats.pct}%` }}
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 pt-1">
-                  <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200">
-                    <span className="text-[10px] font-bold uppercase text-emerald-800 block">
+                  <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30">
+                    <span className="text-[10px] font-bold uppercase text-emerald-300 block">
                       🛒 No Carrinho
                     </span>
-                    <span className="text-base font-extrabold text-emerald-950 block mt-0.5">
+                    <span className="text-base font-black text-white block mt-0.5">
                       {formatBRL(shoppingStats.checkedTotal)}
                     </span>
-                    <span className="text-[11px] text-emerald-700 font-medium">
+                    <span className="text-[11px] text-emerald-400 font-medium">
                       {shoppingStats.checkedCount} de {shoppingStats.toBuyCount} itens
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
-                    <span className="text-[10px] font-bold uppercase text-slate-500 block">
+                  <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-white/5">
+                    <span className="text-[10px] font-bold uppercase text-slate-400 block">
                       ⏳ Falta Comprar
                     </span>
-                    <span className="text-base font-extrabold text-slate-900 block mt-0.5">
+                    <span className="text-base font-black text-white block mt-0.5">
                       {formatBRL(shoppingStats.remainingTotal)}
                     </span>
-                    <span className="text-[11px] text-slate-500 font-medium">
+                    <span className="text-[11px] text-slate-400 font-medium">
                       {shoppingStats.remainingCount}{' '}
                       {shoppingStats.remainingCount === 1 ? 'item restante' : 'itens restantes'}
                     </span>
@@ -1823,10 +1843,10 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setHideCheckedShopping((prev) => !prev)}
-                  className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer ${
+                  className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer border ${
                     hideCheckedShopping
-                      ? 'bg-emerald-600 text-white shadow-xs hover:bg-emerald-500'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500/50 shadow-md shadow-emerald-950/50'
+                      : 'bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 border-white/10'
                   }`}
                 >
                   {hideCheckedShopping ? (
@@ -1843,46 +1863,48 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="bg-slate-900 text-white rounded-3xl p-6 space-y-4">
-                <h4 className="font-bold text-sm text-slate-300 uppercase tracking-wider">
-                  Resumo Financeiro (Preço Médio)
+              {/* Resumo Financeiro Card */}
+              <div className="bg-slate-950/80 text-slate-200 rounded-3xl p-6 border border-white/5 shadow-xl space-y-4">
+                <h4 className="font-bold text-xs text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                  <Wallet className="w-4 h-4 text-emerald-400" />
+                  <span>Resumo Financeiro (Preço Médio)</span>
                 </h4>
                 <div className="space-y-2.5 text-sm">
                   <div className="flex justify-between">
                     <span className="text-slate-400">Custo Bruto dos Insumos:</span>
-                    <span className="font-semibold">{formatBRL(totals.grossTotal)}</span>
+                    <span className="font-bold text-slate-200">{formatBRL(totals.grossTotal)}</span>
                   </div>
                   <div className="flex justify-between text-emerald-400">
                     <span>Já tenho em casa (Geladeira):</span>
-                    <span className="font-bold">- {formatBRL(totals.fridgeSavings)}</span>
+                    <span className="font-extrabold">- {formatBRL(totals.fridgeSavings)}</span>
                   </div>
-                  <div className="pt-3 border-t border-slate-800 flex justify-between text-base font-extrabold">
-                    <span>Total Estimado a Comprar:</span>
+                  <div className="pt-3 border-t border-white/10 flex justify-between text-base font-black">
+                    <span className="text-white">Total Estimado a Comprar:</span>
                     <span className="text-emerald-400">{formatBRL(totals.netToBuyTotal)}</span>
                   </div>
                 </div>
-                <p className="text-xs text-slate-400 pt-2 border-t border-slate-800">
+                <p className="text-[11px] text-slate-400 pt-2 border-t border-white/5 font-medium leading-relaxed">
                   Valores calculados considerando o custo médio dos insumos nas fichas técnicas para{' '}
-                  <strong>{user.household_size} pessoa(s)</strong>.
+                  <strong className="text-slate-200">{user.household_size} pessoa(s)</strong>.
                 </p>
               </div>
             </div>
 
             <div className="lg:col-span-8 space-y-4">
-              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-xs">
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+              <div className="bg-slate-900/85 rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-xl backdrop-blur-xl">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                   <div>
-                    <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                    <h2 className="text-lg font-extrabold text-white flex items-center gap-2">
                       <span>Lista de Compras Inteligente</span>
                       {hideCheckedShopping && (
-                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300/50">
+                        <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                           Modo Foco Ativo
                         </span>
                       )}
                     </h2>
-                    <p className="text-xs text-slate-500">
-                      Insumos repetidos entre as 21 refeições foram somados automaticamente para{' '}
-                      <strong>{user.household_size} pessoas</strong>.
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Insumos repetidos entre as 21 refeições foram consolidados para{' '}
+                      <strong className="text-slate-200">{user.household_size} pessoas</strong>.
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -1893,18 +1915,18 @@ export default function App() {
                         setSefazSuccessMsg('');
                         setSefazModalOpen(true);
                       }}
-                      className="text-xs font-extrabold px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-xs flex items-center gap-1.5 cursor-pointer transition"
+                      className="text-xs font-black px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-md shadow-emerald-950/50 flex items-center gap-1.5 cursor-pointer transition active:scale-95"
                       title="Importar cupom fiscal com preços reais para calibrar custos e atualizar geladeira"
                     >
-                      <Receipt className="w-4 h-4" />
+                      <Receipt className="w-4 h-4 text-emerald-200" />
                       <span>Cheguei do Mercado (NFC-e)</span>
                     </button>
                     <button
                       onClick={() => setHideCheckedShopping((prev) => !prev)}
                       className={`text-xs font-bold px-3 py-2 rounded-xl border transition cursor-pointer flex items-center gap-1.5 ${
                         hideCheckedShopping
-                          ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                          : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                          ? 'bg-emerald-600 text-white border-emerald-500 shadow-xs'
+                          : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-white/10'
                       }`}
                     >
                       {hideCheckedShopping ? (
@@ -1921,7 +1943,7 @@ export default function App() {
                     </button>
                     <button
                       onClick={() => setActiveTab('fridge')}
-                      className="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-2 rounded-xl border border-emerald-200 transition cursor-pointer"
+                      className="text-xs font-bold text-emerald-300 bg-emerald-950/50 hover:bg-emerald-900/50 px-3 py-2 rounded-xl border border-emerald-500/30 transition cursor-pointer"
                     >
                       Gerenciar itens da geladeira ({fridgeItems.length})
                     </button>
@@ -1935,27 +1957,28 @@ export default function App() {
                       return (
                         <div
                           key={aisle}
-                          className="p-3 rounded-2xl bg-emerald-50/50 border border-emerald-200/60 flex items-center justify-between text-xs text-emerald-900"
+                          className="p-3.5 rounded-2xl bg-emerald-950/30 border border-emerald-800/40 flex items-center justify-between text-xs text-emerald-300"
                         >
-                          <span className="font-bold flex items-center gap-1.5">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <span className="font-bold flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                             {aisle}: Todos os {items.length} itens já estão no carrinho!
                           </span>
-                          <span className="text-[11px] text-emerald-700 font-semibold">100% coletado</span>
+                          <span className="text-[11px] text-emerald-400 font-black">100% coletado</span>
                         </div>
                       );
                     }
                     return (
-                      <div key={aisle} className="space-y-2">
-                        <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
-                          <h3 className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
-                            {aisle}
+                      <div key={aisle} className="space-y-2.5">
+                        <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                          <h3 className="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            <span>{aisle}</span>
                           </h3>
                           <span className="text-xs text-slate-400 font-medium">
                             {visibleItems.length}{' '}
                             {visibleItems.length === 1 ? 'item pendente' : 'itens pendentes'}
                             {hideCheckedShopping && items.length > visibleItems.length && (
-                              <span className="text-emerald-700 font-semibold ml-1">
+                              <span className="text-emerald-400 font-bold ml-1.5">
                                 ({items.length - visibleItems.length} no carrinho)
                               </span>
                             )}
@@ -1969,16 +1992,16 @@ export default function App() {
                             onClick={() => handleToggleShoppingCheck(item.key)}
                             className={`py-2.5 px-3.5 rounded-2xl flex items-center justify-between gap-3 transition cursor-pointer border ${
                               item.checked
-                                ? 'bg-slate-100/40 dark:bg-slate-900/35 text-slate-400 dark:text-slate-500 border-transparent opacity-60 line-through'
-                                : 'bg-white/70 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800/80 border-slate-200/80 dark:border-white/10 text-slate-800 dark:text-slate-100 shadow-2xs backdrop-blur-sm'
+                                ? 'bg-slate-950/40 text-slate-500 border-transparent opacity-50 line-through'
+                                : 'bg-slate-800/60 hover:bg-slate-800/90 border-white/10 hover:border-emerald-500/40 text-slate-100 shadow-sm backdrop-blur-sm'
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <div
                                 className={`w-5 h-5 rounded-lg flex items-center justify-center border transition shrink-0 ${
                                   item.checked
-                                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs'
-                                    : 'border-slate-300 dark:border-slate-600 bg-white/90 dark:bg-slate-900/80'
+                                    ? 'bg-emerald-600 border-emerald-500 text-white shadow-xs'
+                                    : 'border-slate-600 bg-slate-900/80 hover:border-emerald-400'
                                 }`}
                               >
                                 {item.checked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -1989,24 +2012,24 @@ export default function App() {
                                     {getIngredientEmoji(item.name, item.aisle)}
                                   </span>
                                   <span
-                                    className={`text-sm font-bold text-slate-900 dark:text-slate-100 ${
-                                      item.checked ? 'line-through text-slate-400 dark:text-slate-500' : ''
+                                    className={`text-sm font-bold ${
+                                      item.checked ? 'line-through text-slate-500' : 'text-slate-100'
                                     }`}
                                   >
                                     {item.name}
                                   </span>
-                                  <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200/70 dark:border-white/10 shrink-0">
+                                  <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-slate-900/90 text-slate-300 border border-white/10 shrink-0">
                                     {item.amount} {item.unit}
                                   </span>
                                   {item.inFridge && (
-                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-500/30 shrink-0">
+                                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 shrink-0">
                                       Já tem na geladeira
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                                <p className="text-[11px] text-slate-400 mt-0.5 truncate">
                                   Usado em {item.Occurrences} refeição(ões):{' '}
-                                  <span className="text-slate-700 dark:text-slate-300 font-medium">
+                                  <span className="text-slate-300 font-semibold">
                                     {item.recipesUsed.slice(0, 2).join(', ')}
                                   </span>
                                 </p>
@@ -2015,10 +2038,10 @@ export default function App() {
 
                             <div className="text-right shrink-0">
                               <span
-                                className={`text-sm font-extrabold ${
+                                className={`text-sm font-black ${
                                   item.inFridge
-                                    ? 'line-through text-emerald-600 dark:text-emerald-400 opacity-60'
-                                    : 'text-slate-900 dark:text-emerald-400'
+                                    ? 'line-through text-emerald-500/50 opacity-60'
+                                    : 'text-emerald-400'
                                 }`}
                               >
                                 {formatBRL(item.estimatedPrice)}
@@ -2040,27 +2063,27 @@ export default function App() {
         {activeTab === 'fridge' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-5 space-y-6">
-              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-xs space-y-4">
+              <div className="bg-slate-900/85 rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-xl backdrop-blur-xl space-y-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
                     <Refrigerator className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-extrabold text-base text-slate-900">
+                    <h3 className="font-extrabold text-base text-white">
                       O que tem na sua geladeira / despensa?
                     </h3>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-400">
                       Marque o que você já tem em casa para abater da lista de compras e descobrir receitas!
                     </p>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex items-center justify-between gap-3 shadow-2xs">
+                <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-between gap-3 shadow-md">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <Receipt className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <Receipt className="w-5 h-5 text-emerald-400 shrink-0" />
                     <div>
-                      <p className="text-xs font-bold text-emerald-950">Entrada Automática por Nota Fiscal</p>
-                      <p className="text-[11px] text-emerald-700">Abasteça quantidades e calibre preços com cupom da SEFAZ</p>
+                      <p className="text-xs font-bold text-emerald-200">Entrada Automática por Nota Fiscal</p>
+                      <p className="text-[11px] text-emerald-400/90 font-medium">Abasteça quantidades e calibre preços com cupom da SEFAZ</p>
                     </div>
                   </div>
                   <button
@@ -2071,7 +2094,7 @@ export default function App() {
                       setSefazSuccessMsg('');
                       setSefazModalOpen(true);
                     }}
-                    className="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-2xs shrink-0 cursor-pointer transition flex items-center gap-1"
+                    className="text-xs font-black px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shrink-0 cursor-pointer transition flex items-center gap-1 active:scale-95"
                   >
                     <span>Importar Cupom</span>
                   </button>
@@ -2091,11 +2114,11 @@ export default function App() {
                     placeholder="Ex: Batata inglesa, Tomate, Frango..."
                     value={newFridgeItem}
                     onChange={(e) => setNewFridgeItem(e.target.value)}
-                    className="flex-1 rounded-xl border border-slate-200 px-3.5 py-2 text-sm focus:outline-none focus:border-emerald-500"
+                    className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3.5 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold flex items-center gap-1 cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold flex items-center gap-1 cursor-pointer transition shadow-xs"
                   >
                     <Plus className="w-4 h-4" /> Adicionar
                   </button>
@@ -2114,10 +2137,10 @@ export default function App() {
                         <button
                           key={sug.name}
                           onClick={() => handleToggleFridgeItem(sug.name, sug.category)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition cursor-pointer ${
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold border flex items-center gap-1.5 transition cursor-pointer ${
                             active
-                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                              ? 'bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-950/50'
+                              : 'bg-slate-950/70 text-slate-300 border-white/5 hover:border-emerald-500/40 hover:bg-slate-900'
                           }`}
                         >
                           {active && <Check className="w-3.5 h-3.5" />}
@@ -2130,17 +2153,17 @@ export default function App() {
                 </div>
 
                 {/* Lista Completa dos Itens Atualmente na Geladeira */}
-                <div className="pt-3 border-t border-slate-100 dark:border-white/10 space-y-3">
+                <div className="pt-3 border-t border-white/5 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                      <Refrigerator className="w-4 h-4 text-emerald-600" />
+                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+                      <Refrigerator className="w-4 h-4 text-emerald-400" />
                       <span>Estoque Atual ({fridgeItems.length} {fridgeItems.length === 1 ? 'item' : 'itens'})</span>
                     </h4>
                     {fridgeItems.length > 0 && (
                       <button
                         type="button"
                         onClick={handleClearFridge}
-                        className="text-[10px] font-bold text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 cursor-pointer transition"
+                        className="text-[10px] font-bold text-rose-400 hover:text-rose-300 cursor-pointer transition"
                       >
                         Limpar Geladeira
                       </button>
@@ -2148,7 +2171,7 @@ export default function App() {
                   </div>
 
                   {fridgeItems.length === 0 ? (
-                    <div className="py-6 text-center text-slate-400 dark:text-slate-500 text-xs">
+                    <div className="py-6 text-center text-slate-500 text-xs">
                       Sua geladeira está vazia no momento. Adicione itens acima ou importe seu cupom de compras!
                     </div>
                   ) : (
@@ -2156,18 +2179,18 @@ export default function App() {
                       {fridgeItems.map((f) => (
                         <div
                           key={f.id || f.name}
-                          className="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-white/10 flex items-center justify-between gap-2 shadow-2xs group"
+                          className="p-2.5 rounded-xl bg-slate-950/60 border border-white/5 flex items-center justify-between gap-2 shadow-sm group hover:border-emerald-500/30 transition"
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="text-base leading-none shrink-0">
                               {getIngredientEmoji(f.name, f.category)}
                             </span>
                             <div className="min-w-0">
-                              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+                              <p className="text-xs font-bold text-slate-200 truncate">
                                 {f.name}
                               </p>
                               {f.amount > 0 && (
-                                <p className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
+                                <p className="text-[10px] font-bold text-emerald-400">
                                   {f.amount} {f.unit}
                                 </p>
                               )}
@@ -2177,7 +2200,7 @@ export default function App() {
                             type="button"
                             onClick={() => handleToggleFridgeItem(f.name, f.category)}
                             title="Remover da geladeira"
-                            className="w-6 h-6 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center cursor-pointer transition shrink-0"
+                            className="w-6 h-6 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 flex items-center justify-center cursor-pointer transition shrink-0"
                           >
                             <X className="w-3.5 h-3.5" />
                           </button>
@@ -2189,16 +2212,16 @@ export default function App() {
               </div>
 
               {/* AI Social / URL Recipe Importer (Link Exclusivo) */}
-              <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-5 sm:p-6 shadow-sm space-y-4 border border-slate-700/60">
+              <div className="bg-slate-900/85 text-white rounded-3xl p-5 sm:p-6 shadow-xl space-y-4 border border-slate-800 backdrop-blur-xl">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
                     <Link2 className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-extrabold text-base">
+                    <h3 className="font-extrabold text-base text-white">
                       Importador de Ficha Técnica por Link
                     </h3>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-slate-400">
                       Cole o link direto da receita (Receiteria, TudoGostoso, Panelinha, etc.): a IA gera os insumos, custos, porcionamento e inclui as fotos de cada passo do preparo!
                     </p>
                   </div>
@@ -2220,7 +2243,7 @@ export default function App() {
                           setImportInput(e.target.value);
                           if (importError) setImportError('');
                         }}
-                        className="w-full rounded-xl bg-slate-800/90 border border-slate-700 pl-10 pr-3.5 py-2.5 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-400"
+                        className="w-full rounded-xl bg-slate-950/80 border border-white/10 pl-10 pr-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-400"
                       />
                     </div>
                     <span className="text-[11px] text-slate-400 mt-1 block">
@@ -2246,7 +2269,7 @@ export default function App() {
                     <select
                       value={importCategory}
                       onChange={(e) => setImportCategory(e.target.value)}
-                      className="rounded-xl bg-slate-800 border border-slate-700 px-3 py-2.5 text-sm font-semibold text-white focus:outline-none cursor-pointer"
+                      className="rounded-xl bg-slate-950/80 border border-white/10 px-3 py-2.5 text-sm font-semibold text-white focus:outline-none cursor-pointer"
                     >
                       {SLOTS.map((s) => (
                         <option key={s} value={s}>
@@ -2258,7 +2281,7 @@ export default function App() {
                     <button
                       type="submit"
                       disabled={importing}
-                      className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 transition cursor-pointer"
+                      className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-md shadow-emerald-950/50"
                     >
                       <Sparkles className="w-4 h-4" />
                       <span>{importing ? 'Importando Receita e Fotos...' : 'Importar Ficha Técnica via Link'}</span>
@@ -2269,12 +2292,12 @@ export default function App() {
             </div>
 
             <div className="lg:col-span-7 space-y-4">
-              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-xs space-y-4">
+              <div className="bg-slate-900/85 rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-xl backdrop-blur-xl space-y-4">
                 <div>
-                  <h2 className="text-lg font-extrabold text-slate-900">
+                  <h2 className="text-lg font-extrabold text-white">
                     Sugestões da IA com o que você já tem em casa
                   </h2>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-400">
                     Receitas ordenadas pela maior compatibilidade com sua geladeira e menor custo médio adicional:
                   </p>
                 </div>
@@ -2284,20 +2307,20 @@ export default function App() {
                     <div
                       key={rec.id}
                       onClick={() => setSelectedRecipeModal(rec)}
-                      className="rounded-2xl border border-slate-200 hover:border-emerald-400 p-3.5 flex flex-col justify-between gap-3 transition cursor-pointer bg-slate-50/50 hover:bg-white"
+                      className="rounded-2xl border border-slate-800 hover:border-emerald-500/40 p-3.5 flex flex-col justify-between gap-3 transition cursor-pointer bg-slate-950/60 hover:bg-slate-850/80 shadow-md group"
                     >
                       <div className="space-y-2">
                         <div className="flex items-center justify-between gap-2">
                           <span
-                            className={`text-xs font-extrabold px-2.5 py-0.5 rounded-full ${
+                            className={`text-xs font-black px-2.5 py-0.5 rounded-full border ${
                               rec.matchPct >= 60
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-amber-100 text-amber-800'
+                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                                : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
                             }`}
                           >
                             {rec.matchPct}% na geladeira ({rec.matchedCount}/{rec.totalIngs})
                           </span>
-                          <span className="text-xs font-bold text-slate-500">
+                          <span className="text-xs font-bold text-slate-400">
                             {rec.category}
                           </span>
                         </div>
@@ -2306,27 +2329,27 @@ export default function App() {
                           <img
                             src={rec.image}
                             alt={rec.title}
-                            className="w-16 h-16 rounded-xl object-cover shrink-0 bg-slate-200"
+                            className="w-16 h-16 rounded-xl object-cover shrink-0 bg-slate-900 border border-white/10 group-hover:scale-105 transition-transform"
                           />
                           <div>
-                            <h4 className="font-bold text-sm text-slate-900 line-clamp-2">
+                            <h4 className="font-extrabold text-sm text-slate-100 group-hover:text-emerald-300 line-clamp-2 transition-colors">
                               {rec.title}
                             </h4>
-                            <p className="text-xs text-emerald-700 font-bold mt-1">
+                            <p className="text-xs text-emerald-400 font-black mt-1">
                               Falta comprar: {formatBRL(rec.missingCost)}
                             </p>
                           </div>
                         </div>
                       </div>
 
-                      <div className="text-[11px] text-slate-500 border-t border-slate-200/70 pt-2 flex items-center justify-between gap-2">
-                        <div>
+                      <div className="text-[11px] text-slate-400 border-t border-white/5 pt-2 flex items-center justify-between gap-2">
+                        <div className="truncate">
                           {rec.missingIngs.length === 0 ? (
-                            <span className="text-emerald-700 font-bold">
+                            <span className="text-emerald-400 font-bold">
                               Você tem 100% dos ingredientes! Custo extra R$ 0,00!
                             </span>
                           ) : (
-                            <span>
+                            <span className="truncate">
                               Faltam:{' '}
                               {rec.missingIngs
                                 .map((i) => `${getIngredientEmoji(i.name, i.aisle)} ${i.name}`)
@@ -2338,7 +2361,7 @@ export default function App() {
                         <button
                           type="button"
                           onClick={(e) => openCookingMode(rec, e)}
-                          className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold flex items-center gap-1 shrink-0 cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold flex items-center gap-1 shrink-0 cursor-pointer shadow-xs"
                         >
                           <Play className="w-3 h-3 fill-white" />
                           <span>Cozinhar</span>
@@ -2356,29 +2379,29 @@ export default function App() {
         {activeTab === 'recipes' && (
           <div className="space-y-6">
             {/* Header & Add New Ficha Técnica Button */}
-            <div className="flex flex-wrap items-center justify-between gap-4 bg-white rounded-3xl p-5 border border-slate-200 shadow-xs">
+            <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900/85 rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-xl backdrop-blur-xl">
               <div>
-                <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-emerald-600" />
+                <h2 className="text-lg font-black text-white flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-emerald-400" />
                   Catálogo de Fichas Técnicas de Restaurante
                 </h2>
-                <p className="text-xs text-slate-500">
-                  Cadastre, edite ou exclua receitas completas com custo unitário de insumos, gramatura de porção, montagem e foto exata do prato.
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Cadastre, edite ou exclua receitas completas com custo unitário de insumos, gramatura de porção, montagem e fotos de cada passo do preparo.
                 </p>
               </div>
               <button
                 onClick={openNewRecipeModal}
-                className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xs flex items-center gap-2 transition cursor-pointer"
+                className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm shadow-md shadow-emerald-950/50 flex items-center gap-2 transition cursor-pointer active:scale-95"
               >
-                <Plus className="w-4 h-4" />
-                <span>Nova Receita (Ficha Técnica)</span>
+                <Plus className="w-4 h-4 text-emerald-200" />
+                <span>Nova Ficha Técnica</span>
               </button>
             </div>
 
             {/* Filters Bar */}
-            <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+            <div className="bg-slate-900/85 rounded-3xl p-5 border border-slate-800 shadow-xl backdrop-blur-xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
               <div>
-                <label className="text-xs font-bold uppercase text-slate-500 block mb-1">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
                   Buscar Prato ou Insumo
                 </label>
                 <div className="relative">
@@ -2388,19 +2411,19 @@ export default function App() {
                     placeholder="Ex: frango, tapioca, mandioca..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950/80 pl-9 pr-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-slate-500 block mb-1">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
                   Refeição
                 </label>
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold bg-slate-50"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm font-semibold text-white focus:outline-none cursor-pointer"
                 >
                   <option value="Todas">Todas as Refeições</option>
                   {SLOTS.map((s) => (
@@ -2412,13 +2435,13 @@ export default function App() {
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-slate-500 block mb-1">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
                   Restrição / Estilo
                 </label>
                 <select
                   value={tagFilter}
                   onChange={(e) => setTagFilter(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold bg-slate-50"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm font-semibold text-white focus:outline-none cursor-pointer"
                 >
                   {DIETARY_OPTIONS.map((t) => (
                     <option key={t} value={t}>
@@ -2429,10 +2452,10 @@ export default function App() {
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 block mb-1">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
                   Faixa de Custo / Refeição
                 </label>
-                <div className="flex p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 gap-1">
+                <div className="flex p-1 rounded-xl bg-slate-950/90 border border-white/10 gap-1">
                   {[
                     { id: 'all', label: 'Todos', title: 'Todas as faixas de custo' },
                     { id: '$', label: '$', title: '$ Econômico (até R$ 25 por refeição)' },
@@ -2444,10 +2467,10 @@ export default function App() {
                       type="button"
                       onClick={() => setMealPriceTier(tier.id)}
                       title={tier.title}
-                      className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-extrabold transition cursor-pointer text-center ${
+                      className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-black transition cursor-pointer text-center ${
                         mealPriceTier === tier.id
-                          ? 'bg-emerald-600 text-white shadow-2xs'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                          ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/50'
+                          : 'text-slate-400 hover:text-white hover:bg-white/5'
                       }`}
                     >
                       {tier.label}
@@ -2465,16 +2488,18 @@ export default function App() {
                   <div
                     key={recipe.id}
                     onClick={() => setSelectedRecipeModal(recipe)}
-                    className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md hover:border-emerald-300 transition flex flex-col justify-between cursor-pointer group"
+                    className="bg-slate-900/80 hover:bg-slate-850/90 rounded-3xl border border-slate-800/90 hover:border-emerald-500/40 shadow-xl overflow-hidden flex flex-col justify-between transition-all duration-300 cursor-pointer group hover:-translate-y-1"
                   >
                     <div>
-                      <div className="relative h-48 overflow-hidden bg-slate-200">
+                      <div className="relative aspect-video overflow-hidden bg-slate-950">
                         <img
                           src={recipe.image}
                           alt={recipe.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                          className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                         />
-                        <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur text-white text-xs font-bold">
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+
+                        <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-slate-950/85 backdrop-blur text-white text-[10px] font-extrabold uppercase tracking-wider border border-white/10">
                           {recipe.category}
                         </div>
 
@@ -2483,32 +2508,32 @@ export default function App() {
                           <button
                             onClick={(e) => openCookingMode(recipe, e)}
                             title="Iniciar Modo Cozinhar (Passo a Passo)"
-                            className="w-8 h-8 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow-sm transition cursor-pointer"
+                            className="w-8 h-8 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow-lg transition cursor-pointer active:scale-95"
                           >
                             <Play className="w-3.5 h-3.5 fill-white ml-0.5" />
                           </button>
                           <button
                             onClick={(e) => openEditRecipeModal(recipe, e)}
                             title="Editar Ficha Técnica"
-                            className="w-8 h-8 rounded-full bg-white/90 hover:bg-white text-slate-800 hover:text-emerald-700 flex items-center justify-center shadow-sm transition cursor-pointer"
+                            className="w-8 h-8 rounded-full bg-slate-950/80 hover:bg-slate-900 text-slate-300 hover:text-white border border-white/10 flex items-center justify-center shadow-sm transition cursor-pointer"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={(e) => handleDeleteRecipe(recipe, e)}
                             title="Excluir Receita"
-                            className="w-8 h-8 rounded-full bg-white/90 hover:bg-rose-600 text-rose-600 hover:text-white flex items-center justify-center shadow-sm transition cursor-pointer"
+                            className="w-8 h-8 rounded-full bg-slate-950/80 hover:bg-rose-950/80 text-slate-400 hover:text-rose-300 border border-white/10 hover:border-rose-500/40 flex items-center justify-center shadow-sm transition cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
 
-                        <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg bg-slate-900/80 text-white text-[11px] font-semibold flex items-center gap-1">
+                        <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg bg-slate-950/85 text-slate-200 text-[11px] font-semibold flex items-center gap-1 border border-white/10">
                           <Scale className="w-3 h-3 text-emerald-400" />
                           <span>{recipe.portionWeight || '350g/porção'}</span>
                         </div>
 
-                        <div className="absolute bottom-3 right-3 px-3 py-1 rounded-xl bg-emerald-600 text-white text-xs font-extrabold shadow">
+                        <div className="absolute bottom-3 right-3 px-3 py-1 rounded-xl bg-emerald-600 text-white text-xs font-black shadow-md">
                           {formatBRL(servingPrice)} / porção
                         </div>
                       </div>
@@ -2518,35 +2543,35 @@ export default function App() {
                           {recipe.tags.map((tag) => (
                             <span
                               key={tag}
-                              className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                              className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-emerald-950/50 text-emerald-300 border border-emerald-500/30"
                             >
                               {tag}
                             </span>
                           ))}
                         </div>
 
-                        <h3 className="font-extrabold text-base text-slate-900 group-hover:text-emerald-700">
+                        <h3 className="font-extrabold text-base text-slate-100 group-hover:text-emerald-300 line-clamp-2 transition-colors">
                           {recipe.title}
                         </h3>
 
-                        <p className="text-xs text-slate-500 line-clamp-2">
-                          <strong className="text-slate-700">Montagem:</strong>{' '}
+                        <p className="text-xs text-slate-400 line-clamp-2">
+                          <strong className="text-slate-300">Montagem:</strong>{' '}
                           {recipe.platingInstructions}
                         </p>
                       </div>
                     </div>
 
-                    <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
+                    <div className="px-4 py-3 bg-slate-950/60 border-t border-white/5 flex items-center justify-between text-xs text-slate-400 font-medium">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5 text-slate-400" /> {recipe.prepTime} min
                       </span>
                       <span className="flex items-center gap-1">
-                        <Flame className="w-3.5 h-3.5 text-orange-500" /> {recipe.calories} kcal
+                        <Flame className="w-3.5 h-3.5 text-amber-400" /> {recipe.calories} kcal
                       </span>
                       <button
                         type="button"
                         onClick={(e) => openCookingMode(recipe, e)}
-                        className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 shadow-2xs transition cursor-pointer"
+                        className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center gap-1 shadow-sm transition cursor-pointer"
                       >
                         <Play className="w-3 h-3 fill-white" />
                         <span>Cozinhar</span>
@@ -2563,21 +2588,21 @@ export default function App() {
         {activeTab === 'suggestions' && (
           <div className="max-w-3xl mx-auto space-y-6">
             {/* Top Bar: Instructions, Filters, Undo & Reset */}
-            <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-xs space-y-4">
+            <div className="bg-slate-900/85 rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-xl backdrop-blur-xl space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-2.5">
-                    <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                    <h2 className="text-lg font-black text-white flex items-center gap-2">
                       <Flame className="w-5 h-5 text-rose-500" />
                       Descoberta de Pratos
                     </h2>
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-black uppercase tracking-wider">
                       Atualizado 1x por dia {data.discoveryDate ? `(${data.discoveryDate.split('-').reverse().slice(0, 2).join('/')})` : ''}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Arraste o card para a <strong className="text-rose-600">esquerda (❌ Passar)</strong> ou para a{' '}
-                    <strong className="text-emerald-600">direita (💚 Adicionar)</strong> para incluir a Ficha Técnica no seu Catálogo de Receitas!
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Arraste o card para a <strong className="text-rose-400">esquerda (❌ Passar)</strong> ou para a{' '}
+                    <strong className="text-emerald-400">direita (💚 Adicionar)</strong> para incluir a Ficha Técnica no seu Catálogo de Receitas!
                   </p>
                 </div>
 
@@ -2585,10 +2610,10 @@ export default function App() {
                   {lastSuggestionSwipe && (
                     <button
                       onClick={handleUndoLastSwipe}
-                      className="px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                      className="px-3.5 py-2 rounded-xl bg-amber-950/40 hover:bg-amber-900/50 text-amber-300 border border-amber-600/40 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shadow-sm"
                       title="Desfazer último swipe"
                     >
-                      <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
+                      <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
                       <span>Desfazer último swipe</span>
                     </button>
                   )}
@@ -2596,9 +2621,9 @@ export default function App() {
                   {dismissedSuggestionsCount > 0 && (
                     <button
                       onClick={handleResetDismissedSuggestions}
-                      className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                      className="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 border border-white/10 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
                     >
-                      <RotateCcw className="w-3.5 h-3.5" />
+                      <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
                       <span>Rever descartadas ({dismissedSuggestionsCount})</span>
                     </button>
                   )}
@@ -2606,16 +2631,16 @@ export default function App() {
               </div>
 
               {/* Filter Pills & Search */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/5">
                 <div className="flex flex-wrap gap-1.5">
                   {['Todas', ...SLOTS].map((cat) => (
                     <button
                       key={cat}
                       onClick={() => setSuggestionCatFilter(cat)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
                         suggestionCatFilter === cat
-                          ? 'bg-slate-900 text-white shadow-xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          ? 'bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-950/50'
+                          : 'bg-slate-950/70 text-slate-400 border-white/5 hover:text-white hover:bg-slate-900'
                       }`}
                     >
                       {cat}
@@ -2630,7 +2655,7 @@ export default function App() {
                     placeholder="Filtrar por ingrediente ou prato..."
                     value={suggestionSearch}
                     onChange={(e) => setSuggestionSearch(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950/80 pl-8 pr-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
@@ -2641,19 +2666,19 @@ export default function App() {
               <div
                 className={`p-3.5 rounded-2xl border text-xs font-bold flex items-center justify-between transition ${
                   swipeFeedback.direction === 'right'
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                    ? 'bg-emerald-950/50 border-emerald-600/50 text-emerald-300 shadow-md'
                     : swipeFeedback.direction === 'left'
-                    ? 'bg-rose-50 border-rose-200 text-rose-900'
-                    : 'bg-amber-50 border-amber-200 text-amber-900'
+                    ? 'bg-rose-950/50 border-rose-600/50 text-rose-300 shadow-md'
+                    : 'bg-amber-950/50 border-amber-600/50 text-amber-300 shadow-md'
                 }`}
               >
                 <div className="flex items-center gap-2">
                   {swipeFeedback.direction === 'right' ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                   ) : swipeFeedback.direction === 'left' ? (
-                    <X className="w-4 h-4 text-rose-600 shrink-0" />
+                    <X className="w-4 h-4 text-rose-400 shrink-0" />
                   ) : (
-                    <RotateCcw className="w-4 h-4 text-amber-600 shrink-0" />
+                    <RotateCcw className="w-4 h-4 text-amber-400 shrink-0" />
                   )}
                   <span>
                     {swipeFeedback.direction === 'right'
@@ -2666,7 +2691,7 @@ export default function App() {
                 {swipeFeedback.direction === 'right' && (
                   <button
                     onClick={() => setActiveTab('recipes')}
-                    className="underline font-extrabold hover:opacity-80 cursor-pointer"
+                    className="underline font-black hover:opacity-80 cursor-pointer"
                   >
                     Ver no Catálogo →
                   </button>
@@ -2682,9 +2707,9 @@ export default function App() {
                   {nextSuggestion && (
                     <div
                       key={nextSuggestion.id}
-                      className="absolute inset-x-4 top-4 bottom-0 bg-white rounded-3xl border border-slate-200 shadow-sm scale-[0.95] translate-y-3 opacity-60 pointer-events-none overflow-hidden"
+                      className="absolute inset-x-4 top-4 bottom-0 bg-slate-900 rounded-3xl border border-slate-800 shadow-md scale-[0.95] translate-y-3 opacity-50 pointer-events-none overflow-hidden"
                     >
-                      <div className="h-64 bg-slate-200">
+                      <div className="h-64 bg-slate-950">
                         <img
                           src={nextSuggestion.image}
                           alt={nextSuggestion.title}
@@ -2692,7 +2717,7 @@ export default function App() {
                         />
                       </div>
                       <div className="p-5">
-                        <h3 className="font-extrabold text-lg text-slate-800">
+                        <h3 className="font-extrabold text-lg text-slate-300">
                           {nextSuggestion.title}
                         </h3>
                       </div>
@@ -2760,22 +2785,22 @@ export default function App() {
                         ? 'none'
                         : 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.22s ease',
                     }}
-                    className="relative z-10 w-full bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden cursor-grab active:cursor-grabbing"
+                    className="relative z-10 w-full bg-slate-900/95 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden cursor-grab active:cursor-grabbing"
                   >
                     {/* Dynamic STAMPS ("ADICIONAR" vs "PASSAR") */}
                     {(dragState.dx > 35 || swipeAnim === 'right') && (
-                      <div className="absolute top-6 left-6 z-20 px-4 py-1.5 rounded-xl border-4 border-emerald-500 bg-emerald-500/90 text-white font-black text-lg uppercase tracking-widest -rotate-12 shadow-lg">
+                      <div className="absolute top-6 left-6 z-20 px-4 py-1.5 rounded-xl border-4 border-emerald-500 bg-emerald-600 text-white font-black text-lg uppercase tracking-widest -rotate-12 shadow-2xl">
                         💚 ADICIONAR
                       </div>
                     )}
                     {(dragState.dx < -35 || swipeAnim === 'left') && (
-                      <div className="absolute top-6 right-6 z-20 px-4 py-1.5 rounded-xl border-4 border-rose-500 bg-rose-500/90 text-white font-black text-lg uppercase tracking-widest rotate-12 shadow-lg">
+                      <div className="absolute top-6 right-6 z-20 px-4 py-1.5 rounded-xl border-4 border-rose-500 bg-rose-600 text-white font-black text-lg uppercase tracking-widest rotate-12 shadow-2xl">
                         ❌ PASSAR
                       </div>
                     )}
 
                     {/* Dish Photo Header */}
-                    <div className="relative h-72 bg-slate-200 overflow-hidden">
+                    <div className="relative h-72 bg-slate-950 overflow-hidden">
                       <img
                         src={activeSuggestion.image}
                         alt={activeSuggestion.title}
@@ -2785,19 +2810,19 @@ export default function App() {
                         }}
                         className="w-full h-full object-cover select-none pointer-events-none"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/25 to-transparent" />
 
                       <div className="absolute top-4 left-4 flex items-center gap-2">
-                        <span className="px-3 py-1 rounded-full bg-slate-900/85 backdrop-blur text-white text-xs font-extrabold">
+                        <span className="px-3 py-1 rounded-full bg-slate-950/85 backdrop-blur text-white text-xs font-extrabold border border-white/10">
                           {activeSuggestion.category}
                         </span>
-                        <span className="px-2.5 py-1 rounded-full bg-white/90 text-slate-800 text-xs font-bold flex items-center gap-1 shadow-xs">
-                          <Scale className="w-3.5 h-3.5 text-emerald-600" />
+                        <span className="px-2.5 py-1 rounded-full bg-slate-950/80 text-slate-200 text-xs font-bold flex items-center gap-1 border border-white/10">
+                          <Scale className="w-3.5 h-3.5 text-emerald-400" />
                           {activeSuggestion.portionWeight}
                         </span>
                       </div>
 
-                      <div className="absolute top-4 right-4 px-3.5 py-1.5 rounded-2xl bg-emerald-600 text-white text-sm font-extrabold shadow-md">
+                      <div className="absolute top-4 right-4 px-3.5 py-1.5 rounded-2xl bg-emerald-600 text-white text-sm font-black shadow-lg">
                         {formatBRL(activeSuggestion.costPerServing)} / porção
                       </div>
 
@@ -2806,13 +2831,13 @@ export default function App() {
                           {activeSuggestion.tags.map((tag) => (
                             <span
                               key={tag}
-                              className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/30 border border-emerald-300/40 text-emerald-100"
+                              className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-400/30 text-emerald-200"
                             >
                               {tag}
                             </span>
                           ))}
                         </div>
-                        <h3 className="text-2xl font-extrabold leading-tight drop-shadow-xs">
+                        <h3 className="text-2xl font-black leading-tight drop-shadow-md">
                           {activeSuggestion.title}
                         </h3>
                       </div>
@@ -2822,44 +2847,44 @@ export default function App() {
                     <div className="p-5 space-y-4">
                       {/* Quick Nutrition & Time Row */}
                       <div className="grid grid-cols-5 gap-2 text-center">
-                        <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
+                        <div className="p-2.5 rounded-xl bg-slate-950/70 border border-white/5">
                           <div className="text-[10px] font-bold uppercase text-slate-400">
                             Preparo
                           </div>
-                          <div className="text-xs font-extrabold text-slate-800 flex items-center justify-center gap-1 mt-0.5">
-                            <Clock className="w-3 h-3 text-emerald-600" />
+                          <div className="text-xs font-black text-slate-200 flex items-center justify-center gap-1 mt-0.5">
+                            <Clock className="w-3 h-3 text-emerald-400" />
                             {activeSuggestion.prepTime}m
                           </div>
                         </div>
-                        <div className="p-2 rounded-xl bg-orange-50/70 border border-orange-200/70">
-                          <div className="text-[10px] font-bold uppercase text-orange-600">
+                        <div className="p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/20">
+                          <div className="text-[10px] font-bold uppercase text-amber-400">
                             Calorias
                           </div>
-                          <div className="text-xs font-extrabold text-orange-900 mt-0.5">
+                          <div className="text-xs font-black text-amber-200 mt-0.5">
                             {activeSuggestion.calories} kcal
                           </div>
                         </div>
-                        <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
+                        <div className="p-2.5 rounded-xl bg-slate-950/70 border border-white/5">
                           <div className="text-[10px] font-bold uppercase text-slate-400">
                             Proteína
                           </div>
-                          <div className="text-xs font-extrabold text-slate-800 mt-0.5">
+                          <div className="text-xs font-black text-slate-200 mt-0.5">
                             {activeSuggestion.protein}g
                           </div>
                         </div>
-                        <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
+                        <div className="p-2.5 rounded-xl bg-slate-950/70 border border-white/5">
                           <div className="text-[10px] font-bold uppercase text-slate-400">
                             Carbo
                           </div>
-                          <div className="text-xs font-extrabold text-slate-800 mt-0.5">
+                          <div className="text-xs font-black text-slate-200 mt-0.5">
                             {activeSuggestion.carbs}g
                           </div>
                         </div>
-                        <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
+                        <div className="p-2.5 rounded-xl bg-slate-950/70 border border-white/5">
                           <div className="text-[10px] font-bold uppercase text-slate-400">
                             Gordura
                           </div>
-                          <div className="text-xs font-extrabold text-slate-800 mt-0.5">
+                          <div className="text-xs font-black text-slate-200 mt-0.5">
                             {activeSuggestion.fat}g
                           </div>
                         </div>
@@ -2867,12 +2892,12 @@ export default function App() {
 
                       {/* Key Ingredients Preview */}
                       <div>
-                        <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
+                        <div className="flex items-center justify-between text-xs font-bold text-slate-400 mb-2">
                           <span>Principais Insumos da Ficha Técnica:</span>
-                          <span className="text-slate-700">
-                            Custo Total da Receita ({activeSuggestion.servings}{' '}
+                          <span className="text-slate-300">
+                            Custo Total ({activeSuggestion.servings}{' '}
                             {activeSuggestion.servings === 1 ? 'porção' : 'porções'}):{' '}
-                            <strong className="text-emerald-700">
+                            <strong className="text-emerald-400 font-black">
                               {formatBRL(activeSuggestion.baseCost)}
                             </strong>
                           </span>
@@ -2881,14 +2906,14 @@ export default function App() {
                           {activeSuggestion.ingredients.map((ing, idx) => (
                             <span
                               key={idx}
-                              className="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-1.5"
+                              className="px-2.5 py-1 rounded-xl bg-slate-950/80 text-slate-300 border border-white/5 text-xs font-semibold flex items-center gap-1.5"
                             >
                               <span>{getIngredientEmoji(ing.name, ing.aisle)}</span>
                               <span>
                                 {ing.name} ({ing.amount}
                                 {ing.unit})
                               </span>
-                              <span className="text-emerald-700 font-bold">
+                              <span className="text-emerald-400 font-bold">
                                 {formatBRL(ing.basePrice)}
                               </span>
                             </span>
@@ -2897,17 +2922,17 @@ export default function App() {
                       </div>
 
                       {/* Montagem preview + Button to open full Ficha Técnica */}
-                      <div className="p-3 rounded-2xl bg-emerald-50/60 border border-emerald-200/70 flex flex-wrap items-center justify-between gap-3">
-                        <p className="text-xs text-slate-600 flex-1 line-clamp-2">
-                          <strong className="text-slate-800">Empratamento:</strong>{' '}
+                      <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-white/5 flex flex-wrap items-center justify-between gap-3">
+                        <p className="text-xs text-slate-300 flex-1 line-clamp-2">
+                          <strong className="text-white">Empratamento:</strong>{' '}
                           {activeSuggestion.platingInstructions}
                         </p>
                         <button
                           type="button"
                           onClick={() => setSelectedRecipeModal(activeSuggestion)}
-                          className="px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-extrabold flex items-center gap-1.5 shadow-2xs transition cursor-pointer shrink-0"
+                          className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer shrink-0"
                         >
-                          <Eye className="w-3.5 h-3.5 text-emerald-600" />
+                          <Eye className="w-3.5 h-3.5 text-emerald-400" />
                           <span>Abrir Ficha Técnica Completa</span>
                         </button>
                       </div>
@@ -2920,14 +2945,14 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => handleSwipeSuggestion(activeSuggestion, 'left')}
-                    className="group flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-white hover:bg-rose-50 text-rose-600 border-2 border-rose-200 hover:border-rose-400 font-extrabold text-sm shadow-sm transition cursor-pointer"
+                    className="group flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 border border-rose-700/40 font-extrabold text-sm shadow-md transition cursor-pointer active:scale-95"
                   >
-                    <div className="w-8 h-8 rounded-full bg-rose-100 group-hover:bg-rose-600 group-hover:text-white flex items-center justify-center transition">
+                    <div className="w-8 h-8 rounded-full bg-rose-900/60 group-hover:bg-rose-600 group-hover:text-white flex items-center justify-center transition">
                       <X className="w-5 h-5" />
                     </div>
                     <div className="text-left">
                       <div>Passar</div>
-                      <div className="text-[10px] font-medium text-slate-400">
+                      <div className="text-[10px] font-medium text-rose-400">
                         Jogar p/ Esquerda
                       </div>
                     </div>
@@ -2936,7 +2961,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setSelectedRecipeModal(activeSuggestion)}
-                    className="px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-2 shadow-sm transition cursor-pointer"
+                    className="px-4 py-3 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 border border-white/10 font-bold text-xs flex items-center gap-2 shadow-sm transition cursor-pointer"
                   >
                     <FileText className="w-4 h-4 text-emerald-400" />
                     <span>Ver Ficha Completa</span>
@@ -2945,7 +2970,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => handleSwipeSuggestion(activeSuggestion, 'right')}
-                    className="group flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white border-2 border-emerald-600 font-extrabold text-sm shadow-md transition cursor-pointer"
+                    className="group flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white border border-emerald-400/40 font-extrabold text-sm shadow-xl shadow-emerald-950/60 transition cursor-pointer active:scale-95"
                   >
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                       <Heart className="w-5 h-5 fill-white" />
@@ -2965,22 +2990,22 @@ export default function App() {
               </div>
             ) : (
               /* Empty Deck State */
-              <div className="bg-white rounded-3xl p-10 border border-slate-200 text-center space-y-4">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+              <div className="bg-slate-900/85 rounded-3xl p-10 border border-slate-800 text-center space-y-4 shadow-xl">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
                   <Sparkles className="w-7 h-7" />
                 </div>
-                <h3 className="text-xl font-extrabold text-slate-900">
+                <h3 className="text-xl font-black text-white">
                   Você avaliou todas as sugestões deste filtro!
                 </h3>
-                <p className="text-sm text-slate-500 max-w-md mx-auto">
+                <p className="text-sm text-slate-400 max-w-md mx-auto">
                   As receitas que você jogou para a direita já estão salvas no seu{' '}
-                  <strong>Catálogo de Receitas</strong> e disponíveis para o seu Cardápio Semanal.
+                  <strong className="text-slate-200">Catálogo de Receitas</strong> e disponíveis para o seu Cardápio Semanal.
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                   {suggestionCatFilter !== 'Todas' && (
                     <button
                       onClick={() => setSuggestionCatFilter('Todas')}
-                      className="px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold cursor-pointer"
+                      className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold cursor-pointer transition border border-white/10"
                     >
                       Ver Todas as Categorias
                     </button>
@@ -2988,7 +3013,7 @@ export default function App() {
                   {dismissedSuggestionsCount > 0 && (
                     <button
                       onClick={handleResetDismissedSuggestions}
-                      className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                      className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-950/50"
                     >
                       <RotateCcw className="w-4 h-4" />
                       <span>Rever Receitas Descartadas ({dismissedSuggestionsCount})</span>
@@ -2996,7 +3021,7 @@ export default function App() {
                   )}
                   <button
                     onClick={() => setActiveTab('recipes')}
-                    className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 text-xs font-bold cursor-pointer transition"
                   >
                     Ir para meu Catálogo ({recipes.length})
                   </button>
@@ -3011,22 +3036,24 @@ export default function App() {
       {selectedRecipeModal && (
         <div
           onClick={() => setSelectedRecipeModal(null)}
-          className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-xl border border-slate-200"
+            className="bg-slate-900/95 text-slate-100 rounded-3xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-white/10"
           >
-            <div className="relative h-64 bg-slate-200">
+            <div className="relative h-64 bg-slate-950">
               <img
                 src={selectedRecipeModal.image}
                 alt={selectedRecipeModal.title}
                 className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-black/40" />
+
               <div className="absolute top-4 right-4 flex items-center gap-2">
                 <button
                   onClick={(e) => openCookingMode(selectedRecipeModal, e)}
-                  className="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center gap-1.5 shadow cursor-pointer"
+                  className="px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-950/50 cursor-pointer active:scale-95 transition"
                 >
                   <Play className="w-3.5 h-3.5 fill-white" />
                   <span>Cozinhar Agora</span>
@@ -3035,14 +3062,14 @@ export default function App() {
                   <>
                     <button
                       onClick={(e) => openEditRecipeModal(selectedRecipeModal, e)}
-                      className="px-3 py-1.5 rounded-full bg-white/95 hover:bg-white text-slate-900 font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer"
+                      className="px-3.5 py-2 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-white/10 font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition"
                     >
-                      <Pencil className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Editar Ficha</span>
+                      <Pencil className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Editar</span>
                     </button>
                     <button
                       onClick={(e) => handleDeleteRecipe(selectedRecipeModal, e)}
-                      className="px-3 py-1.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer"
+                      className="px-3.5 py-2 rounded-full bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-600/40 font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>Excluir</span>
@@ -3052,33 +3079,33 @@ export default function App() {
                   <>
                     <button
                       onClick={() => handleSwipeSuggestion(selectedRecipeModal, 'left')}
-                      className="px-3.5 py-1.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer"
+                      className="px-3.5 py-2 rounded-full bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-600/40 font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer transition"
                     >
                       <X className="w-3.5 h-3.5" />
-                      <span>Passar (Esquerda)</span>
+                      <span>Passar</span>
                     </button>
                     <button
                       onClick={() => handleSwipeSuggestion(selectedRecipeModal, 'right')}
-                      className="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer"
+                      className="px-4 py-2 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs flex items-center gap-1.5 shadow-lg cursor-pointer transition"
                     >
                       <Heart className="w-3.5 h-3.5 fill-white" />
-                      <span>Adicionar ao Catálogo (Direita)</span>
+                      <span>Adicionar ao Catálogo</span>
                     </button>
                   </>
                 )}
                 <button
                   onClick={() => setSelectedRecipeModal(null)}
-                  className="w-9 h-9 rounded-full bg-slate-900/80 text-white flex items-center justify-center hover:bg-slate-900 cursor-pointer"
+                  className="w-9 h-9 rounded-full bg-slate-900/80 text-slate-300 hover:text-white border border-white/10 flex items-center justify-center hover:bg-slate-800 cursor-pointer transition"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-end justify-between gap-2">
-                <span className="px-3 py-1 rounded-full bg-slate-900/85 text-white text-xs font-bold">
+                <span className="px-3 py-1 rounded-full bg-slate-950/90 text-slate-200 text-xs font-bold border border-white/10">
                   📋 Ficha Técnica Operacional • {selectedRecipeModal.category}
                 </span>
-                <span className="px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white text-sm font-extrabold shadow">
-                  Custo por Porção: {formatBRL(selectedRecipeModal.costPerServing)} (Total Receita:{' '}
+                <span className="px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white text-xs sm:text-sm font-black shadow-lg">
+                  Custo por Porção: {formatBRL(selectedRecipeModal.costPerServing)} (Total:{' '}
                   {formatBRL(selectedRecipeModal.baseCost)})
                 </span>
               </div>
@@ -3086,31 +3113,31 @@ export default function App() {
 
             <div className="p-6 space-y-6">
               {/* Header & Quick Action */}
-              <div className="border-b border-slate-200 pb-5">
+              <div className="border-b border-white/10 pb-5">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="max-w-xl">
                     <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold uppercase tracking-wider">
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30">
                         {selectedRecipeModal.category}
                       </span>
                       {selectedRecipeModal.tags && selectedRecipeModal.tags.map((t, i) => (
-                        <span key={i} className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">
+                        <span key={i} className="px-2.5 py-0.5 rounded-full bg-slate-950/80 text-slate-400 border border-white/5 text-[10px] font-semibold">
                           {t}
                         </span>
                       ))}
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                    <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                       {selectedRecipeModal.title}
                     </h2>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Fonte: <strong>{selectedRecipeModal.source || 'NeatEat Brasil'}</strong>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Fonte: <strong className="text-slate-200">{selectedRecipeModal.source || 'NeatEat Brasil'}</strong>
                     </p>
                   </div>
 
                   <button
                     type="button"
                     onClick={(e) => openCookingMode(selectedRecipeModal, e)}
-                    className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-600/25 transition-all hover:scale-102 shrink-0"
+                    className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-950/60 transition-all hover:scale-102 shrink-0 active:scale-95"
                   >
                     <Play className="w-4 h-4 fill-current" />
                     <span>Iniciar Modo Cozinhar</span>
@@ -3119,31 +3146,31 @@ export default function App() {
 
                 {/* Nutrition metrics grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-6 gap-2.5 mt-5">
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
+                  <div className="p-2.5 rounded-xl bg-slate-950/70 border border-white/5">
                     <div className="text-[10px] font-bold uppercase text-slate-400">Tempo Preparo</div>
-                    <div className="text-sm font-extrabold text-slate-800">{selectedRecipeModal.prepTime} min</div>
+                    <div className="text-sm font-black text-slate-200">{selectedRecipeModal.prepTime} min</div>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
+                  <div className="p-2.5 rounded-xl bg-slate-950/70 border border-white/5">
                     <div className="text-[10px] font-bold uppercase text-slate-400">Rendimento</div>
-                    <div className="text-sm font-extrabold text-slate-800">
+                    <div className="text-sm font-black text-slate-200">
                       {selectedRecipeModal.servings} {selectedRecipeModal.servings === 1 ? 'porção' : 'porções'}
                     </div>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200">
-                    <div className="text-[10px] font-bold uppercase text-emerald-700">Calorias</div>
-                    <div className="text-sm font-extrabold text-emerald-900">{selectedRecipeModal.calories} kcal</div>
+                  <div className="p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/20">
+                    <div className="text-[10px] font-bold uppercase text-amber-400">Calorias</div>
+                    <div className="text-sm font-black text-amber-200">{selectedRecipeModal.calories} kcal</div>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
+                  <div className="p-2.5 rounded-xl bg-slate-950/70 border border-white/5">
                     <div className="text-[10px] font-bold uppercase text-slate-400">Proteínas</div>
-                    <div className="text-sm font-extrabold text-slate-800">{selectedRecipeModal.protein}g</div>
+                    <div className="text-sm font-black text-slate-200">{selectedRecipeModal.protein}g</div>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
+                  <div className="p-2.5 rounded-xl bg-slate-950/70 border border-white/5">
                     <div className="text-[10px] font-bold uppercase text-slate-400">Carboidratos</div>
-                    <div className="text-sm font-extrabold text-slate-800">{selectedRecipeModal.carbs}g</div>
+                    <div className="text-sm font-black text-slate-200">{selectedRecipeModal.carbs}g</div>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70">
+                  <div className="p-2.5 rounded-xl bg-slate-950/70 border border-white/5">
                     <div className="text-[10px] font-bold uppercase text-slate-400">Gorduras</div>
-                    <div className="text-sm font-extrabold text-slate-800">{selectedRecipeModal.fat}g</div>
+                    <div className="text-sm font-black text-slate-200">{selectedRecipeModal.fat}g</div>
                   </div>
                 </div>
               </div>
@@ -3151,11 +3178,11 @@ export default function App() {
               {/* Insumos Utilizados agrupados por seção */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                    <Utensils className="w-4 h-4 text-emerald-600" />
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                    <Utensils className="w-4 h-4 text-emerald-400" />
                     <span>Insumos & Ingredientes ({selectedRecipeModal.ingredients?.length || 0} itens)</span>
                   </h3>
-                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                  <span className="text-xs font-bold text-emerald-300 bg-emerald-950/50 px-2.5 py-1 rounded-lg border border-emerald-500/30">
                     Para {user.household_size} pessoa(s): {formatBRL(getRecipeMealCost(selectedRecipeModal))}
                   </span>
                 </div>
@@ -3172,33 +3199,33 @@ export default function App() {
                   return (
                     <div className="space-y-3.5">
                       {entries.map(([secName, ings], sIdx) => (
-                        <div key={sIdx} className="overflow-hidden rounded-2xl border border-slate-200 shadow-2xs">
+                        <div key={sIdx} className="overflow-hidden rounded-2xl border border-white/10 shadow-md">
                           {entries.length > 1 && (
-                            <div className="bg-slate-100/90 px-3.5 py-2 border-b border-slate-200 font-extrabold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <div className="bg-slate-950/80 px-3.5 py-2 border-b border-white/10 font-black text-xs text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                               <span>🍳 {secName}</span>
                             </div>
                           )}
                           <table className="w-full text-left border-collapse text-xs">
                             <thead>
-                              <tr className="bg-slate-50 text-slate-500 font-bold uppercase border-b border-slate-200">
-                                <th className="py-2 px-3">Insumo</th>
-                                <th className="py-2 px-3">Setor</th>
-                                <th className="py-2 px-3">Quantidade Ficha</th>
-                                <th className="py-2 px-3 text-right">Custo Est.</th>
+                              <tr className="bg-slate-950/90 text-slate-400 font-bold uppercase border-b border-white/10">
+                                <th className="py-2.5 px-3">Insumo</th>
+                                <th className="py-2.5 px-3">Setor</th>
+                                <th className="py-2.5 px-3">Quantidade Ficha</th>
+                                <th className="py-2.5 px-3 text-right">Custo Est.</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100 bg-white">
+                            <tbody className="divide-y divide-white/5 bg-slate-900/60">
                               {ings.map((ing, i) => (
-                                <tr key={i} className="hover:bg-slate-50/70 transition">
-                                  <td className="py-2.5 px-3 font-bold text-slate-800">
+                                <tr key={i} className="hover:bg-white/5 transition">
+                                  <td className="py-2.5 px-3 font-bold text-slate-100">
                                     <span className="mr-1.5">{getIngredientEmoji(ing.name, ing.aisle)}</span>
                                     {ing.name}
                                   </td>
-                                  <td className="py-2.5 px-3 text-slate-500">{ing.aisle}</td>
-                                  <td className="py-2.5 px-3 font-semibold text-slate-700">
+                                  <td className="py-2.5 px-3 text-slate-400">{ing.aisle}</td>
+                                  <td className="py-2.5 px-3 font-semibold text-slate-300">
                                     {ing.amount} {ing.unit}
                                   </td>
-                                  <td className="py-2.5 px-3 text-right font-extrabold text-emerald-700">
+                                  <td className="py-2.5 px-3 text-right font-black text-emerald-400">
                                     {formatBRL(ing.basePrice)}
                                   </td>
                                 </tr>
@@ -3207,9 +3234,9 @@ export default function App() {
                           </table>
                         </div>
                       ))}
-                      <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 flex items-center justify-between text-xs font-extrabold">
-                        <span className="text-slate-800">Custo Total da Ficha Técnica (CMV):</span>
-                        <span className="text-emerald-700 text-sm">{formatBRL(selectedRecipeModal.baseCost)}</span>
+                      <div className="p-3.5 rounded-xl bg-slate-950/70 border border-white/10 flex items-center justify-between text-xs font-black">
+                        <span className="text-slate-300">Custo Total da Ficha Técnica (CMV):</span>
+                        <span className="text-emerald-400 text-sm font-black">{formatBRL(selectedRecipeModal.baseCost)}</span>
                       </div>
                     </div>
                   );
@@ -3219,13 +3246,13 @@ export default function App() {
               {/* Modo de Preparo Operacional com Fotos dos Key-Frames */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
                     <span>👩‍🍳 Modo de Preparo Operacional ({selectedRecipeModal.steps?.length || 0} passos)</span>
                   </h3>
                   <button
                     type="button"
                     onClick={(e) => openCookingMode(selectedRecipeModal, e)}
-                    className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
                   >
                     <span>Abrir no Modo Cozinha</span>
                     <ChevronRight className="w-4 h-4" />
@@ -3243,12 +3270,12 @@ export default function App() {
                       return (
                         <div
                           key={idx}
-                          className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row gap-4 items-start"
+                          className="p-4 rounded-2xl bg-slate-950/70 border border-white/5 shadow-md flex flex-col sm:flex-row gap-4 items-start"
                         >
                           {hasImg && (
                             <div
                               onClick={() => setZoomedImage({ src: d.image, alt: d.alt || stepText, title: `Passo ${idx + 1}` })}
-                              className="relative w-full sm:w-36 h-28 rounded-xl overflow-hidden shrink-0 border border-slate-200 bg-slate-900 cursor-pointer group"
+                              className="relative w-full sm:w-36 h-28 rounded-xl overflow-hidden shrink-0 border border-white/10 bg-slate-950 cursor-pointer group"
                             >
                               <img
                                 src={d.image}
@@ -3257,8 +3284,8 @@ export default function App() {
                                 decoding="async"
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                               />
-                              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition" />
-                              <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/60 text-[9px] font-bold text-white flex items-center gap-1">
+                              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/0 transition" />
+                              <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/70 text-[9px] font-bold text-white flex items-center gap-1 border border-white/10">
                                 <Maximize2 className="w-2.5 h-2.5" />
                                 <span>Ver foto</span>
                               </span>
@@ -3267,31 +3294,31 @@ export default function App() {
 
                           <div className="flex-1 min-w-0 space-y-2">
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-xs flex items-center justify-center shrink-0">
+                              <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-black text-xs flex items-center justify-center shrink-0">
                                 {idx + 1}
                               </span>
                               {d && d.section && (
-                                <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide">
+                                <span className="px-2 py-0.5 rounded-md bg-slate-900 text-slate-300 border border-white/10 text-[10px] font-bold uppercase tracking-wide">
                                   {d.section}
                                 </span>
                               )}
                               {d && d.timerSeconds > 0 && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-950/40 text-amber-300 border border-amber-500/30 text-[10px] font-bold">
                                   <Timer className="w-3 h-3" />
                                   <span>{Math.round(d.timerSeconds / 60)} min</span>
                                 </span>
                               )}
                             </div>
 
-                            <p className="text-sm text-slate-800 leading-relaxed font-medium">
+                            <p className="text-sm text-slate-200 leading-relaxed font-medium">
                               {stepText}
                             </p>
 
                             {d && d.tip && (
-                              <div className="p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-start gap-2 text-xs text-amber-950">
-                                <Lightbulb className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                              <div className="p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/30 flex items-start gap-2 text-xs text-amber-200">
+                                <Lightbulb className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
                                 <p className="leading-snug">
-                                  <strong>Dica do Chef:</strong> {d.tip}
+                                  <strong className="text-amber-300">Dica do Chef:</strong> {d.tip}
                                 </p>
                               </div>
                             )}
@@ -3306,42 +3333,42 @@ export default function App() {
               {/* Bloco "Anote aí..." — Dicas do Chef, Conservação e Segredos */}
               {selectedRecipeModal.chefTips && (
                 <div className="space-y-3">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
                     <span>📝 Anote aí... (Dicas do Chef, Conservação & Segredos)</span>
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {selectedRecipeModal.chefTips.intro && (
-                      <div className="p-4 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/90 dark:border-emerald-500/30 space-y-1.5 shadow-2xs backdrop-blur-md">
-                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
-                          <Lightbulb className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 space-y-1.5 shadow-md backdrop-blur-md">
+                        <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-emerald-300">
+                          <Lightbulb className="w-4 h-4 text-emerald-400" />
                           <span>Dica & Variações</span>
                         </div>
-                        <p className="text-xs text-slate-700 dark:text-slate-100 leading-relaxed">
+                        <p className="text-xs text-slate-200 leading-relaxed">
                           {selectedRecipeModal.chefTips.intro}
                         </p>
                       </div>
                     )}
 
                     {selectedRecipeModal.chefTips.storage && (
-                      <div className="p-4 rounded-2xl bg-sky-50/80 dark:bg-sky-950/40 border border-sky-200/90 dark:border-sky-500/30 space-y-1.5 shadow-2xs backdrop-blur-md">
-                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-sky-800 dark:text-sky-300">
-                          <Snowflake className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                      <div className="p-4 rounded-2xl bg-sky-950/40 border border-sky-500/30 space-y-1.5 shadow-md backdrop-blur-md">
+                        <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-sky-300">
+                          <Snowflake className="w-4 h-4 text-sky-400" />
                           <span>Conservação & Congelamento</span>
                         </div>
-                        <p className="text-xs text-slate-700 dark:text-slate-100 leading-relaxed">
+                        <p className="text-xs text-slate-200 leading-relaxed">
                           {selectedRecipeModal.chefTips.storage}
                         </p>
                       </div>
                     )}
 
                     {selectedRecipeModal.chefTips.secret && (
-                      <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-500/30 space-y-1.5 shadow-2xs backdrop-blur-md">
-                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-amber-800 dark:text-amber-300">
-                          <Flame className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                      <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/30 space-y-1.5 shadow-md backdrop-blur-md">
+                        <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-amber-300">
+                          <Flame className="w-4 h-4 text-amber-400" />
                           <span>Segredo da Textura & Ponto</span>
                         </div>
-                        <p className="text-xs text-slate-700 dark:text-slate-100 leading-relaxed">
+                        <p className="text-xs text-slate-200 leading-relaxed">
                           {selectedRecipeModal.chefTips.secret}
                         </p>
                       </div>
@@ -3352,28 +3379,28 @@ export default function App() {
 
               {/* Como a Porção Deve Ser Servida: Peso, Montagem e Finalização */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200/90 dark:border-emerald-500/30 space-y-2">
+                <div className="p-4 rounded-2xl bg-slate-950/80 border border-white/10 space-y-2">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
-                      <Utensils className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <h4 className="text-xs font-black uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+                      <Utensils className="w-4 h-4 text-emerald-400" />
                       Serviço da Porção: Peso, Montagem e Finalização
                     </h4>
                   </div>
                   <div className="inline-block px-2.5 py-0.5 rounded-md bg-emerald-600 text-white text-xs font-bold">
                     Peso Padrão: {selectedRecipeModal.portionWeight || '350g por porção'}
                   </div>
-                  <p className="text-xs text-slate-700 dark:text-slate-100 leading-relaxed">
+                  <p className="text-xs text-slate-200 leading-relaxed">
                     {selectedRecipeModal.platingInstructions}
                   </p>
                 </div>
 
                 {/* Outras Instruções Específicas */}
-                <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-500/30 space-y-2">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
-                    <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                <div className="p-4 rounded-2xl bg-slate-950/80 border border-white/10 space-y-2">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-amber-400" />
                     Outras Instruções Específicas (Conservação / Chef)
                   </h4>
-                  <p className="text-xs text-slate-700 dark:text-slate-100 leading-relaxed">
+                  <p className="text-xs text-slate-200 leading-relaxed">
                     {selectedRecipeModal.specificInstructions}
                   </p>
                 </div>
@@ -3387,26 +3414,26 @@ export default function App() {
       {recipeFormModal && (
         <div
           onClick={() => setRecipeFormModal(null)}
-          className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto p-6 shadow-2xl border border-slate-200 space-y-6"
+            className="bg-slate-900/95 text-slate-100 rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-7 shadow-2xl border border-white/10 space-y-6 backdrop-blur-2xl"
           >
-            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
-                <h3 className="text-xl font-extrabold text-slate-900">
+                <h3 className="text-xl font-extrabold text-white">
                   {recipeFormModal.id
                     ? 'Editar Ficha Técnica de Restaurante'
                     : 'Nova Receita — Ficha Técnica de Restaurante'}
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-400">
                   Preencha todos os requisitos operacionais, custos unitários de insumos, montagem da porção e foto exata do prato.
                 </p>
               </div>
               <button
                 onClick={() => setRecipeFormModal(null)}
-                className="p-2 rounded-full hover:bg-slate-100 cursor-pointer"
+                className="p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white cursor-pointer transition"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -3416,7 +3443,7 @@ export default function App() {
               {/* 1. Identificação do Prato e Tempos */}
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
                 <div className="sm:col-span-6">
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                  <label className="text-xs font-bold text-slate-300 block mb-1">
                     Nome do Prato *
                   </label>
                   <input
@@ -3427,12 +3454,12 @@ export default function App() {
                     onChange={(e) =>
                       setRecipeFormModal({ ...recipeFormModal, title: e.target.value })
                     }
-                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-sm font-semibold"
+                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3.5 py-2 text-sm font-semibold text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                  <label className="text-xs font-bold text-slate-300 block mb-1">
                     Categoria
                   </label>
                   <select
@@ -3440,10 +3467,10 @@ export default function App() {
                     onChange={(e) =>
                       setRecipeFormModal({ ...recipeFormModal, category: e.target.value })
                     }
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold bg-slate-50"
+                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3 py-2 text-sm font-semibold text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
                   >
                     {SLOTS.map((s) => (
-                      <option key={s} value={s}>
+                      <option key={s} value={s} className="bg-slate-900 text-white">
                         {s}
                       </option>
                     ))}
@@ -3451,7 +3478,7 @@ export default function App() {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                  <label className="text-xs font-bold text-slate-300 block mb-1">
                     Preparo (min)
                   </label>
                   <input
@@ -3461,12 +3488,12 @@ export default function App() {
                     onChange={(e) =>
                       setRecipeFormModal({ ...recipeFormModal, prepTime: e.target.value })
                     }
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                  <label className="text-xs font-bold text-slate-300 block mb-1">
                     Rendimento (porções)
                   </label>
                   <input
@@ -3476,20 +3503,20 @@ export default function App() {
                     onChange={(e) =>
                       setRecipeFormModal({ ...recipeFormModal, servings: e.target.value })
                     }
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
 
               {/* 2. Imagem Ilustrativa Real ou IA Exata do Prato */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+              <div className="p-4 rounded-2xl bg-slate-950/50 border border-white/10 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                      <ImageIcon className="w-4 h-4 text-emerald-600" />
+                    <label className="text-xs font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                      <ImageIcon className="w-4 h-4 text-emerald-400" />
                       Imagem Exata da Refeição (Nunca Genérica)
                     </label>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-[11px] text-slate-400">
                       Busque automaticamente fotos reais exatas do prato digitado, envie uma foto do seu Mac ou cole o link da imagem.
                     </p>
                   </div>
@@ -3499,7 +3526,7 @@ export default function App() {
                       type="button"
                       onClick={handleSearchExactDishPhotos}
                       disabled={searchingPhotos || !recipeFormModal.title.trim()}
-                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-xs"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
                       <span>
@@ -3509,7 +3536,7 @@ export default function App() {
                       </span>
                     </button>
 
-                    <label className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+                    <label className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer transition border border-white/10">
                       <Upload className="w-3.5 h-3.5" />
                       <span>Enviar Arquivo</span>
                       <input
@@ -3527,7 +3554,7 @@ export default function App() {
                     <img
                       src={recipeFormModal.image}
                       alt="Preview do prato"
-                      className="w-28 h-24 rounded-xl object-cover border border-slate-300 shrink-0 bg-white"
+                      className="w-28 h-24 rounded-xl object-cover border border-white/15 shrink-0 bg-slate-800"
                     />
                   )}
                   <div className="flex-1 w-full space-y-2">
@@ -3538,12 +3565,12 @@ export default function App() {
                       onChange={(e) =>
                         setRecipeFormModal({ ...recipeFormModal, image: e.target.value })
                       }
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs"
+                      className="w-full rounded-xl bg-slate-900 border border-white/10 px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                     />
 
                     {candidatePhotos.length > 0 && (
                       <div>
-                        <p className="text-[11px] font-bold text-slate-600 mb-1">
+                        <p className="text-[11px] font-bold text-slate-300 mb-1">
                           Clique em uma foto correspondente ao prato para selecionar:
                         </p>
                         <div className="flex gap-2 overflow-x-auto pb-1">
@@ -3557,8 +3584,8 @@ export default function App() {
                               }
                               className={`w-16 h-16 rounded-lg object-cover cursor-pointer border-2 transition ${
                                 recipeFormModal.image === url
-                                  ? 'border-emerald-600 scale-105'
-                                  : 'border-transparent opacity-80 hover:opacity-100'
+                                  ? 'border-emerald-500 scale-105 shadow-md shadow-emerald-500/20'
+                                  : 'border-transparent opacity-70 hover:opacity-100'
                               }`}
                             />
                           ))}
@@ -3573,14 +3600,14 @@ export default function App() {
               <div className="space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700">
+                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-300">
                       Ingredientes Utilizados, Quantidade & Custo de Cada Insumo
                     </h4>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-[11px] text-slate-400">
                       Custo Total da Receita:{' '}
-                      <strong className="text-emerald-700">{formatBRL(formTotalCost)}</strong> •
+                      <strong className="text-emerald-400">{formatBRL(formTotalCost)}</strong> •
                       Custo Médio por Porção:{' '}
-                      <strong className="text-emerald-700">{formatBRL(formServingCost)}</strong>
+                      <strong className="text-emerald-400">{formatBRL(formServingCost)}</strong>
                     </p>
                   </div>
                   <button
@@ -3600,7 +3627,7 @@ export default function App() {
                         ],
                       })
                     }
-                    className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold flex items-center gap-1 cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1 cursor-pointer transition"
                   >
                     <Plus className="w-3.5 h-3.5" /> Adicionar Insumo
                   </button>
@@ -3610,7 +3637,7 @@ export default function App() {
                   {recipeFormModal.ingredients.map((ing, idx) => (
                     <div
                       key={idx}
-                      className="grid grid-cols-12 gap-2 items-center bg-slate-50 p-2 rounded-xl border border-slate-200/80"
+                      className="grid grid-cols-12 gap-2 items-center bg-slate-950/60 p-2.5 rounded-xl border border-white/10"
                     >
                       <div className="col-span-12 sm:col-span-4">
                         <input
@@ -3623,7 +3650,7 @@ export default function App() {
                             next[idx] = { ...next[idx], name: e.target.value };
                             setRecipeFormModal({ ...recipeFormModal, ingredients: next });
                           }}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold"
+                          className="w-full rounded-lg bg-slate-900 border border-white/10 px-2.5 py-1.5 text-xs font-semibold text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                         />
                       </div>
                       <div className="col-span-4 sm:col-span-2">
@@ -3637,20 +3664,20 @@ export default function App() {
                             next[idx] = { ...next[idx], amount: e.target.value };
                             setRecipeFormModal({ ...recipeFormModal, ingredients: next });
                           }}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs"
+                          className="w-full rounded-lg bg-slate-900 border border-white/10 px-2.5 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                         />
                       </div>
                       <div className="col-span-3 sm:col-span-1">
                         <input
                           type="text"
-                          placeholder="Un (g, ml, un)"
+                          placeholder="Un"
                           value={ing.unit}
                           onChange={(e) => {
                             const next = [...recipeFormModal.ingredients];
                             next[idx] = { ...next[idx], unit: e.target.value };
                             setRecipeFormModal({ ...recipeFormModal, ingredients: next });
                           }}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs"
+                          className="w-full rounded-lg bg-slate-900 border border-white/10 px-2 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 text-center"
                         />
                       </div>
                       <div className="col-span-5 sm:col-span-2">
@@ -3661,10 +3688,10 @@ export default function App() {
                             next[idx] = { ...next[idx], aisle: e.target.value };
                             setRecipeFormModal({ ...recipeFormModal, ingredients: next });
                           }}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs"
+                          className="w-full rounded-lg bg-slate-900 border border-white/10 px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
                         >
                           {AISLES.map((a) => (
-                            <option key={a} value={a}>
+                            <option key={a} value={a} className="bg-slate-900 text-white">
                               {a}
                             </option>
                           ))}
@@ -3685,7 +3712,7 @@ export default function App() {
                               next[idx] = { ...next[idx], basePrice: e.target.value };
                               setRecipeFormModal({ ...recipeFormModal, ingredients: next });
                             }}
-                            className="w-full rounded-lg border border-slate-200 bg-white pl-7 pr-2 py-1.5 text-xs font-bold text-emerald-700"
+                            className="w-full rounded-lg bg-slate-900 border border-white/10 pl-7 pr-2 py-1.5 text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-500"
                           />
                         </div>
                       </div>
@@ -3697,7 +3724,7 @@ export default function App() {
                             const next = recipeFormModal.ingredients.filter((_, i) => i !== idx);
                             setRecipeFormModal({ ...recipeFormModal, ingredients: next });
                           }}
-                          className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 cursor-pointer"
+                          className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/20 cursor-pointer transition"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -3709,7 +3736,7 @@ export default function App() {
 
               {/* 4. Modo de Preparo */}
               <div>
-                <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700 block mb-1">
+                <label className="text-xs font-extrabold uppercase tracking-wider text-slate-300 block mb-1">
                   Modo de Preparo (1 etapa por linha) *
                 </label>
                 <textarea
@@ -3720,22 +3747,22 @@ export default function App() {
                     setRecipeFormModal({ ...recipeFormModal, stepsText: e.target.value })
                   }
                   placeholder="Descreva cada passo do preparo em uma linha..."
-                  className="w-full rounded-xl border border-slate-200 p-3 text-xs leading-relaxed"
+                  className="w-full rounded-xl bg-slate-950/80 border border-white/10 p-3 text-xs leading-relaxed text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                 />
-                <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-emerald-400 font-semibold">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                   <span>Padrão Gastronômico: Cada etapa do preparo recebe automaticamente fotos ilustrativas de alta resolução com zoom no Modo Cozinha.</span>
                 </div>
               </div>
 
               {/* 5. Como a Porção Deve Ser Servida: Peso, Montagem e Finalização + Instruções Específicas */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2 p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200">
-                  <label className="text-xs font-extrabold uppercase tracking-wider text-emerald-900 block">
+                <div className="space-y-2 p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30">
+                  <label className="text-xs font-extrabold uppercase tracking-wider text-emerald-300 block">
                     Como a Porção Deve Ser Servida (Peso, Montagem e Finalização) *
                   </label>
                   <div>
-                    <span className="text-[11px] font-bold text-slate-600 block mb-1">
+                    <span className="text-[11px] font-bold text-slate-300 block mb-1">
                       Peso da Porção Servida:
                     </span>
                     <input
@@ -3749,11 +3776,11 @@ export default function App() {
                           portionWeight: e.target.value,
                         })
                       }
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold"
+                      className="w-full rounded-xl bg-slate-900 border border-white/10 px-3 py-1.5 text-xs font-bold text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                     />
                   </div>
                   <div>
-                    <span className="text-[11px] font-bold text-slate-600 block mb-1">
+                    <span className="text-[11px] font-bold text-slate-300 block mb-1">
                       Montagem do Prato e Finalização:
                     </span>
                     <textarea
@@ -3767,13 +3794,13 @@ export default function App() {
                           platingInstructions: e.target.value,
                         })
                       }
-                      className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs"
+                      className="w-full rounded-xl bg-slate-900 border border-white/10 p-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2 p-4 rounded-2xl bg-amber-50/50 border border-amber-200">
-                  <label className="text-xs font-extrabold uppercase tracking-wider text-amber-900 block">
+                <div className="space-y-2 p-4 rounded-2xl bg-amber-950/30 border border-amber-500/30">
+                  <label className="text-xs font-extrabold uppercase tracking-wider text-amber-300 block">
                     Outras Instruções Específicas (Conservação, Validade, Alergênicos)
                   </label>
                   <textarea
@@ -3786,7 +3813,7 @@ export default function App() {
                         specificInstructions: e.target.value,
                       })
                     }
-                    className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs"
+                    className="w-full rounded-xl bg-slate-900 border border-white/10 p-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
@@ -3794,7 +3821,7 @@ export default function App() {
               {/* 6. Informações Nutricionais & Tags */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-slate-600 block mb-1">
+                  <label className="text-xs font-bold text-slate-300 block mb-1">
                     Calorias (kcal/porção)
                   </label>
                   <input
@@ -3803,11 +3830,11 @@ export default function App() {
                     onChange={(e) =>
                       setRecipeFormModal({ ...recipeFormModal, calories: e.target.value })
                     }
-                    className="w-full rounded-xl border border-slate-200 px-3 py-1.5 text-xs"
+                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-slate-600 block mb-1">
+                  <label className="text-xs font-bold text-slate-300 block mb-1">
                     Proteínas (g)
                   </label>
                   <input
@@ -3816,11 +3843,11 @@ export default function App() {
                     onChange={(e) =>
                       setRecipeFormModal({ ...recipeFormModal, protein: e.target.value })
                     }
-                    className="w-full rounded-xl border border-slate-200 px-3 py-1.5 text-xs"
+                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-slate-600 block mb-1">
+                  <label className="text-xs font-bold text-slate-300 block mb-1">
                     Carboidratos (g)
                   </label>
                   <input
@@ -3829,11 +3856,11 @@ export default function App() {
                     onChange={(e) =>
                       setRecipeFormModal({ ...recipeFormModal, carbs: e.target.value })
                     }
-                    className="w-full rounded-xl border border-slate-200 px-3 py-1.5 text-xs"
+                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-slate-600 block mb-1">
+                  <label className="text-xs font-bold text-slate-300 block mb-1">
                     Gorduras (g)
                   </label>
                   <input
@@ -3842,14 +3869,14 @@ export default function App() {
                     onChange={(e) =>
                       setRecipeFormModal({ ...recipeFormModal, fat: e.target.value })
                     }
-                    className="w-full rounded-xl border border-slate-200 px-3 py-1.5 text-xs"
+                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
 
               {/* Etiquetas / Classificação Dietética */}
               <div>
-                <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700 block mb-2">
+                <label className="text-xs font-extrabold uppercase tracking-wider text-slate-300 block mb-2">
                   Classificação & Etiquetas da Ficha Técnica
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -3871,8 +3898,8 @@ export default function App() {
                         }}
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
                           selected
-                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
-                            : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                            ? 'bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-600/30'
+                            : 'bg-slate-950/60 text-slate-400 border-white/10 hover:border-white/20 hover:text-white'
                         }`}
                       >
                         {tag}
@@ -3882,18 +3909,18 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-3 border-t border-slate-200">
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setRecipeFormModal(null)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl border border-white/10 hover:bg-white/5 text-slate-300 font-bold text-xs cursor-pointer transition"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={savingRecipe}
-                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm cursor-pointer"
+                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/25 cursor-pointer transition"
                 >
                   {savingRecipe ? 'Salvando Ficha Técnica...' : 'Salvar Ficha Técnica'}
                 </button>
@@ -3907,37 +3934,37 @@ export default function App() {
       {swapSlotTarget && (
         <div
           onClick={() => setSwapSlotTarget(null)}
-          className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-4 shadow-xl"
+            className="bg-slate-900/95 text-slate-100 rounded-3xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-4 shadow-2xl border border-white/10 backdrop-blur-2xl"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
-                <h3 className="font-extrabold text-lg text-slate-900">
+                <h3 className="font-extrabold text-lg text-white">
                   Trocar Refeição: {swapSlotTarget.day} ({swapSlotTarget.slot})
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-400">
                   Preço médio estimado para {user.household_size} pessoas
                 </p>
               </div>
               <button
                 onClick={() => setSwapSlotTarget(null)}
-                className="p-2 rounded-full hover:bg-slate-100 cursor-pointer"
+                className="p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white cursor-pointer transition"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input
                 type="text"
                 placeholder="Buscar receita para este horário..."
                 value={swapSearch}
                 onChange={(e) => setSwapSearch(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full rounded-xl bg-slate-950/80 border border-white/10 pl-10 pr-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
               />
             </div>
 
@@ -3963,23 +3990,23 @@ export default function App() {
                         handleSwapSlotRecipe(r.id);
                         setSwapSearch('');
                       }}
-                      className="w-full p-3 rounded-2xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 flex items-center justify-between gap-3 text-left transition cursor-pointer"
+                      className="w-full p-3 rounded-2xl border border-white/10 bg-slate-950/50 hover:border-emerald-500/50 hover:bg-emerald-500/10 flex items-center justify-between gap-3 text-left transition cursor-pointer"
                     >
                     <div className="flex items-center gap-3">
                       <img
                         src={r.image}
                         alt={r.title}
-                        className="w-12 h-12 rounded-xl object-cover shrink-0 bg-slate-200"
+                        className="w-12 h-12 rounded-xl object-cover shrink-0 bg-slate-800 border border-white/10"
                       />
                       <div>
-                        <span className="text-[10px] font-bold uppercase text-emerald-700">
+                        <span className="text-[10px] font-bold uppercase text-emerald-400">
                           {r.category} • {r.portionWeight}
                         </span>
-                        <h4 className="font-bold text-sm text-slate-900">{r.title}</h4>
+                        <h4 className="font-bold text-sm text-white">{r.title}</h4>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <span className="font-extrabold text-sm text-emerald-700">
+                      <span className="font-extrabold text-sm text-emerald-400">
                         {formatBRL(cost)}
                       </span>
                       <p className="text-[10px] text-slate-400">{r.prepTime} min</p>
@@ -3999,28 +4026,28 @@ export default function App() {
         return (
           <div
             onClick={() => setRepeatRecipeTarget(null)}
-            className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4"
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl border border-slate-200"
+              className="bg-slate-900/95 text-slate-100 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl border border-white/10 backdrop-blur-2xl"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold uppercase tracking-wider mb-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-extrabold uppercase tracking-wider mb-1">
                     <Repeat className="w-3 h-3" />
                     <span>Aproveitar / Marmita</span>
                   </div>
-                  <h3 className="font-extrabold text-lg text-slate-900">
+                  <h3 className="font-extrabold text-lg text-white">
                     Repetir "{recipe.title}"
                   </h3>
-                  <p className="text-xs text-slate-500">
-                    Origem: <strong>{sourceSlot} de {sourceDay}</strong>
+                  <p className="text-xs text-slate-400">
+                    Origem: <strong className="text-white">{sourceSlot} de {sourceDay}</strong>
                   </p>
                 </div>
                 <button
                   onClick={() => setRepeatRecipeTarget(null)}
-                  className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 cursor-pointer"
+                  className="p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white cursor-pointer transition"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -4036,12 +4063,12 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => handleRepeatMealToSlot(sourceDay, 'Jantar', recipe.id)}
-                      className="p-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border border-emerald-200 text-left transition cursor-pointer flex flex-col justify-between"
+                      className="p-3.5 rounded-2xl bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-100 border border-emerald-500/30 text-left transition cursor-pointer flex flex-col justify-between"
                     >
-                      <span className="text-xs font-bold flex items-center gap-1.5">
+                      <span className="text-xs font-bold flex items-center gap-1.5 text-white">
                         🍲 Aproveitar no Jantar de Hoje
                       </span>
-                      <span className="text-[11px] text-emerald-700 font-semibold mt-1">
+                      <span className="text-[11px] text-emerald-400 font-semibold mt-1">
                         {sourceDay} • Jantar
                       </span>
                     </button>
@@ -4050,12 +4077,12 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => handleRepeatMealToSlot(nextDay, 'Almoço', recipe.id)}
-                    className="p-3.5 rounded-2xl bg-teal-50 hover:bg-teal-100 text-teal-950 border border-teal-200 text-left transition cursor-pointer flex flex-col justify-between"
+                    className="p-3.5 rounded-2xl bg-teal-950/40 hover:bg-teal-900/50 text-teal-100 border border-teal-500/30 text-left transition cursor-pointer flex flex-col justify-between"
                   >
-                    <span className="text-xs font-bold flex items-center gap-1.5">
+                    <span className="text-xs font-bold flex items-center gap-1.5 text-white">
                       🍱 Marmita no Almoço de Amanhã
                     </span>
-                    <span className="text-[11px] text-teal-700 font-semibold mt-1">
+                    <span className="text-[11px] text-teal-400 font-semibold mt-1">
                       {nextDay} • Almoço
                     </span>
                   </button>
@@ -4064,12 +4091,12 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => handleRepeatMealToSlot(nextDay, 'Jantar', recipe.id)}
-                      className="p-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border border-emerald-200 text-left transition cursor-pointer flex flex-col justify-between"
+                      className="p-3.5 rounded-2xl bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-100 border border-emerald-500/30 text-left transition cursor-pointer flex flex-col justify-between"
                     >
-                      <span className="text-xs font-bold flex items-center gap-1.5">
+                      <span className="text-xs font-bold flex items-center gap-1.5 text-white">
                         🍲 Repetir no Jantar de Amanhã
                       </span>
-                      <span className="text-[11px] text-emerald-700 font-semibold mt-1">
+                      <span className="text-[11px] text-emerald-400 font-semibold mt-1">
                         {nextDay} • Jantar
                       </span>
                     </button>
@@ -4078,7 +4105,7 @@ export default function App() {
               </div>
 
               {/* Or pick any day and slot */}
-              <div className="space-y-2 pt-2 border-t border-slate-100">
+              <div className="space-y-2 pt-2 border-t border-white/10">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">
                   Ou escolha qualquer dia e horário na grade:
                 </span>
@@ -4086,9 +4113,9 @@ export default function App() {
                   {DAYS.map((day) => (
                     <div
                       key={day}
-                      className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2"
+                      className="p-2.5 rounded-2xl bg-slate-950/50 border border-white/10 flex items-center justify-between gap-2"
                     >
-                      <span className="text-xs font-bold text-slate-800 w-20 shrink-0">
+                      <span className="text-xs font-bold text-slate-300 w-20 shrink-0">
                         {day}
                       </span>
                       <div className="flex gap-1.5 flex-1 justify-end">
@@ -4102,8 +4129,8 @@ export default function App() {
                               onClick={() => handleRepeatMealToSlot(day, slot, recipe.id)}
                               className={`px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition cursor-pointer ${
                                 isOrigin
-                                  ? 'opacity-30 bg-slate-200 text-slate-500 cursor-not-allowed'
-                                  : 'bg-white hover:bg-emerald-600 hover:text-white text-slate-700 border border-slate-200 shadow-2xs'
+                                  ? 'opacity-30 bg-slate-800 text-slate-500 cursor-not-allowed'
+                                  : 'bg-slate-900 hover:bg-emerald-600 hover:text-white text-slate-200 border border-white/10 shadow-xs'
                               }`}
                             >
                               {slot === 'Café da Manhã'
@@ -4128,16 +4155,16 @@ export default function App() {
       {changelogModalOpen && latestRelease && (
         <div
           onClick={handleDismissChangelog}
-          className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden"
+            className="bg-slate-900/95 text-slate-100 rounded-3xl max-w-lg w-full shadow-2xl border border-white/10 overflow-hidden backdrop-blur-2xl"
           >
             <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white relative">
               <button
                 onClick={handleDismissChangelog}
-                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer"
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white cursor-pointer transition"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -4152,10 +4179,11 @@ export default function App() {
             </div>
 
             <div className="p-6 space-y-5">
-              <div className="rounded-2xl p-4 bg-emerald-50/60 border border-emerald-200">
+              <div className="rounded-2xl p-4 bg-slate-950/60 border border-white/10">
                 <ul className="space-y-2">
                   {latestRelease.items.map((item, i) => (
-                    <li key={i} className="text-sm text-slate-800 leading-relaxed flex gap-2">
+                    <li key={i} className="text-sm text-slate-200 leading-relaxed flex gap-2">
+                      <span className="text-emerald-400 shrink-0 font-bold">•</span>
                       <span>{item}</span>
                     </li>
                   ))}
@@ -4165,7 +4193,7 @@ export default function App() {
               <div className="flex justify-end">
                 <button
                   onClick={handleDismissChangelog}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xs cursor-pointer transition"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-md shadow-emerald-600/30 cursor-pointer transition"
                 >
                   Entendi, vamos lá!
                 </button>
@@ -4209,11 +4237,11 @@ export default function App() {
         return (
           <div
             onClick={() => setCookingSession(null)}
-            className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+            className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]"
+              className="bg-slate-900/95 text-slate-100 rounded-3xl max-w-3xl w-full shadow-2xl border border-white/10 overflow-hidden flex flex-col max-h-[92vh]"
             >
               {/* TOP HEADER */}
               <div className="bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 p-5 sm:p-6 text-white relative">
@@ -4222,7 +4250,7 @@ export default function App() {
                     <img
                       src={rec.image}
                       alt={rec.title}
-                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-white/30 shadow-md shrink-0 bg-slate-200"
+                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-white/30 shadow-md shrink-0 bg-slate-900"
                     />
                     <div>
                       <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -4240,7 +4268,7 @@ export default function App() {
                           </div>
                         )}
                       </div>
-                      <h2 className="text-lg sm:text-xl font-extrabold leading-tight">
+                      <h2 className="text-lg sm:text-xl font-black leading-tight">
                         {rec.title}
                       </h2>
                       <div className="flex flex-wrap items-center gap-3 text-xs text-emerald-50 mt-1">
@@ -4275,7 +4303,7 @@ export default function App() {
 
                 {/* PROGRESS BAR & STEP PILLS */}
                 <div className="mt-4">
-                  <div className="w-full h-2 rounded-full bg-black/20 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-black/30 overflow-hidden">
                     <div
                       className="h-full bg-white rounded-full transition-all duration-300"
                       style={{ width: `${progressPercent}%` }}
@@ -4289,7 +4317,7 @@ export default function App() {
                       }
                       className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap cursor-pointer transition ${
                         isMiseEnPlace
-                          ? 'bg-white text-emerald-800 shadow-xs'
+                          ? 'bg-white text-emerald-800 shadow-md font-black'
                           : 'bg-white/15 text-white hover:bg-white/25'
                       }`}
                     >
@@ -4314,7 +4342,7 @@ export default function App() {
                           }}
                           className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap cursor-pointer transition flex items-center gap-1 ${
                             isCurrent
-                              ? 'bg-white text-emerald-800 shadow-xs'
+                              ? 'bg-white text-emerald-800 shadow-md font-black'
                               : isDone
                               ? 'bg-emerald-900/50 text-emerald-100 border border-white/20'
                               : 'bg-white/15 text-white hover:bg-white/25'
@@ -4334,7 +4362,7 @@ export default function App() {
                       }
                       className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap cursor-pointer transition ${
                         isFinalPlating
-                          ? 'bg-white text-emerald-800 shadow-xs'
+                          ? 'bg-white text-emerald-800 shadow-md font-black'
                           : 'bg-white/15 text-white hover:bg-white/25'
                       }`}
                     >
@@ -4349,31 +4377,31 @@ export default function App() {
                 <div
                   className={`px-5 py-3 border-b flex flex-wrap items-center justify-between gap-3 transition ${
                     cookingSession.timerFinished
-                      ? 'bg-amber-50 border-amber-200 text-amber-900'
-                      : 'bg-slate-50 border-slate-200 text-slate-800'
+                      ? 'bg-amber-950/40 border-amber-500/30 text-amber-300'
+                      : 'bg-slate-950/80 border-white/10 text-slate-200'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center font-extrabold ${
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center font-black ${
                         cookingSession.timerFinished
                           ? 'bg-amber-500 text-white animate-bounce'
                           : cookingSession.timerRunning
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-slate-200 text-slate-700'
+                          ? 'bg-emerald-600 text-white shadow-md'
+                          : 'bg-slate-800 text-slate-300 border border-white/10'
                       }`}
                     >
                       <Timer className="w-5 h-5" />
                     </div>
                     <div>
-                      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">
                         {cookingSession.timerFinished
                           ? '🔔 Tempo Concluído!'
                           : cookingSession.timerRunning
                           ? 'Cronômetro em andamento'
                           : 'Cronômetro da Etapa'}
                       </div>
-                      <div className="text-xl font-black font-mono tracking-tight">
+                      <div className="text-xl font-black font-mono tracking-tight text-white">
                         {formatTimerMMSS(
                           cookingSession.timerSeconds > 0
                             ? cookingSession.timerSeconds
@@ -4400,7 +4428,7 @@ export default function App() {
                             timerFinished: false,
                           }))
                         }
-                        className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs"
+                        className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center gap-1.5 cursor-pointer shadow-md transition"
                       >
                         <Play className="w-3.5 h-3.5 fill-current" />
                         <span>
@@ -4420,7 +4448,7 @@ export default function App() {
                             timerRunning: false,
                           }))
                         }
-                        className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs"
+                        className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-md transition"
                       >
                         <Pause className="w-3.5 h-3.5" />
                         <span>Pausar</span>
@@ -4436,7 +4464,7 @@ export default function App() {
                           timerFinished: false,
                         }))
                       }
-                      className="px-2.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200 cursor-pointer"
+                      className="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-white/10 cursor-pointer transition"
                     >
                       +1 min
                     </button>
@@ -4449,7 +4477,7 @@ export default function App() {
                           timerFinished: false,
                         }))
                       }
-                      className="px-2.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200 cursor-pointer"
+                      className="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-white/10 cursor-pointer transition"
                     >
                       +5 min
                     </button>
@@ -4464,7 +4492,7 @@ export default function App() {
                             timerFinished: false,
                           }))
                         }
-                        className="px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-500 font-bold text-xs cursor-pointer"
+                        className="px-2.5 py-2 rounded-xl bg-slate-800/80 hover:bg-rose-950/60 hover:text-rose-300 text-slate-400 font-bold text-xs cursor-pointer transition"
                       >
                         Zerar
                       </button>
@@ -4477,22 +4505,22 @@ export default function App() {
               <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6">
                 {isMiseEnPlace && (
                   <div className="space-y-5">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-4">
                       <div>
-                        <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400">
                           Etapa Inicial • Mise en Place
                         </span>
-                        <h3 className="text-lg font-extrabold text-slate-900 mt-0.5">
+                        <h3 className="text-lg font-black text-white mt-0.5">
                           Separe e pese os ingredientes na bancada
                         </h3>
-                        <p className="text-xs text-slate-600">
+                        <p className="text-xs text-slate-400 mt-0.5">
                           Marque cada insumo abaixo conforme for separando para cozinhar sem imprevistos.
                         </p>
                       </div>
 
                       {/* PORTION SCALER */}
-                      <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-emerald-200 shrink-0 self-start sm:self-center">
-                        <span className="text-xs font-bold text-slate-500">Porções:</span>
+                      <div className="flex items-center gap-2 bg-slate-900/90 px-3 py-2 rounded-xl border border-white/10 shrink-0 self-start sm:self-center">
+                        <span className="text-xs font-bold text-slate-400">Porções:</span>
                         <button
                           type="button"
                           onClick={() =>
@@ -4501,11 +4529,11 @@ export default function App() {
                               scaleServings: Math.max(1, (prev.scaleServings || 2) - 1),
                             }))
                           }
-                          className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-sm flex items-center justify-center cursor-pointer"
+                          className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-black text-sm flex items-center justify-center cursor-pointer transition"
                         >
                           -
                         </button>
-                        <span className="text-sm font-extrabold text-emerald-700 min-w-[2ch] text-center">
+                        <span className="text-sm font-black text-emerald-400 min-w-[2ch] text-center">
                           {cookingSession.scaleServings}
                         </span>
                         <button
@@ -4516,7 +4544,7 @@ export default function App() {
                               scaleServings: Math.min(20, (prev.scaleServings || 2) + 1),
                             }))
                           }
-                          className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-sm flex items-center justify-center cursor-pointer"
+                          className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-black text-sm flex items-center justify-center cursor-pointer transition"
                         >
                           +
                         </button>
@@ -4542,8 +4570,8 @@ export default function App() {
                             }
                             className={`p-3.5 rounded-2xl border text-left flex items-center justify-between gap-3 cursor-pointer transition ${
                               checked
-                                ? 'bg-emerald-50/70 border-emerald-300 text-slate-400 line-through'
-                                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800 shadow-2xs'
+                                ? 'bg-slate-950/40 border-transparent text-slate-500 opacity-50 line-through'
+                                : 'bg-slate-950/70 hover:bg-slate-850/80 border-white/10 text-slate-200 shadow-sm'
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
@@ -4552,7 +4580,7 @@ export default function App() {
                               </span>
                               <div className="min-w-0">
                                 <div className="font-bold text-sm truncate">{ing.name}</div>
-                                <div className="text-xs text-slate-500">
+                                <div className="text-xs text-slate-400">
                                   {scaledAmt} {ing.unit}
                                 </div>
                               </div>
@@ -4561,7 +4589,7 @@ export default function App() {
                               className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                                 checked
                                   ? 'bg-emerald-600 text-white'
-                                  : 'border-2 border-slate-300 text-transparent'
+                                  : 'border-2 border-slate-600 text-transparent'
                               }`}
                             >
                               ✓
@@ -4581,11 +4609,11 @@ export default function App() {
                     <div className="space-y-5">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold uppercase tracking-wider">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-black uppercase tracking-wider">
                             🍳 Passo {currentIdx} de {steps.length}
                           </span>
                           {currentStepDetail && currentStepDetail.section && (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-950/80 text-slate-300 border border-white/10 text-xs font-bold">
                               {currentStepDetail.section}
                             </span>
                           )}
@@ -4602,10 +4630,10 @@ export default function App() {
                               },
                             }))
                           }
-                          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition ${
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition border ${
                             cookingSession.completedSteps[currentIdx - 1]
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                              ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
+                              : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-white/10'
                           }`}
                         >
                           <CheckCircle2 className="w-4 h-4" />
@@ -4617,9 +4645,9 @@ export default function App() {
                         </button>
                       </div>
 
-                      {/* PHOTO OF THE STEP (UNLOADS PREVIOUS TEXTURES FROM RAM TO SAVE MEMORY) */}
+                      {/* PHOTO OF THE STEP */}
                       {hasStepImg && (
-                        <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-md bg-slate-900 group max-h-72 sm:max-h-80">
+                        <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-slate-950 group max-h-72 sm:max-h-80">
                           <img
                             key={currentIdx}
                             src={currentStepDetail.image}
@@ -4636,13 +4664,13 @@ export default function App() {
                                 title: `Passo ${currentIdx}: ${currentStepDetail.section || ''}`,
                               })
                             }
-                            className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md transition"
+                            className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-black/70 hover:bg-black/90 backdrop-blur-md text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md transition border border-white/10"
                           >
                             <Maximize2 className="w-3.5 h-3.5" />
                             <span>Ampliar Foto</span>
                           </button>
                           {currentStepDetail.alt && (
-                            <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/50 backdrop-blur-md text-[11px] font-medium text-white max-w-sm truncate">
+                            <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[11px] font-medium text-white max-w-sm truncate border border-white/10">
                               {currentStepDetail.alt}
                             </div>
                           )}
@@ -4650,18 +4678,18 @@ export default function App() {
                       )}
 
                       {/* LARGE READABLE STEP CARD */}
-                      <div className="p-6 sm:p-7 rounded-3xl bg-slate-50 border-2 border-slate-200/80 shadow-inner">
-                        <p className="text-xl sm:text-2xl font-bold text-slate-900 leading-relaxed">
+                      <div className="p-6 sm:p-7 rounded-3xl bg-slate-950/80 border border-white/10 shadow-inner">
+                        <p className="text-xl sm:text-2xl font-bold text-slate-100 leading-relaxed">
                           {currentStepText}
                         </p>
                       </div>
 
                       {/* DICA DO CHEF PARA ESTE PASSO */}
                       {currentStepDetail && currentStepDetail.tip && (
-                        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
-                          <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                          <div className="text-xs text-amber-950 leading-relaxed">
-                            <strong className="font-bold">Dica do Chef: </strong>
+                        <div className="p-3.5 rounded-2xl bg-amber-950/30 border border-amber-500/30 flex items-start gap-3">
+                          <Lightbulb className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                          <div className="text-xs text-amber-200 leading-relaxed">
+                            <strong className="font-bold text-amber-300">Dica do Chef: </strong>
                             {currentStepDetail.tip}
                           </div>
                         </div>
@@ -4670,20 +4698,20 @@ export default function App() {
                       {/* INGREDIENTS MENTIONED IN THIS STEP */}
                       {stepIngredients.length > 0 && (
                         <div className="space-y-2">
-                          <div className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                          <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
                             Insumos utilizados neste passo:
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {stepIngredients.map((ing, i) => (
                               <span
                                 key={i}
-                                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs font-bold"
+                                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-slate-200 text-xs font-bold"
                               >
                                 <span className="text-base">
                                   {getIngredientEmoji(ing.name, ing.aisle)}
                                 </span>
                                 <span>{ing.name}:</span>
-                                <strong className="text-emerald-700">
+                                <strong className="text-emerald-400">
                                   {Number((ing.amount * scaleRatio).toFixed(2))} {ing.unit}
                                 </strong>
                               </span>
@@ -4694,16 +4722,16 @@ export default function App() {
 
                       {/* NEXT STEP PREVIEW */}
                       {currentIdx < steps.length && (
-                        <div className="p-4 rounded-2xl bg-white/50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs backdrop-blur-md">
+                        <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm backdrop-blur-md">
                           <div className="flex items-start sm:items-center gap-3 min-w-0">
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-[11px] font-extrabold uppercase tracking-wider shrink-0">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[11px] font-black uppercase tracking-wider shrink-0">
                               <span>A seguir • Passo {currentIdx + 1}</span>
                             </span>
-                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 line-clamp-2 leading-relaxed">
+                            <p className="text-sm font-semibold text-slate-200 line-clamp-2 leading-relaxed">
                               {steps[currentIdx]}
                             </p>
                           </div>
-                          <div className="hidden sm:flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
+                          <div className="hidden sm:flex items-center gap-1 text-xs font-bold text-emerald-400 shrink-0">
                             <span>Próximo</span>
                             <ChevronRight className="w-4 h-4" />
                           </div>
@@ -4715,53 +4743,53 @@ export default function App() {
 
                 {isFinalPlating && (
                   <div className="space-y-5">
-                    <div className="p-6 rounded-3xl bg-emerald-50/80 border-2 border-emerald-200 text-center space-y-2">
+                    <div className="p-6 rounded-3xl bg-emerald-950/40 border border-emerald-500/30 text-center space-y-2">
                       <div className="text-4xl">👨‍🍳🍽️</div>
-                      <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
+                      <div className="text-xs font-black uppercase tracking-wider text-emerald-300">
                         Etapa Final • Padrão de Serviço
                       </div>
-                      <h3 className="text-2xl font-extrabold text-slate-900">
+                      <h3 className="text-2xl font-black text-white">
                         Montagem, Peso da Porção e Finalização
                       </h3>
-                      <p className="text-xs text-slate-600 max-w-md mx-auto">
+                      <p className="text-xs text-slate-300 max-w-md mx-auto">
                         Siga as instruções da ficha técnica abaixo para empratar e servir sua refeição com padrão de restaurante.
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                      <div className="p-4 rounded-2xl bg-slate-950/80 border border-white/10">
                         <div className="text-[11px] font-bold uppercase text-slate-400">
                           Peso Recomendado por Porção
                         </div>
-                        <div className="text-lg font-extrabold text-slate-900 mt-1">
+                        <div className="text-lg font-black text-white mt-1">
                           ⚖️ {rec.portionWeight || '300g por porção'}
                         </div>
                       </div>
-                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                      <div className="p-4 rounded-2xl bg-slate-950/80 border border-white/10">
                         <div className="text-[11px] font-bold uppercase text-slate-400">
                           Valor Nutricional por Porção
                         </div>
-                        <div className="text-sm font-extrabold text-emerald-700 mt-1">
+                        <div className="text-sm font-bold text-emerald-400 mt-1">
                           🔥 {rec.calories} kcal • 💪 {rec.protein}g Prot • 🌾 {rec.carbs || 30}g Carb • 🥑 {rec.fat || 10}g Gord
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-5 rounded-2xl bg-white border border-slate-200 space-y-2">
-                      <div className="text-xs font-extrabold uppercase tracking-wider text-emerald-700">
+                    <div className="p-5 rounded-2xl bg-slate-950/80 border border-white/10 space-y-2">
+                      <div className="text-xs font-black uppercase tracking-wider text-emerald-400">
                         🍽️ Instruções de Montagem e Finalização
                       </div>
-                      <p className="text-sm text-slate-800 leading-relaxed">
+                      <p className="text-sm text-slate-200 leading-relaxed">
                         {rec.platingInstructions || 'Sirva imediatamente após o preparo em prato aquecido.'}
                       </p>
                     </div>
 
                     {rec.specificInstructions && (
-                      <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-1">
-                        <div className="text-xs font-extrabold uppercase tracking-wider text-amber-800">
+                      <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/30 space-y-1">
+                        <div className="text-xs font-black uppercase tracking-wider text-amber-300">
                           📌 Dica do Chef & Conservação
                         </div>
-                        <p className="text-xs text-amber-950 leading-relaxed">
+                        <p className="text-xs text-amber-200 leading-relaxed">
                           {rec.specificInstructions}
                         </p>
                       </div>
@@ -4771,7 +4799,7 @@ export default function App() {
               </div>
 
               {/* BOTTOM NAVIGATION FOOTER */}
-              <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+              <div className="p-4 sm:p-5 bg-slate-950/80 border-t border-white/10 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   disabled={currentIdx === 0}
@@ -4788,14 +4816,14 @@ export default function App() {
                       timerFinished: false,
                     }));
                   }}
-                  className="px-4 py-3 rounded-2xl bg-white hover:bg-slate-100 disabled:opacity-40 text-slate-700 font-bold text-sm border border-slate-200 flex items-center gap-2 cursor-pointer transition"
+                  className="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 disabled:opacity-30 text-slate-200 font-bold text-sm border border-white/10 flex items-center gap-2 cursor-pointer transition"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Etapa Anterior</span>
                 </button>
 
                 <div className="flex flex-col items-center justify-center text-center">
-                  <div className="text-xs font-bold text-slate-500">
+                  <div className="text-xs font-bold text-slate-300">
                     {isMiseEnPlace
                       ? 'Separe os ingredientes para começar'
                       : isFinalPlating
@@ -4803,14 +4831,14 @@ export default function App() {
                       : `Passo ${currentIdx} de ${steps.length}`}
                   </div>
                   <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400 mt-1">
-                    <span className="font-semibold text-slate-500">Atalhos:</span>
-                    <span className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-mono font-bold">Espaço</span>
+                    <span className="font-semibold text-slate-400">Atalhos:</span>
+                    <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-mono font-bold border border-white/10">Espaço</span>
                     <span>Timer</span>
-                    <span className="text-slate-300">•</span>
-                    <span className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-mono font-bold">← / →</span>
+                    <span className="text-slate-600">•</span>
+                    <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-mono font-bold border border-white/10">← / →</span>
                     <span>Passos</span>
-                    <span className="text-slate-300">•</span>
-                    <span className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[10px] font-mono font-bold">Esc</span>
+                    <span className="text-slate-600">•</span>
+                    <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-mono font-bold border border-white/10">Esc</span>
                     <span>Fechar</span>
                   </div>
                 </div>
@@ -4838,7 +4866,7 @@ export default function App() {
                         timerFinished: false,
                       }));
                     }}
-                    className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm flex items-center gap-2 cursor-pointer shadow-md shadow-emerald-600/20 transition"
+                    className="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-950/60 transition active:scale-95"
                   >
                     <span>
                       {isMiseEnPlace
@@ -4856,7 +4884,7 @@ export default function App() {
                       playChefServiceBell();
                       setCookingSession(null);
                     }}
-                    className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm flex items-center gap-2 cursor-pointer shadow-md shadow-emerald-600/20 transition"
+                    className="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-950/60 transition active:scale-95"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     <span>Concluir Receita!</span>
@@ -4872,26 +4900,26 @@ export default function App() {
       {cookingDrawerOpen && cookingSession && (
         <div
           onClick={() => setCookingDrawerOpen(false)}
-          className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs flex items-center justify-end p-0 sm:p-4"
+          className="fixed inset-0 z-60 bg-black/75 backdrop-blur-sm flex items-center justify-end p-0 sm:p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-l-3xl sm:rounded-3xl max-w-md w-full h-full sm:h-auto sm:max-h-[85vh] p-6 shadow-2xl flex flex-col space-y-4"
+            className="bg-slate-900 text-slate-100 rounded-l-3xl sm:rounded-3xl max-w-md w-full h-full sm:h-auto sm:max-h-[85vh] p-6 shadow-2xl border border-white/10 flex flex-col space-y-4"
           >
-            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
-                <ListChecks className="w-5 h-5 text-emerald-600" />
-                <h3 className="font-extrabold text-base text-slate-900">Ingredientes da Receita</h3>
+                <ListChecks className="w-5 h-5 text-emerald-400" />
+                <h3 className="font-black text-base text-white">Ingredientes da Receita</h3>
               </div>
               <button
                 onClick={() => setCookingDrawerOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 cursor-pointer"
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 cursor-pointer transition"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <p className="text-xs text-slate-500">
-              Quantidades escaladas para <strong>{cookingSession.scaleServings || 2} porções</strong>.
+            <p className="text-xs text-slate-400">
+              Quantidades escaladas para <strong className="text-slate-200">{cookingSession.scaleServings || 2} porções</strong>.
             </p>
             <div className="overflow-y-auto flex-1 space-y-2 pr-1 max-h-[60vh]">
               {(cookingSession.recipe.ingredients || []).map((ing, idx) => {
@@ -4914,20 +4942,20 @@ export default function App() {
                     }
                     className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between gap-3 cursor-pointer transition ${
                       checked
-                        ? 'bg-emerald-50/70 border-emerald-300 text-slate-400 line-through'
-                        : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800 shadow-2xs'
+                        ? 'bg-slate-950/40 border-transparent text-slate-500 opacity-50 line-through'
+                        : 'bg-slate-950/70 hover:bg-slate-800 border-white/10 text-slate-200 shadow-sm'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span className="text-xl shrink-0">{getIngredientEmoji(ing.name, ing.aisle)}</span>
                       <div className="min-w-0">
                         <div className="font-bold text-xs truncate">{ing.name}</div>
-                        <div className="text-[11px] text-slate-500">{scaledAmt} {ing.unit} ({ing.aisle})</div>
+                        <div className="text-[11px] text-slate-400">{scaledAmt} {ing.unit} ({ing.aisle})</div>
                       </div>
                     </div>
                     <div
                       className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                        checked ? 'bg-emerald-600 text-white' : 'border border-slate-300 text-transparent'
+                        checked ? 'bg-emerald-600 text-white' : 'border border-slate-600 text-transparent'
                       }`}
                     >
                       ✓
@@ -4939,7 +4967,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setCookingDrawerOpen(false)}
-              className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs cursor-pointer transition"
+              className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs cursor-pointer transition border border-white/10"
             >
               Fechar Lista
             </button>
@@ -4958,28 +4986,28 @@ export default function App() {
               setSefazSuccessMsg('');
             }
           }}
-          className="fixed inset-0 z-60 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-5"
+          className="fixed inset-0 z-60 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-7 shadow-2xl border border-slate-200/90 dark:border-white/10 space-y-6"
+            className="bg-slate-900/95 text-slate-100 rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-7 shadow-2xl border border-white/10 space-y-6 backdrop-blur-2xl"
           >
             {/* Modal Header */}
-            <div className="flex items-start justify-between gap-4 border-b border-slate-100 dark:border-white/10 pb-4">
+            <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-md shadow-emerald-600/25 shrink-0">
                   <Receipt className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
+                    <h2 className="text-lg sm:text-xl font-black text-white">
                       Calibrador de Preços & Entrada de Compras
                     </h2>
-                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/40">
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                       NFC-e / SEFAZ
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-xs text-slate-400 mt-0.5">
                     Cole o texto do cupom de compras ou da nota fiscal. O NeatEat calibra os preços médios reais dos ingredientes e abastece o estoque da sua geladeira com as quantidades exatas compradas.
                   </p>
                 </div>
@@ -4995,7 +5023,7 @@ export default function App() {
                     setSefazSuccessMsg('');
                   }
                 }}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 transition cursor-pointer shrink-0"
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition cursor-pointer shrink-0 border border-white/10"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -5003,8 +5031,8 @@ export default function App() {
 
             {/* Error / Success Feedback */}
             {sefazError && (
-              <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/40 text-rose-800 dark:text-rose-200 text-xs flex items-start gap-2.5">
-                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-2xl bg-rose-950/50 border border-rose-800/40 text-rose-200 text-xs flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <p className="font-bold">Atenção ao processar cupom fiscal:</p>
                   <p className="leading-relaxed">{sefazError}</p>
@@ -5013,8 +5041,8 @@ export default function App() {
             )}
 
             {sefazSuccessMsg && (
-              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-600/40 text-emerald-900 dark:text-emerald-200 text-sm font-bold flex items-center gap-3 animate-fade-in shadow-xs">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              <div className="p-4 rounded-2xl bg-emerald-950/50 border border-emerald-500/40 text-emerald-200 text-sm font-bold flex items-center gap-3 animate-fade-in shadow-xs">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                 <span>{sefazSuccessMsg}</span>
               </div>
             )}
@@ -5024,14 +5052,14 @@ export default function App() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <label className="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    <label className="text-xs font-extrabold uppercase tracking-wider text-slate-300">
                       Cole o texto da nota fiscal ou cupom de compras:
                     </label>
                     <div className="flex items-center gap-1.5">
                       <button
                         type="button"
                         onClick={handlePasteClipboard}
-                        className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 border border-emerald-300/60 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition shadow-2xs"
+                        className="px-2.5 py-1 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition shadow-2xs"
                       >
                         <Copy className="w-3 h-3" />
                         <span>Colar da Área de Transferência</span>
@@ -5040,7 +5068,7 @@ export default function App() {
                         <button
                           type="button"
                           onClick={() => setSefazText('')}
-                          className="px-2 py-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-[11px] font-bold cursor-pointer"
+                          className="px-2 py-1 rounded-lg text-slate-400 hover:text-slate-200 text-[11px] font-bold cursor-pointer"
                         >
                           Limpar
                         </button>
@@ -5053,9 +5081,9 @@ export default function App() {
                     placeholder={`Cole aqui o texto copiado da tela da SEFAZ, do cupom fiscal ou da sua compra no mercado.\n\nExemplo:\nARROZ CAMIL 1KG 2 UN 5,89 11,78\nPEITO DE FRANGO 1.45 KG 21,90 31,75\nTOMATE 1KG 8,90\nOVOS 30UN 24,00`}
                     value={sefazText}
                     onChange={(e) => setSefazText(e.target.value)}
-                    className="w-full rounded-2xl border border-slate-300 dark:border-white/15 p-4 text-xs font-mono leading-relaxed focus:outline-none focus:border-emerald-500 shadow-inner"
+                    className="w-full rounded-2xl bg-slate-950/80 border border-white/10 p-4 text-xs font-mono text-white placeholder:text-slate-500 leading-relaxed focus:outline-none focus:border-emerald-500 shadow-inner"
                   />
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
                     💡 <strong>O que acontece ao processar:</strong> O NeatEat abastece sua <strong>Geladeira</strong> com as quantidades reais de alimentos comprados e atualiza a <strong>calibragem dos preços médios reais</strong> dos insumos para calcular com precisão o custo das suas refeições.
                   </p>
                 </div>
@@ -5064,7 +5092,7 @@ export default function App() {
                   type="button"
                   disabled={!sefazText.trim() || sefazLoading}
                   onClick={() => handleParseSefaz(false)}
-                  className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md transition"
+                  className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-emerald-600/30 transition"
                 >
                   {sefazLoading ? (
                     <>
@@ -5098,29 +5126,29 @@ export default function App() {
             {sefazInvoice && sefazInvoice.items && sefazInvoice.items.length > 0 && (
               <div className="space-y-5">
                 {/* Supermarket Banner */}
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="p-4 rounded-2xl bg-slate-950/50 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
+                      <h3 className="font-extrabold text-base text-white">
                         {sefazInvoice.supermarket}
                       </h3>
                       {sefazInvoice.isDemo && (
-                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300/40">
+                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-950/60 text-amber-300 border border-amber-500/30">
                           Demonstração
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      Data da compra: <strong>{sefazInvoice.purchaseDate}</strong> • Total pago: <strong className="text-emerald-600 dark:text-emerald-400">{formatBRL(sefazInvoice.totalValue)}</strong>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Data da compra: <strong>{sefazInvoice.purchaseDate}</strong> • Total pago: <strong className="text-emerald-400">{formatBRL(sefazInvoice.totalValue)}</strong>
                     </p>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-xs font-bold border border-emerald-300/40">
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-950/60 text-emerald-300 text-xs font-bold border border-emerald-500/30">
                       🥬 {sefazInvoice.foodItemsCount} Alimentos
                     </span>
                     {sefazInvoice.itemsCount > sefazInvoice.foodItemsCount && (
-                      <span className="px-2.5 py-1 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold">
+                      <span className="px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-bold border border-white/10">
                         🧴 {sefazInvoice.itemsCount - sefazInvoice.foodItemsCount} Outros
                       </span>
                     )}
@@ -5131,7 +5159,7 @@ export default function App() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between px-1">
                     <div className="flex items-center gap-2">
-                      <label className="text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer">
+                      <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={sefazInvoice.items.filter((i) => !i.isNonFood).every((i) => i.stockInFridge)}
@@ -5146,16 +5174,16 @@ export default function App() {
                     </span>
                   </div>
 
-                  <div className="border border-slate-200/80 dark:border-white/10 rounded-2xl overflow-hidden divide-y divide-slate-100 dark:divide-white/5 max-h-[44vh] overflow-y-auto">
+                  <div className="border border-white/10 rounded-2xl overflow-hidden divide-y divide-white/5 max-h-[44vh] overflow-y-auto">
                     {sefazInvoice.items.map((item, idx) => (
                       <div
                         key={idx}
                         className={`p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition ${
                           item.isNonFood
-                            ? 'bg-slate-50/40 dark:bg-slate-900/40 opacity-70'
+                            ? 'bg-slate-950/40 opacity-60'
                             : item.stockInFridge
-                            ? 'bg-white dark:bg-slate-800/40'
-                            : 'bg-slate-50/70 dark:bg-slate-900/60'
+                            ? 'bg-slate-800/40'
+                            : 'bg-slate-950/60'
                         }`}
                       >
                         <div className="flex items-center gap-3 min-w-0">
@@ -5169,26 +5197,26 @@ export default function App() {
 
                           <div className="min-w-0 space-y-0.5">
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
+                              <span className="text-sm font-bold text-slate-100 truncate">
                                 {item.rawName}
                               </span>
                               {item.isNonFood && (
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-white/10">
                                   Não Alimentício
                                 </span>
                               )}
                             </div>
 
                             <div className="flex flex-wrap items-center gap-2 text-xs">
-                              <span className="text-emerald-700 dark:text-emerald-300 font-semibold flex items-center gap-1">
+                              <span className="text-emerald-300 font-semibold flex items-center gap-1">
                                 <span>↳ {item.matchedName}</span>
                               </span>
-                              <span className="text-slate-400">•</span>
-                              <span className="text-slate-500 dark:text-slate-400 font-medium">
+                              <span className="text-slate-500">•</span>
+                              <span className="text-slate-400 font-medium">
                                 {item.quantity} {item.unit}
                               </span>
-                              <span className="text-slate-400">•</span>
-                              <span className="text-slate-500 dark:text-slate-400">
+                              <span className="text-slate-500">•</span>
+                              <span className="text-slate-400">
                                 {formatBRL(item.unitPrice)} / {item.unit}
                               </span>
                             </div>
@@ -5196,7 +5224,7 @@ export default function App() {
                         </div>
 
                         <div className="flex sm:flex-col items-end justify-between sm:justify-center gap-1 shrink-0 text-right">
-                          <span className="text-sm font-black text-slate-900 dark:text-white">
+                          <span className="text-sm font-black text-white">
                             {formatBRL(item.totalPrice)}
                           </span>
 
@@ -5204,20 +5232,20 @@ export default function App() {
                             <span
                               className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-0.5 ${
                                 item.priceVariationPct < 0
-                                  ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
+                                  ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30'
                                   : item.priceVariationPct > 0
-                                  ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300'
-                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                  ? 'bg-rose-950/60 text-rose-300 border border-rose-500/30'
+                                  : 'bg-slate-800 text-slate-400 border border-white/10'
                               }`}
                             >
                               {item.priceVariationPct < 0 ? (
                                 <>
-                                  <TrendingDown className="w-3 h-3 text-emerald-600" />
+                                  <TrendingDown className="w-3 h-3 text-emerald-400" />
                                   <span>{item.priceVariationPct}% mais barato</span>
                                 </>
                               ) : item.priceVariationPct > 0 ? (
                                 <>
-                                  <TrendingUp className="w-3 h-3 text-rose-600" />
+                                  <TrendingUp className="w-3 h-3 text-rose-400" />
                                   <span>+{item.priceVariationPct}%</span>
                                 </>
                               ) : (
@@ -5233,32 +5261,32 @@ export default function App() {
 
                 {/* Summary & Impact Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="p-3 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-500/20 text-xs space-y-1">
-                    <span className="font-extrabold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
-                      <Refrigerator className="w-4 h-4 text-emerald-600" />
+                  <div className="p-3 rounded-2xl bg-emerald-950/30 border border-emerald-500/20 text-xs space-y-1">
+                    <span className="font-extrabold text-emerald-300 flex items-center gap-1.5">
+                      <Refrigerator className="w-4 h-4 text-emerald-400" />
                       <span>Geladeira & Despensa</span>
                     </span>
-                    <p className="text-slate-600 dark:text-slate-300">
+                    <p className="text-slate-300">
                       <strong>{sefazInvoice.items.filter((i) => i.stockInFridge).length} itens</strong> entrarão no seu estoque com quantidade real.
                     </p>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-sky-50/70 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-500/20 text-xs space-y-1">
-                    <span className="font-extrabold text-sky-900 dark:text-sky-300 flex items-center gap-1.5">
-                      <Scale className="w-4 h-4 text-sky-600" />
+                  <div className="p-3 rounded-2xl bg-sky-950/30 border border-sky-500/20 text-xs space-y-1">
+                    <span className="font-extrabold text-sky-300 flex items-center gap-1.5">
+                      <Scale className="w-4 h-4 text-sky-400" />
                       <span>Fichas Técnicas</span>
                     </span>
-                    <p className="text-slate-600 dark:text-slate-300">
+                    <p className="text-slate-300">
                       <strong>{sefazInvoice.foodItemsCount} insumos</strong> calibrarão os custos por porção das suas receitas.
                     </p>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-500/20 text-xs space-y-1">
-                    <span className="font-extrabold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
-                      <ShoppingCart className="w-4 h-4 text-amber-600" />
+                  <div className="p-3 rounded-2xl bg-amber-950/30 border border-amber-500/20 text-xs space-y-1">
+                    <span className="font-extrabold text-amber-300 flex items-center gap-1.5">
+                      <ShoppingCart className="w-4 h-4 text-amber-400" />
                       <span>Lista da Semana</span>
                     </span>
-                    <p className="text-slate-600 dark:text-slate-300">
+                    <p className="text-slate-300">
                       Baixa automática no carrinho dos itens comprados.
                     </p>
                   </div>
@@ -5273,7 +5301,7 @@ export default function App() {
                       setSefazInvoice(null);
                       setSefazError('');
                     }}
-                    className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold cursor-pointer transition"
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold cursor-pointer transition border border-white/10"
                   >
                     <span>← Voltar ou Outra Nota</span>
                   </button>
