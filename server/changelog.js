@@ -1,6 +1,19 @@
-export const CURRENT_VERSION = '4.0.0';
+export const CURRENT_VERSION = '4.0.1';
 
 export const RELEASE_NOTES = [
+  {
+    version: '4.0.1',
+    date: '03/11/2026',
+    title: 'NeatEat Brasil 4.0.1 — Redesenho Ergonômico da Central de Ingredientes & Estoque Amplo',
+    summary:
+      'Aprimoramento ergonômico da Central de Ingredientes: o estoque de alimentos ganha destaque na área ampla da tela sem truncamento de nomes e com busca integrada, as sugestões da IA passam a ser exibidas de forma discreta e elegante na coluna lateral e os botões rápidos redundantes foram removidos para uma interface mais limpa.',
+    items: [
+      '🥫 Estoque Principal Amplo e Sem Truncamento: exibição dos insumos na área principal com largura total para acomodar nomes completos (ex: "Carne moída (patinho ou acém)", "Azeite de oliva"), selos de categoria e botões de ajuste de quantidade sem quebras visuais.',
+      '🔍 Busca Rápida no Estoque de Casa: filtro instantâneo por texto para localizar alimentos cadastrados em segundos quando o estoque tiver múltiplos itens.',
+      '✨ Sugestões da IA Mais Discretas: lista compacta e elegante das receitas compatíveis com seu estoque posicionada na lateral, com selo percentual de match e atalho rápido para o Modo Cozinhar.',
+      '🧹 Layout Mais Limpo: remoção dos chips de toque rápido redundantes para focar na entrada precisa de insumos com quantidades numéricas e unidades.'
+    ]
+  },
   {
     version: '4.0.0',
     date: '03/11/2026',
