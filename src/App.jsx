@@ -1558,6 +1558,53 @@ export default function App() {
       .sort((a, b) => b.matchPct - a.matchPct || a.missingCost - b.missingCost);
   }, [data]);
 
+  const aisleCounts = useMemo(() => {
+    const list = data?.marketPrices || [];
+    const counts = { Todos: list.length };
+    for (const item of list) {
+      const a = item.aisle || 'Mercearia';
+      counts[a] = (counts[a] || 0) + 1;
+    }
+    return counts;
+  }, [data?.marketPrices]);
+
+  const calibratedCount = useMemo(() => {
+    const list = data?.marketPrices || [];
+    return list.filter((p) => (p.sample_count || 0) > 0).length;
+  }, [data?.marketPrices]);
+
+  const filteredMarketPrices = useMemo(() => {
+    const list = data?.marketPrices || [];
+    const q = priceSearchQuery.trim().toLowerCase();
+    const filtered = list.filter((item) => {
+      const name = String(item.name || item.display_name || '').toLowerCase();
+      const key = String(item.key || item.ingredient_key || '').toLowerCase();
+      const aisle = item.aisle || '';
+      const matchQuery = !q || name.includes(q) || key.includes(q);
+      const matchAisle = priceFilterAisle === 'Todos' || aisle === priceFilterAisle;
+      return matchQuery && matchAisle;
+    });
+
+    const sorted = [...filtered];
+    if (priceSortOrder === 'name_asc') {
+      sorted.sort((a, b) => String(a.name || a.display_name || '').localeCompare(String(b.name || b.display_name || ''), 'pt-BR'));
+    } else if (priceSortOrder === 'price_desc') {
+      sorted.sort((a, b) => (Number(b.price || b.avg_unit_price) || 0) - (Number(a.price || a.avg_unit_price) || 0));
+    } else if (priceSortOrder === 'price_asc') {
+      sorted.sort((a, b) => (Number(a.price || a.avg_unit_price) || 0) - (Number(b.price || b.avg_unit_price) || 0));
+    } else if (priceSortOrder === 'calibrated') {
+      sorted.sort((a, b) => (b.sample_count || 0) - (a.sample_count || 0));
+    } else {
+      sorted.sort((a, b) => {
+        const aisleDiff = String(a.aisle || '').localeCompare(String(b.aisle || ''), 'pt-BR');
+        if (aisleDiff !== 0) return aisleDiff;
+        return String(a.name || a.display_name || '').localeCompare(String(b.name || b.display_name || ''), 'pt-BR');
+      });
+    }
+
+    return sorted;
+  }, [data?.marketPrices, priceSearchQuery, priceFilterAisle, priceSortOrder]);
+
   if (loading && !data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -1587,49 +1634,6 @@ export default function App() {
     groceryHistory = [],
     tasteProfile = null,
   } = data;
-
-  const aisleCounts = useMemo(() => {
-    const counts = { Todos: marketPrices.length };
-    for (const item of marketPrices) {
-      const a = item.aisle || 'Mercearia';
-      counts[a] = (counts[a] || 0) + 1;
-    }
-    return counts;
-  }, [marketPrices]);
-
-  const calibratedCount = useMemo(() => {
-    return marketPrices.filter((p) => (p.sample_count || 0) > 0).length;
-  }, [marketPrices]);
-
-  const filteredMarketPrices = useMemo(() => {
-    const q = priceSearchQuery.trim().toLowerCase();
-    const list = marketPrices.filter((item) => {
-      const name = String(item.name || item.display_name || '').toLowerCase();
-      const key = String(item.key || item.ingredient_key || '').toLowerCase();
-      const aisle = item.aisle || '';
-      const matchQuery = !q || name.includes(q) || key.includes(q);
-      const matchAisle = priceFilterAisle === 'Todos' || aisle === priceFilterAisle;
-      return matchQuery && matchAisle;
-    });
-
-    if (priceSortOrder === 'name_asc') {
-      list.sort((a, b) => String(a.name || a.display_name || '').localeCompare(String(b.name || b.display_name || ''), 'pt-BR'));
-    } else if (priceSortOrder === 'price_desc') {
-      list.sort((a, b) => (Number(b.price || b.avg_unit_price) || 0) - (Number(a.price || a.avg_unit_price) || 0));
-    } else if (priceSortOrder === 'price_asc') {
-      list.sort((a, b) => (Number(a.price || a.avg_unit_price) || 0) - (Number(b.price || b.avg_unit_price) || 0));
-    } else if (priceSortOrder === 'calibrated') {
-      list.sort((a, b) => (b.sample_count || 0) - (a.sample_count || 0));
-    } else {
-      list.sort((a, b) => {
-        const aisleDiff = String(a.aisle || '').localeCompare(String(b.aisle || ''), 'pt-BR');
-        if (aisleDiff !== 0) return aisleDiff;
-        return String(a.name || a.display_name || '').localeCompare(String(b.name || b.display_name || ''), 'pt-BR');
-      });
-    }
-
-    return list;
-  }, [marketPrices, priceSearchQuery, priceFilterAisle, priceSortOrder]);
 
   const isOverBudget = totals.netToBuyTotal > user.weekly_budget;
   const budgetPct = Math.min(100, Math.round((totals.netToBuyTotal / Math.max(1, user.weekly_budget)) * 100));

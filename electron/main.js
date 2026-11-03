@@ -104,6 +104,14 @@ async function createWindow() {
     },
   });
 
+  if (!app.isPackaged) {
+    mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
+      if (level >= 2) {
+        console.error(`[Renderer Error] ${message} (${sourceId}:${line})`);
+      }
+    });
+  }
+
   await mainWindow.loadURL(`http://127.0.0.1:${serverPort}/?token=${sessionToken}`);
 
   // Bloqueia tentativas de navegação da janela principal para domínios remotos (Anti-Phishing/XSS)
