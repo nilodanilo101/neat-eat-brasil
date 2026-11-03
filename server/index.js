@@ -20,7 +20,7 @@ import {
   stockFridgeFromInvoice,
 } from './db.js';
 import { CURRENT_VERSION, RELEASE_NOTES } from './changelog.js';
-import { CACHE_DIR } from './imageCache.js';
+import { CACHE_DIR, cacheRecipeImage } from './imageCache.js';
 import { renderMobileShoppingPageHtml } from './mobileShoppingHtml.js';
 import { parseSefazUrl, parseSefazHtml, parseSefazText, getDemoSefazInvoice } from './sefazParser.js';
 import { CANONICAL_INGREDIENTS, computeCulinaryPortionCost } from './ingredientMatcher.js';
@@ -382,7 +382,8 @@ export async function startServer(options = {}) {
     );
 
     // Validação de Token Secreto de Sessão em rotas /api/* (Anti-CSRF / Navegadores Externos)
-    if (sessionToken && req.path.startsWith('/api')) {
+    // Permite carregamento de tags <img> estáticas e proxy de mídia
+    if (sessionToken && req.path.startsWith('/api') && req.path !== '/api/image-proxy') {
       const clientToken = req.headers['x-neateat-token'] || req.query.token;
       if (clientToken !== sessionToken) {
         return res.status(403).json({
@@ -431,7 +432,7 @@ export async function startServer(options = {}) {
   app.get('/api/image-proxy', async (req, res) => {
     const targetUrl = String(req.query.url || '').trim();
     if (!targetUrl || isPrivateOrBlockedUrl(targetUrl)) {
-      return res.redirect('/dishes/rec-5.jpg');
+      return res.status(404).end();
     }
     try {
       const urlObj = new URL(targetUrl);
@@ -444,19 +445,19 @@ export async function startServer(options = {}) {
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
-      const upstream = await fetch(targetUrl, { headers, signal: controller.signal });
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const upstream = await fetch(targetUrl, { headers, signal: controller.signal, redirect: 'follow' });
       clearTimeout(timeoutId);
 
       if (!upstream.ok) {
-        return res.redirect('/dishes/rec-5.jpg');
+        return res.status(404).end();
       }
 
       const contentType = (upstream.headers.get('content-type') || '').toLowerCase();
       const allowedImageMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif'];
       const isValidImage = allowedImageMimes.some((m) => contentType.includes(m));
       if (!isValidImage) {
-        return res.redirect('/dishes/rec-5.jpg');
+        return res.status(404).end();
       }
 
       const buf = Buffer.from(await upstream.arrayBuffer());
@@ -465,7 +466,7 @@ export async function startServer(options = {}) {
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.send(buf);
     } catch {
-      res.redirect('/dishes/rec-5.jpg');
+      res.status(404).end();
     }
   });
 
@@ -1008,10 +1009,8 @@ export async function startServer(options = {}) {
       finalImage
     );
 
-    const finalTags = Array.isArray(tags) ? [...tags] : ['Econômico'];
-    if (!finalTags.includes('Passo a Passo com Fotos')) {
-      finalTags.push('Passo a Passo com Fotos');
-    }
+    const finalTags = (Array.isArray(tags) ? [...tags] : ['Econômico'])
+      .filter((t) => t !== 'Passo a Passo com Fotos');
 
     db.prepare(`
       INSERT INTO recipes (
@@ -1106,10 +1105,8 @@ export async function startServer(options = {}) {
       finalImage
     );
 
-    const finalTags = Array.isArray(tags) ? [...tags] : JSON.parse(existing.tags_json);
-    if (!finalTags.includes('Passo a Passo com Fotos')) {
-      finalTags.push('Passo a Passo com Fotos');
-    }
+    const finalTags = (Array.isArray(tags) ? [...tags] : JSON.parse(existing.tags_json))
+      .filter((t) => t !== 'Passo a Passo com Fotos');
 
     db.prepare(`
       UPDATE recipes
@@ -1235,11 +1232,11 @@ export async function startServer(options = {}) {
     let finalCategory = category;
     let prepTime = 25;
     let servings = 2;
-    let tags = ['Econômico', 'Rápido', 'Importada', 'Passo a Passo com Fotos'];
+    let tags = ['Econômico', 'Rápido', 'Importada'];
     let platingInstructions = '';
     let specificInstructions = '';
 
-    // 1. EXTRAÇÃO GASTRONÔMICA ESTRUTURADA VIA SCHEMA.ORG JSON-LD E DOM SEMÂNTICO
+    // 1. EXTRAÇÃO GASTRONÔMICA ESTRUTURADA VIA SCHEMA.ORG JSON-LD E DOM SEMÂNTICO (RECEITERIA)
     let webScraped = null;
     if (pageHtml) {
       try {
@@ -1254,20 +1251,7 @@ export async function startServer(options = {}) {
           }
           if (Array.isArray(webScraped.rawSteps) && webScraped.rawSteps.length > 0) {
             importSteps = webScraped.rawSteps.map((s) => s.text);
-            providedStepDetails = webScraped.rawSteps.map((s, idx) => ({
-              stepNumber: idx + 1,
-              section: s.section || 'Preparo da Receita',
-              text: s.text,
-              image: s.image
-                ? (s.image.startsWith('/api') || s.image.startsWith('/dishes')
-                    ? s.image
-                    : `/api/image-proxy?url=${encodeURIComponent(s.image)}`)
-                : null,
-              alt: `Passo ${idx + 1}: ${s.text.slice(0, 50)}...`,
-              tip: 'Acompanhe com atenção o tempo e ponto culinário indicado.',
-              isKeyFrame: !!s.image,
-              timerSeconds: extractStepTimerSeconds(s.text),
-            }));
+            providedStepDetails = webScraped.rawSteps;
           }
         }
       } catch (err) {
@@ -1380,13 +1364,16 @@ export async function startServer(options = {}) {
       ];
     }
 
-    // 3. CALIBRAÇÃO INTELIGENTE DE CUSTOS VIA PREÇOS DE MERCADO
+    // 3. CALIBRAÇÃO INTELIGENTE DE CUSTOS VIA PREÇOS DE MERCADO (ÁGUA = R$ 0,00)
     const currentMarketPrices = getMarketPrices();
     const marketMap = new Map(currentMarketPrices.map((mp) => [mp.ingredient_key, mp]));
-    const ingredients = rawIngs.map((ing) => ({
-      ...ing,
-      basePrice: computeCulinaryPortionCost(ing.name, ing.amount, ing.unit, marketMap),
-    }));
+    const ingredients = rawIngs.map((ing) => {
+      const isWater = ing.isWater || ing.name.toLowerCase() === 'água' || ing.name.toLowerCase() === 'agua';
+      return {
+        ...ing,
+        basePrice: isWater ? 0 : computeCulinaryPortionCost(ing.name, ing.amount, ing.unit, marketMap),
+      };
+    });
 
     // 4. CÁLCULO NUTRICIONAL BRASILEIRO OFICIAL (TACO / TBCA)
     const tacoNutrition = calculateRecipeNutritionTaco(ingredients, servings);
@@ -1395,23 +1382,71 @@ export async function startServer(options = {}) {
     const carbs = tacoNutrition.perServing.carbs || geminiResult?.carbs || 36;
     const fat = tacoNutrition.perServing.fat || geminiResult?.fat || 14;
 
-    const cleanTitle = title.length > 65 ? title.slice(0, 62) + '...' : title;
-    const exactPhotos = await searchExactDishPhotos(cleanTitle, ingredients);
-    const finalHero = heroImage
-      ? (heroImage.startsWith('/api') || heroImage.startsWith('/dishes') ? heroImage : `/api/image-proxy?url=${encodeURIComponent(heroImage)}`)
-      : exactPhotos[0];
-    const totalWeightGrams = ingredients.reduce((s, i) => s + (Number(i.amount) || 0), 0);
-    const portionWeight = geminiResult?.portionWeight || `${Math.max(180, Math.round(totalWeightGrams / servings))}g por porção`;
-
+    const cleanTitle = title.split(/[-|–]/)[0].trim().slice(0, 65);
     const id = 'rec-custom-' + Date.now();
 
-    const finalStepDetails = await ensureRecipeStepDetails(
-      cleanTitle,
-      importSteps,
-      ingredients,
-      providedStepDetails,
-      finalHero
-    );
+    // 5. BAIXA E SALVA IMAGEM HERO EM CACHE LOCAL (100% OFFLINE E IMUNE A BLOQUEIOS)
+    let finalHero = null;
+    if (heroImage) {
+      finalHero = await cacheRecipeImage(heroImage, `${id}-hero`);
+    }
+    if (!finalHero) {
+      const exactPhotos = await searchExactDishPhotos(cleanTitle, ingredients);
+      finalHero = exactPhotos[0] || resolveAccurateDishImage(id, cleanTitle, heroImage);
+    }
+
+    // 6. PROCESSA E BAIXA FOTOS REAIS DO PASSO A PASSO
+    const hasScrapedStepPhotos = providedStepDetails.some((s) => s?.image && typeof s.image === 'string' && s.image.length > 5);
+    let finalStepDetails = [];
+
+    if (hasScrapedStepPhotos) {
+      // Usa as fotos originais reais de cada passo extraídas da fonte (ex: Receiteria)
+      for (let idx = 0; idx < importSteps.length; idx++) {
+        const stepText = importSteps[idx];
+        const origStep = providedStepDetails[idx];
+        let stepImg = null;
+
+        if (origStep?.image) {
+          stepImg = await cacheRecipeImage(origStep.image, `${id}-step-${idx + 1}`);
+        }
+        if (!stepImg && idx === importSteps.length - 1) {
+          stepImg = finalHero;
+        }
+
+        finalStepDetails.push({
+          stepNumber: idx + 1,
+          section:
+            origStep?.section ||
+            (idx === 0
+              ? 'Mise en Place & Pré-preparo'
+              : idx === importSteps.length - 1
+              ? 'Finalização & Empratamento'
+              : 'Cocção & Ponto Ideal'),
+          text: stepText,
+          image: stepImg,
+          alt: `Passo ${idx + 1}: ${stepText.slice(0, 50)}...`,
+          tip:
+            idx === 0
+              ? 'Pese todos os insumos e organize os utensílios na bancada.'
+              : idx === importSteps.length - 1
+              ? 'Sirva em temperatura ideal com apresentação harmoniosa.'
+              : 'Mantenha controle atento de temperatura para cocção homogênea.',
+          isKeyFrame: true,
+          timerSeconds: extractStepTimerSeconds(stepText),
+        });
+      }
+    } else {
+      finalStepDetails = await ensureRecipeStepDetails(
+        cleanTitle,
+        importSteps,
+        ingredients,
+        providedStepDetails,
+        finalHero
+      );
+    }
+
+    const totalWeightGrams = ingredients.reduce((s, i) => s + (Number(i.amount) || 0), 0);
+    const portionWeight = geminiResult?.portionWeight || `${Math.max(180, Math.round(totalWeightGrams / servings))}g por porção`;
 
     const sections = [
       { name: 'Mise en Place & Pré-preparo', stepRange: [1, 1] },

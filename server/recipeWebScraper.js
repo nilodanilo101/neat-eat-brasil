@@ -53,64 +53,125 @@ export function extractStepTimerSeconds(text = '') {
 }
 
 /**
+ * Limpa o nome do insumo removendo quantidades, frações, unidades e observações
+ */
+export function cleanIngredientName(raw = '') {
+  let str = String(raw || '').trim();
+  // Remove parênteses com observações ou pesos
+  str = str.replace(/\s*\([^)]*\)/g, '').trim();
+  // Remove termos como 'a gosto', 'ou a gosto', 'opcional'
+  str = str.replace(/\b(?:a\s+gosto|ou\s+a\s+gosto|opcional)\b/gi, '').trim();
+  // Remove números e frações iniciais
+  str = str.replace(/^[\d,./]+\s*/, '');
+  // Remove unidades iniciais que possam ter restado
+  str = str.replace(/^(?:colher(?:es)?\s+(?:de\s+)?(?:sopa|ch[aá]|sobremesa|caf[eé])|colher(?:es)?|x[ií]caras?\s*(?:de\s+ch[aá])?|copos?|dentes?|latas?|sach[eê]s?|pacotes?|ma[çc]os?|gramas?|quilos?|\bkg\b|\bg\b|\bml\b|\blitros?\b|\bl\b|unidades?|\bun\b|fatias?|fio|pitadas?)\s*/i, '');
+  // Remove preposições iniciais (de, do, da, dos, das)
+  str = str.replace(/^(?:de\s+|do\s+|da\s+|dos\s+|das\s+)/i, '');
+  str = str.trim();
+  if (str.length > 0) {
+    str = str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  return str;
+}
+
+/**
  * Normaliza e categoriza um ingrediente textual para o formato estruturado do NeatEat
  */
 export function parseIngredientLine(rawLine = '') {
-  let str = String(rawLine).trim();
+  let str = String(rawLine || '').trim();
   if (!str) return null;
 
   // Remove marcações de lista e numeração inicial
   str = str.replace(/^[-•*–—]\s*/, '').replace(/^\d+[\.\)]\s*/, '').trim();
 
-  // Caso 1: "Nome do insumo (1,5 kg)" ou "Molho de tomate (2 sachês)"
-  const parenMatch = str.match(/^(.+?)\s*\(([\d,\.]+)\s*([a-zA-Zçãéíóú\s]+)\)$/i);
+  let name = '';
+  let amount = 1;
+  let unit = 'un';
+
+  // 1. Verifica se há parêntese com peso ou volume métrico específico: ex: (500 gramas), (45 ml), (4 gramas), (240 ml)
+  let parenWeight = null;
+  const parenMatch = str.match(/\(([^)]+)\)/);
   if (parenMatch) {
-    const name = parenMatch[1].trim();
-    const amt = parseFloat(parenMatch[2].replace(',', '.'));
-    const unit = parenMatch[3].trim();
-    return classifyIngredient(name, amt, unit);
+    const inside = parenMatch[1].trim();
+    const parenNumMatch = inside.match(/^([\d,.]+)\s*([a-zA-Zçãéíóú]+)$/i);
+    if (parenNumMatch) {
+      const pAmt = parseFloat(parenNumMatch[1].replace(',', '.'));
+      let u = parenNumMatch[2].toLowerCase();
+      if (u === 'gramas' || u === 'g') u = 'g';
+      else if (u === 'ml') u = 'ml';
+      else if (u === 'kg' || u === 'quilos') u = 'kg';
+      else if (u === 'litros' || u === 'l') u = 'l';
+      parenWeight = { amount: pAmt, unit: u };
+    }
   }
 
-  // Frações brasileiras comuns: 1/2, 1/4, 3/4
+  // 2. Frações culinárias: 1/2, 1/4, 3/4
   const fracMatch = str.match(/^(\d+)\/(\d+)\s*(.*)/);
   if (fracMatch) {
     const val = parseInt(fracMatch[1], 10) / parseInt(fracMatch[2], 10);
     str = `${val} ${fracMatch[3]}`;
   }
 
-  // Caso 2: "1 colher de chá de cominho em pó", "2 dentes de alho", "500 gramas de acém"
-  const measureMatch = str.match(
-    /^([\d,\.]+)\s*(colheres?\s+de\s+sopa|colheres?\s+de\s+ch[aá]|colheres?\s+de\s+sobremesa|colheres?\s+de\s+caf[eé]|x[ií]caras?|copos?|dentes?|latas?|sach[eê]s?|pacotes?|ma[çc]os?|gramas?|quilos?|kg|g|ml|l|unidades?|un|fatias?|fio|pitada)?\s*(?:de\s+|do\s+|da\s+|dos\s+|das\s+)?(.*)/i
-  );
+  // 3. Tenta casamento com unidades explícitas usando colher(?:es)?
+  const unitRegex = /^([\d,.]+)\s*(colher(?:es)?\s+(?:de\s+)?(?:sopa|ch[aá]|sobremesa|caf[eé])|colher(?:es)?|x[ií]caras?\s*(?:de\s+ch[aá])?|copos?|dentes?|latas?|sach[eê]s?|pacotes?|ma[çc]os?|gramas?|quilos?|\bkg\b|\bg\b|\bml\b|\blitros?\b|\bl\b|unidades?|\bun\b|fatias?|fio|pitadas?)\s*(?:de\s+|do\s+|da\s+|dos\s+|das\s+)?(.*)/i;
+  const matchWithUnit = str.match(unitRegex);
 
-  if (measureMatch) {
-    const amt = parseFloat(measureMatch[1].replace(',', '.')) || 1;
-    let unit = measureMatch[2]?.toLowerCase().trim() || 'un';
-    let name = measureMatch[3]?.trim() || str;
+  if (matchWithUnit) {
+    amount = parseFloat(matchWithUnit[1].replace(',', '.')) || 1;
+    const rawUnit = matchWithUnit[2].toLowerCase().trim();
+    if (rawUnit.includes('sopa')) unit = 'colher de sopa';
+    else if (rawUnit.includes('sobremesa')) unit = 'colher de sobremesa';
+    else if (rawUnit.includes('chá') || rawUnit.includes('cha')) unit = 'colher de chá';
+    else if (rawUnit.includes('café') || rawUnit.includes('cafe')) unit = 'colher de café';
+    else if (rawUnit.includes('xícara') || rawUnit.includes('xicara')) unit = 'xícara';
+    else if (rawUnit.includes('grama') || rawUnit === 'g') unit = 'g';
+    else if (rawUnit.includes('quilo') || rawUnit === 'kg') unit = 'kg';
+    else if (rawUnit.includes('dente')) unit = 'dente';
+    else if (rawUnit.includes('fatia')) unit = 'fatia';
+    else if (rawUnit.includes('lata')) unit = 'lata';
+    else if (rawUnit.includes('sachê') || rawUnit.includes('sache')) unit = 'sachê';
+    else if (rawUnit.includes('pacote')) unit = 'pacote';
+    else if (rawUnit.includes('maço') || rawUnit.includes('maco')) unit = 'maço';
+    else if (rawUnit === 'ml') unit = 'ml';
+    else if (rawUnit === 'l' || rawUnit.includes('litro')) unit = 'l';
+    else unit = 'un';
 
-    if (unit.includes('sopa')) unit = 'colher de sopa';
-    else if (unit.includes('chá') || unit.includes('cha')) unit = 'colher de chá';
-    else if (unit.includes('sobremesa')) unit = 'colher de sobremesa';
-    else if (unit.includes('café') || unit.includes('cafe')) unit = 'colher de café';
-    else if (unit.includes('xícara') || unit.includes('xicara')) unit = 'xícara';
-    else if (unit.includes('grama') || unit === 'g') unit = 'g';
-    else if (unit.includes('quilo') || unit === 'kg') unit = 'kg';
-    else if (unit.includes('dente')) unit = 'dente';
-    else if (unit.includes('fatia')) unit = 'fatia';
-
-    return classifyIngredient(name.replace(/\([^)]*\)/g, '').trim(), amt, unit);
+    name = cleanIngredientName(matchWithUnit[3]);
+  } else {
+    // Tenta número sem unidade explícita: ex: "3 cebolas", "2 tomates", "5 batatas"
+    const numOnlyMatch = str.match(/^([\d,.]+)\s*(?:de\s+)?(.*)/i);
+    if (numOnlyMatch) {
+      amount = parseFloat(numOnlyMatch[1].replace(',', '.')) || 1;
+      unit = 'un';
+      name = cleanIngredientName(numOnlyMatch[2]);
+    } else {
+      name = cleanIngredientName(str);
+      if (str.toLowerCase().includes('a gosto')) {
+        unit = 'a gosto';
+        amount = 1;
+      }
+    }
   }
 
-  // Fallback para itens a gosto ou sem número explícito
-  return classifyIngredient(str.replace(/\([^)]*\)/g, '').trim(), 1, 'a gosto');
+  // Se houver especificação métrica mais precisa nos parênteses, aplicamos ao amount e unit
+  if (parenWeight) {
+    amount = parenWeight.amount;
+    unit = parenWeight.unit;
+  }
+
+  name = cleanIngredientName(name);
+
+  // Normalização de nomes e plurais comuns
+  if (name.toLowerCase() === 'batatas') name = 'Batata';
+  if (name.toLowerCase() === 'cebolas') name = 'Cebola';
+  if (name.toLowerCase() === 'tomates') name = 'Tomate';
+  if (name.toLowerCase() === 'dentes de alho') name = 'Alho';
+
+  return classifyIngredient(name, amount, unit);
 }
 
 function classifyIngredient(rawName, amount, unit) {
-  const cleanName = rawName
-    .replace(/^de\s+/i, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-
+  const cleanName = cleanIngredientName(rawName);
   const lower = cleanName.toLowerCase();
   let aisle = 'Mercearia';
 
@@ -152,6 +213,7 @@ function classifyIngredient(rawName, amount, unit) {
     lower.includes('batata') ||
     lower.includes('mandioca') ||
     lower.includes('cheiro-verde') ||
+    lower.includes('salsinha') ||
     lower.includes('cebolinha') ||
     lower.includes('coentro') ||
     lower.includes('couve') ||
@@ -166,20 +228,25 @@ function classifyIngredient(rawName, amount, unit) {
     lower.includes('páprica') ||
     lower.includes('paprica') ||
     lower.includes('orégano') ||
+    lower.includes('chimichurri') ||
     lower.includes('tempero') ||
     lower.includes('canela') ||
     lower.includes('pimenta') ||
+    lower.includes('sal') ||
     lower.includes('louro')
   ) {
     aisle = 'Temperos';
   }
+
+  const isWater = lower === 'água' || lower === 'agua';
 
   return {
     name: cleanName || 'Ingrediente',
     amount: Number(amount) || 1,
     unit: unit || 'un',
     aisle,
-    basePrice: 1.5,
+    isWater,
+    basePrice: isWater ? 0 : 1.5,
   };
 }
 

@@ -2876,7 +2876,7 @@ export const ROBUST_RECIPE_VAULT = [
       "Low Carb",
       "Rápido"
     ],
-    "image": "/dishes/sug-16.jpg",
+    "image": "/dishes/salada-caesar.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
     "portionWeight": "280g por porção",
     "platingInstructions": "Dispor as folhas de alface no fundo do prato, as tiras de frango dourado mornas por cima e lascas de parmesão no topo.",
@@ -3004,7 +3004,7 @@ export const ROBUST_RECIPE_VAULT = [
         "stepNumber": 6,
         "section": "Finalização & Empratamento",
         "text": "Acomode as tiras de frango grelhado mornas sobre a alface, regue com o molho de iogurte e finalize com as lascas de parmesão.",
-        "image": "/dishes/sug-16.jpg",
+        "image": "/dishes/salada-caesar.jpg",
         "alt": "Passo 6: Acomode as tiras de frango grelhado mornas sobre a...",
         "tip": "Verifique o ponto de sal e a temperatura antes do serviço.",
         "isKeyFrame": true,

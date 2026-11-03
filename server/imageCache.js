@@ -90,4 +90,64 @@ export function enforceLruLimit() {
   }
 }
 
+/**
+ * Baixa e armazena permanentemente em cache local uma imagem de receita com nome personalizado.
+ * Garante disponibilidade 100% offline, sem dependência de proxy ou latência de rede.
+ */
+export async function cacheRecipeImage(imageUrl, preferredFilename = '') {
+  if (!imageUrl || typeof imageUrl !== 'string') return null;
+  if (imageUrl.startsWith('/dishes/') || imageUrl.startsWith('/cache/')) return imageUrl;
+
+  try {
+    let cleanUrl = imageUrl.trim();
+    if (cleanUrl.startsWith('/api/image-proxy?url=')) {
+      const parsed = new URL('http://127.0.0.1' + cleanUrl);
+      cleanUrl = decodeURIComponent(parsed.searchParams.get('url') || cleanUrl);
+    }
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) return null;
+
+    let ext = '.jpg';
+    try {
+      const uPath = new URL(cleanUrl).pathname;
+      const parsedExt = path.extname(uPath);
+      if (parsedExt && parsedExt.length <= 5) ext = parsedExt;
+    } catch {}
+
+    const filename = preferredFilename ? `${preferredFilename}${ext}` : `${hashUrl(cleanUrl)}${ext}`;
+    const filePath = path.join(CACHE_DIR, filename);
+
+    if (fs.existsSync(filePath)) {
+      const stat = fs.statSync(filePath);
+      if (stat.size > 1000) {
+        return `/cache/step-images/${filename}`;
+      }
+    }
+
+    const headers = {
+      'User-Agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+    };
+    if (cleanUrl.includes('receiteria')) {
+      headers['Referer'] = 'https://www.receiteria.com.br/';
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+    const res = await fetch(cleanUrl, { headers, signal: controller.signal, redirect: 'follow' });
+    clearTimeout(timeout);
+
+    if (!res.ok) return null;
+    const buffer = Buffer.from(await res.arrayBuffer());
+    if (buffer.length > 500) {
+      fs.writeFileSync(filePath, buffer);
+      enforceLruLimit();
+      return `/cache/step-images/${filename}`;
+    }
+  } catch (err) {
+    console.warn('[ImageCache] Falha ao baixar imagem remota:', err.message);
+  }
+  return null;
+}
+
 export { CACHE_DIR };

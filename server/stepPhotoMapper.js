@@ -432,7 +432,7 @@ export const CANONICAL_DISH_IMAGES = {
   'sug-16': '/dishes/sug-18.jpg',
   'sug-17': '/dishes/rec-10.jpg',
   'sug-18': '/dishes/sug-14.jpg',
-  'sug-19': '/dishes/sug-16.jpg',
+  'sug-19': '/dishes/salada-caesar.jpg',
   'sug-20': '/dishes/hamburguer-fit.jpg',
   'sug-21': '/dishes/panqueca-espinafre.jpg',
   'sug-22': '/dishes/moqueca-banana.jpg',
@@ -471,7 +471,7 @@ export const CANONICAL_DISH_IMAGES = {
 export function resolveAccurateDishImage(id = '', title = '', fallbackImage = '') {
   if (id && CANONICAL_DISH_IMAGES[id]) return CANONICAL_DISH_IMAGES[id];
   const t = (title || '').toLowerCase();
-  if (t.includes('caesar') || t.includes('salada caesar')) return '/dishes/sug-16.jpg';
+  if (t.includes('caesar') || t.includes('salada caesar')) return '/dishes/salada-caesar.jpg';
   if (t.includes('omelete de forno')) return '/dishes/rec-10.jpg';
   if (t.includes('omelete')) return '/dishes/omelete-com-queijo.jpg';
   if (t.includes('sandu') || t.includes('sanduíche')) return '/dishes/sanduiche-frango.jpg';

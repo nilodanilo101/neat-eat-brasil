@@ -437,11 +437,11 @@ export default function App() {
   const [swapSlotTarget, setSwapSlotTarget] = useState(null); // { day, slot }
   const [changelogModalOpen, setChangelogModalOpen] = useState(false);
 
-  // Fallback seguro contra imagens quebradas ou offline
+  // Fallback seguro contra imagens quebradas ou offline (nunca substitui por prato aleatório)
   const handleImgError = (e) => {
     if (e?.currentTarget) {
       e.currentTarget.onerror = null;
-      e.currentTarget.src = '/dishes/rec-5.jpg';
+      e.currentTarget.style.opacity = '0.2';
     }
   };
 
@@ -3480,7 +3480,7 @@ export default function App() {
 
                       <div className="p-4 space-y-2.5">
                         <div className="flex flex-wrap gap-1.5">
-                          {recipe.tags.map((tag) => (
+                          {recipe.tags.filter((t) => t !== 'Passo a Passo com Fotos').map((tag) => (
                             <span
                               key={tag}
                               className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-emerald-950/50 text-emerald-300 border border-emerald-500/30"
@@ -3827,7 +3827,7 @@ export default function App() {
                               <span>{activeSuggestion.fridgeMatch.matchPct}% na geladeira</span>
                             </span>
                           )}
-                          {activeSuggestion.tags.map((tag) => (
+                          {activeSuggestion.tags.filter((t) => t !== 'Passo a Passo com Fotos').map((tag) => (
                             <span
                               key={tag}
                               className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-900/70 border border-white/10 text-slate-200"
@@ -4172,7 +4172,7 @@ export default function App() {
                       <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30">
                         {selectedRecipeModal.category}
                       </span>
-                      {selectedRecipeModal.tags && selectedRecipeModal.tags.map((t, i) => (
+                      {selectedRecipeModal.tags && selectedRecipeModal.tags.filter((t) => t !== 'Passo a Passo com Fotos').map((t, i) => (
                         <span key={i} className="px-2.5 py-0.5 rounded-full bg-slate-950/80 text-slate-400 border border-white/5 text-[10px] font-semibold">
                           {t}
                         </span>

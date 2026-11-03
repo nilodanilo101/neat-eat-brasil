@@ -21,8 +21,7 @@ export const INITIAL_RECIPES = [
       "Rápido",
       "Sem Glúten",
       "Vegetariano",
-      "Econômico",
-      "Passo a Passo com Fotos"
+      "Econômico"
     ],
     "image": "/dishes/rec-1.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -168,8 +167,7 @@ export const INITIAL_RECIPES = [
       "Vegetariano",
       "Econômico",
       "Rápido",
-      "Meal Prep",
-      "Passo a Passo com Fotos"
+      "Meal Prep"
     ],
     "image": "/dishes/rec-2.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -315,8 +313,7 @@ export const INITIAL_RECIPES = [
       "Vegetariano",
       "Econômico",
       "Rápido",
-      "Clássico",
-      "Passo a Passo com Fotos"
+      "Clássico"
     ],
     "image": "/dishes/rec-3.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -478,8 +475,7 @@ export const INITIAL_RECIPES = [
       "Econômico",
       "Regional",
       "Rápido",
-      "Vegetariano",
-      "Passo a Passo com Fotos"
+      "Vegetariano"
     ],
     "image": "/dishes/rec-4.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -643,8 +639,7 @@ export const INITIAL_RECIPES = [
       "Alta Proteína",
       "Equilibrado",
       "Clássico Brasileiro",
-      "Econômico",
-      "Passo a Passo com Fotos"
+      "Econômico"
     ],
     "image": "/dishes/rec-5.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -817,8 +812,7 @@ export const INITIAL_RECIPES = [
       "Alta Proteína",
       "Rico em Fibras",
       "Econômico",
-      "Conforto",
-      "Passo a Passo com Fotos"
+      "Conforto"
     ],
     "image": "/dishes/rec-6.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -981,8 +975,7 @@ export const INITIAL_RECIPES = [
       "Para Família",
       "Sem Glúten",
       "Conforto",
-      "Alta Proteína",
-      "Passo a Passo com Fotos"
+      "Alta Proteína"
     ],
     "image": "/dishes/rec-7.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -1144,8 +1137,7 @@ export const INITIAL_RECIPES = [
       "Vegetariano",
       "Econômico",
       "Sem Glúten",
-      "Conforto",
-      "Passo a Passo com Fotos"
+      "Conforto"
     ],
     "image": "/dishes/rec-8.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -1308,8 +1300,7 @@ export const INITIAL_RECIPES = [
       "Peixes & Frutos do Mar",
       "Leve",
       "Sem Glúten",
-      "Alta Proteína",
-      "Passo a Passo com Fotos"
+      "Alta Proteína"
     ],
     "image": "/dishes/rec-9.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -1464,8 +1455,7 @@ export const INITIAL_RECIPES = [
       "Low Carb",
       "Vegetariano",
       "Rápido",
-      "Econômico",
-      "Passo a Passo com Fotos"
+      "Econômico"
     ],
     "image": "/dishes/rec-10.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -1620,8 +1610,7 @@ export const INITIAL_RECIPES = [
       "Conforto",
       "Sopas & Caldos",
       "Sem Glúten",
-      "Econômico",
-      "Passo a Passo com Fotos"
+      "Econômico"
     ],
     "image": "/dishes/rec-11.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -1768,8 +1757,7 @@ export const INITIAL_RECIPES = [
       "Alta Proteína",
       "Prato Único",
       "Econômico",
-      "Rápido",
-      "Passo a Passo com Fotos"
+      "Rápido"
     ],
     "image": "/dishes/rec-12.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -1924,8 +1912,7 @@ export const INITIAL_RECIPES = [
       "Equilibrado",
       "Bowl Funcional",
       "Colorido",
-      "Alta Proteína",
-      "Passo a Passo com Fotos"
+      "Alta Proteína"
     ],
     "image": "/dishes/rec-13.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -2089,8 +2076,7 @@ export const INITIAL_RECIPES = [
       "Rápido",
       "Sem Glúten",
       "Econômico",
-      "One-Pan",
-      "Passo a Passo com Fotos"
+      "One-Pan"
     ],
     "image": "/dishes/rec-14.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
@@ -2252,8 +2238,7 @@ export const INITIAL_RECIPES = [
       "Para Família",
       "Prato Único",
       "Forno",
-      "Econômico",
-      "Passo a Passo com Fotos"
+      "Econômico"
     ],
     "image": "/dishes/rec-15.jpg",
     "source": "Ficha Técnica NeatEat Brasil",
