@@ -899,7 +899,7 @@ for (const item of VAULT_ITEMS) {
     secret: 'O controle preciso do fogo e o descanso prévio dos insumos garantem textura gastronômica impecável.',
   };
 
-  item.stepDetails = diversifyRecipeStepPhotos(item.steps, [], item.image);
+  item.stepDetails = diversifyRecipeStepPhotos(item.steps, [], item.image, item.id, item.title);
 }
 
 // Algoritmo culinário de similaridade de títulos

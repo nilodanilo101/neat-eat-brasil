@@ -242,7 +242,7 @@ export function runFullCatalogUpgrade(dbPath) {
     }
 
     // Enriquecer stepDetails garantindo fotografias variadas para cada etapa
-    stepDetails = diversifyRecipeStepPhotos(steps, stepDetails, image || '/dishes/rec-5.jpg');
+    stepDetails = diversifyRecipeStepPhotos(steps, stepDetails, image || '/dishes/rec-5.jpg', r.id, title);
 
     db.prepare(`
       UPDATE recipes
@@ -272,7 +272,7 @@ export function runFullCatalogUpgrade(dbPath) {
       }
 
       p.image = resolveAccurateDishImage(p.id, p.title, p.image);
-      p.stepDetails = diversifyRecipeStepPhotos(p.steps, p.stepDetails, p.image);
+      p.stepDetails = diversifyRecipeStepPhotos(p.steps, p.stepDetails, p.image, p.id, p.title);
 
       db.prepare('UPDATE daily_discovered_recipes SET recipe_json = ? WHERE id = ?').run(
         JSON.stringify(p),
@@ -290,7 +290,7 @@ export function runFullCatalogUpgrade(dbPath) {
       if (DETAILED_STEPS_CATALOG[p.id]) p.steps = DETAILED_STEPS_CATALOG[p.id];
 
       p.image = resolveAccurateDishImage(p.id, p.title, p.image);
-      p.stepDetails = diversifyRecipeStepPhotos(p.steps, p.stepDetails, p.image);
+      p.stepDetails = diversifyRecipeStepPhotos(p.steps, p.stepDetails, p.image, p.id, p.title);
 
       db.prepare('UPDATE suggestion_swipes SET recipe_json = ? WHERE id = ?').run(
         JSON.stringify(p),

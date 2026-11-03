@@ -1,0 +1,927 @@
+{
+  "sug-24": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/canja-frango/step-1.webp",
+      "alt": "Ingredientes da canja de galinha simples reunidos na bancada.",
+      "originalText": "Utilizamos um caldo de galinha muito saboroso e fácil de fazer. É possível substituir por caldo de legumes (dê preferência para caldos caseiros e evite os industrializados);"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/canja-frango/step-2.webp",
+      "alt": "Azeite, cebola, alho e alho-poró colocados em uma panela.",
+      "originalText": "Em uma panela, em fogo médio, coloque o azeite e refogue a cebola cortada em cubos médios e o alho-poró fatiado bem fininho até murcharem. Acrescente o alho picadinho e refogue por mais 1 minuto, ou até ficar douradinho;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/canja-frango/step-3.webp",
+      "alt": "Frango adicionado na mesma panela e sendo refogado com a cebola.",
+      "originalText": "Corte o frango em cubos médios - tente deixá-los mais ou menos do mesmo tamanho para a canja ficar uniforme. Despeje os cubos na panela, misture bem, tempere com sal a gosto e espere fritar até dourar, cerca de 3 minutos em fogo médio;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/canja-frango/step-4.webp",
+      "alt": "Tomates adicionados na mistura de cebola e alhos.",
+      "originalText": "Junte o tomate picadinho (se quiser, pode tirar a semente e a pele para não ficarem pedacinhos aparecendo na canja) ao frango, misture bem e continue refogando por 2 minutos, ou até o tomate murchar;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/canja-frango/step-5.webp",
+      "alt": "Mistura de frango retirado da panela e colocado em um prato verde.",
+      "originalText": "Desligue o fogo, coloque o refogado em um prato e espere esfriar. Com um garfo, desfie grosseiramente os cubinhos de frango, deixando alguns pedações maiores para dar textura à canja;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/canja-frango/step-6.webp",
+      "alt": "Panela com caldo de frango e batatas.",
+      "originalText": "Volte o frango desfiado para a panela. Acrescente o caldo de galinha (pode ser gelado ou quente) e as batatas picadas em cubinhos médios, tampe a panela e cozinhe em fogo alto até o caldo começar a ferver;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/canja-frango/step-7.webp",
+      "alt": "Arroz cru sendo adicionado na panela de canja de galinha simples.",
+      "originalText": "Assim que o caldo levantar fervura, despeje o arroz, acerte o sal e abaixe o fogo (se quiser, adicione outros temperos de sua preferência, como pimenta-do-reino e folha de louro). Deixe cozinhar por 20 minutos, ou até o arroz ficar bem macio;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/canja-frango/step-8.webp",
+      "alt": "Canja de galinha quase pronta em uma panela.",
+      "originalText": "Experimente, acerte o sal, desligue o fogo e finalize com cheiro-verde;"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/canja-frango/step-9.webp",
+      "alt": "Canja de galinha simples finalizada.",
+      "originalText": "Está prontinha! Pode colocar um fio de azeite por cima. Sirva em uma caçarola bem bonita. A canja de galinha é um prato perfeito para compartilhar e comer junto."
+    }
+  ],
+  "sug-9": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/frango-xadrez/step-1.webp",
+      "alt": "Todos os ingredientes do frango xadrez reunidos.",
+      "originalText": "Reúna todos os ingredientes;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/frango-xadrez/step-2.webp",
+      "alt": "Frango e legumes cortados em pedaços.",
+      "originalText": "Corte os legumes e o frango em pedaços médios;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/frango-xadrez/step-3.webp",
+      "alt": "Panela com água e cenoura.",
+      "originalText": "Em uma panela com água fervendo, coloque a cenoura para cozinhar primeiro;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/frango-xadrez/step-4.webp",
+      "alt": "Frango grelhado em uma panela.",
+      "originalText": "Enquanto isso, grelhe o frango com um pouco de sal e páprica em outra panela;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/frango-xadrez/step-5.webp",
+      "alt": "Pimentão e cebola adicionados na panela com o frango grelhado.",
+      "originalText": "Assim que os cubos de frango estiverem grelhados, adicione o pimentão e a cebola. Deixe refogar um pouco;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/frango-xadrez/step-6.webp",
+      "alt": "Brócolis e abobrinha adicionados na mesma panela.",
+      "originalText": "Quando estiverem macios, acrescente o brócolis e a abobrinha. Misture e refogue mais um pouco;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/frango-xadrez/step-7.webp",
+      "alt": "Cenoura adicionada na panela com os demais ingredientes.",
+      "originalText": "Escorra a cenoura e junte com o frango e o restante dos ingredientes na panela. Misture bem;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/frango-xadrez/step-8.webp",
+      "alt": "Shoyu, água e amido de milho misturados no copo com uma colher.",
+      "originalText": "Em um recipiente, misture o shoyu, a água e o amido de milho;"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/frango-xadrez/step-9.webp",
+      "alt": "Mistura adicionada na panela com o frango e legumes refogados.",
+      "originalText": "Para finalizar, jogue essa misturinha na panela com o frango e os legumes. Misture até incorporar bem e, se necessário, acerte o sal;"
+    },
+    {
+      "stepNumber": 10,
+      "image": "/dishes/steps/frango-xadrez/step-10.webp",
+      "alt": "Frango xadrez simples e light finalizado.",
+      "originalText": "Agora é só servir. Bom apetite!"
+    }
+  ],
+  "sug-19": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/salada-caesar/step-1.webp",
+      "alt": "Ingredientes organizados na bancada antes do preparo da salada.",
+      "originalText": "Organize todos os ingredientes na bancada. Lave as folhas de alface em água corrente, escorra bem e rasgue-as com as mãos em pedaços médios. Pique as anchovas em pedaços pequenos e em seguida, rale o alho em um ralador de malha fina;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/salada-caesar/step-2.webp",
+      "alt": "Folhas de alface romana e americana sendo rasgadas com as mãos.",
+      "originalText": "Coloque as folhas em uma tigela grande, formando um mix caprichado e reserve;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/salada-caesar/step-3.webp",
+      "alt": "Gemas sendo batidas com fouet em um recipiente.",
+      "originalText": "Em um recipiente, adicione as gemas e uma pitada de sal. Bata com o auxílio de um fouet (batedor de arame) até obter uma mistura homogênea;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/salada-caesar/step-4.webp",
+      "alt": "Ingredientes do molho sendo adicionados às gemas.",
+      "originalText": "Acrescente o alho ralado, a mostarda, as anchovas picadas, as raspas e o suco de limão, o azeite, o vinagre, o queijo parmesão ralado e a pimenta-do-reino;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/salada-caesar/step-5.webp",
+      "alt": "Molho sendo batido até ficar cremoso e emulsionado.",
+      "originalText": "Bata bem por aproximadamente 5 minutos, até formar um molho cremoso e emulsionado;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/salada-caesar/step-6.webp",
+      "alt": "Mix de folhas sendo colocado em uma tigela grande.",
+      "originalText": "Regue o mix de folhas com uma concha do molho e misture delicadamente para envolver tudo. Acrescente os croutons e finalize com parmesão ralado por cima;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/salada-caesar/step-7.webp",
+      "alt": "Salada caesar tradicional servida.",
+      "originalText": "Prontinho! Agora é só servir."
+    }
+  ],
+  "sug-10": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/carne-panela/step-1.webp",
+      "alt": "Uma bancada com os ingredientes da receita.",
+      "originalText": "Descasque a cebola e corte-a em meias-luas. Descasque os dentes de alho e triture-os. Corte a mandioca em pedaços médios. Reúna todos os ingredientes para agilizar o passo a passo;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/carne-panela/step-2.webp",
+      "alt": "Uma panela de pressão com a carne a cozinhar.",
+      "originalText": "Numa panela de pressão grande, no fogo alto, aqueça o azeite e coloque os cubos de carne para fritar. Tempere com sal, pimenta-do-reino, colorau e páprica, misturando bem. Doure a carne de todos os lados, mexendo às vezes para não soltar tanto líquido;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/carne-panela/step-3.webp",
+      "alt": "Uma panela com a carne, molho inglês, extrato de tomate e temperos.",
+      "originalText": "Quando a carne estiver douradinha, adicione a cebola, o alho, o molho inglês e o extrato de tomate. Misture bem e refogue até a cebola começar a dourar;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/carne-panela/step-4.webp",
+      "alt": "Carne e molho formado na panela de pressão.",
+      "originalText": "Depois, acrescente o molho de tomate e a água quente até cobrir a carne. Misture bem, tampe a panela e cozinhe por 20 minutos após pegar pressão;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/carne-panela/step-5.webp",
+      "alt": "Uma panela de pressão com a carne, o molho e a mandioca.",
+      "originalText": "Desligue o fogo e deixe a pressão sair naturalmente. Abra a panela e coloque a mandioca, misturando para incorporar no molho. Adicione mais 1 xícara de chá de água, misture e prove o sabor do molho. Se achar necessário, acerte sal e temperos;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/carne-panela/step-6.webp",
+      "alt": "Panela de pressão com a carne, o molho e a mandioca ao ponto.",
+      "originalText": "Tampe a panela e leve ao fogo médio até pegar pressão. Assim que pegar pressão, cozinhe por mais 12 minutos. Desligue o fogo e deixe a pressão sair sozinha. Abra a panela e verifique se a mandioca já está macia e a carne desmanchando;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/carne-panela/step-7.webp",
+      "alt": "Um refratário contendo carne de panela com mandioca.",
+      "originalText": "Finalize com o cheiro-verde e está pronto! Sirva acompanhado de farinha, arroz e uma saladinha fresca. Bom apetite!"
+    }
+  ],
+  "sug-15": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/feijoada/step-1.webp",
+      "alt": "Ingredientes de feijoada simples reunidos na bancada.",
+      "originalText": "Separe todos os ingredientes;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/feijoada/step-2.webp",
+      "alt": "Feijão preto de molho na água em uma tigela.",
+      "originalText": "Coloque o feijão em uma tigela, cubra com água e deixe de molho por no mínimo 1 hora;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/feijoada/step-3.webp",
+      "alt": "Bacon, paio, calabresa e carne-seca sendo refogados em panela grande e funda.",
+      "originalText": "Em uma panela grande e funda, refogue o bacon picado, o paio fatiado, a linguiça calabresa fatiada e a carne-seca picada. Reserve;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/feijoada/step-4.webp",
+      "alt": "Cebola e alho refogando na panela com folha de louro.",
+      "originalText": "Refogue a cebola picada, o alho e o junte a folha de louro;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/feijoada/step-5.webp",
+      "alt": "Carnes e feijão cobertos com água na panela com o refogado de cebola e louro.",
+      "originalText": "Volte as carnes para a panela, junte o feijão escorrido e cubra com água;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/feijoada/step-6.webp",
+      "alt": "Feijão com carnes cozinhando na panela, com caldo grosso e escuro.",
+      "originalText": "Cozinhe por 3 horas ou até o grão ficar macio e o caldo engrossar. Se necessário, acrescente mais água;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/feijoada/step-7.webp",
+      "alt": "Feijoada simples pronta para servir.",
+      "originalText": "Está pronto!"
+    }
+  ],
+  "sug-14": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/bife-acebolado/step-1.webp",
+      "alt": "Todos os ingredientes do bife acebolado reunidos na bancada.",
+      "originalText": "Reúna os ingredientes do bife acebolado;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/bife-acebolado/step-2.webp",
+      "alt": "Bifes crus em uma travessa e uma tigela com água e vinagre.",
+      "originalText": "Deixe o bife fora da geladeira por 10 minutos. Em uma tigela, misture a água e o vinagre;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/bife-acebolado/step-3.webp",
+      "alt": "Travessa com bifes, pimenta-do-reino e sal ao lado.",
+      "originalText": "Tempere os bifes com sal e pimenta;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/bife-acebolado/step-4.webp",
+      "alt": "Frigideira com dois bifes crus.",
+      "originalText": "Em uma frigideira grande no fogo médio, coloque o azeite e os bifes temperados;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/bife-acebolado/step-5.webp",
+      "alt": "Frigideira com dois bifes dourados de um lado.",
+      "originalText": "Deixe grelhar por aproximadamente 2 minutos ou até desgrudar da frigideira;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/bife-acebolado/step-6.webp",
+      "alt": "Travessa com os dois bifes grelhados.",
+      "originalText": "Vire os bifes e deixe dourar do outro lado. Reserve em um prato;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/bife-acebolado/step-7.webp",
+      "alt": "Mesma panela com cebola cortadas.",
+      "originalText": "Na mesma frigideira, coloque o azeite, a cebola e tempere com sal. Deixe fritando por cerca de 2 minutos ou até ficar douradinha;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/bife-acebolado/step-8.webp",
+      "alt": "Mistura de água e vinagre sendo adicionada na panela com cebola.",
+      "originalText": "Adicione a mistura de água com vinagre e mexa bem por cerca de 3 minutos ou até que a cebola fique macia;"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/bife-acebolado/step-9.webp",
+      "alt": "Manteiga adicionada ao meio da panela e por cima da cebola.",
+      "originalText": "Desligue o fogo e coloque a manteiga na frigideira para ela derreter;"
+    },
+    {
+      "stepNumber": 10,
+      "image": "/dishes/steps/bife-acebolado/step-10.webp",
+      "alt": "Bife acebolado finalizado.",
+      "originalText": "Sirva os bifes com o molhinho de manteiga e as cebolas. Bom apetite!"
+    }
+  ],
+  "sug-20": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/hamburguer-fit/step-1.webp",
+      "alt": "ingredientes reunidos para fazer hambúrguer artesanal",
+      "originalText": "Utilizamos peito de boi, entretanto também é possível fazer o hambúrguer artesanal com coxão mole moído. Caso queira, na hora de montar o lanche, você pode substituir os ingredientes de acordo com a sua preferência;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/hamburguer-fit/step-2.webp",
+      "alt": "tigela com carne moída",
+      "originalText": "Em um recipiente grande, coloque a carne moída. Tempere com sal e pimenta-do-reino. Use as mãos para garantir que os temperos vão se espalhar bem;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/hamburguer-fit/step-3.webp",
+      "alt": "mão enrolando carne moída para fazer hambúrguer artesanal",
+      "originalText": "Pegue uma porção de carne moída e faça uma bola, jogando-a de uma mão para a outra - isso ajuda a tirar o excesso de ar. Evite fazer hambúrgueres muito grandes para ficarem proporcionais ao tamanho do pão brioche;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/hamburguer-fit/step-4.webp",
+      "alt": "hambúrguer artesanal cru",
+      "originalText": "Em uma superfície limpa (bancada, mesa ou tábua de carne), coloque a bola de carne e, com a palma da mão, dê uma leve esmagada para achatar o formato, deixando-o arredondado;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/hamburguer-fit/step-5.webp",
+      "alt": "mãos modelando o hambúrguer artesanal",
+      "originalText": "Utilize os dedos para apertar o meio do hambúrguer e modelar o formato. Não deixe o hambúrguer muito fino, pois ele pode ficar seco depois de frito. Deixe-o com cerca de 1 cm de espessura;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/hamburguer-fit/step-6.webp",
+      "alt": "frigideira com hambúrguer artesanal fritando",
+      "originalText": "Leve uma frigideira de ferro ao fogo alto para esquentar (se não tiver, use uma frigideira grossa). Despeje o azeite e coloque o hambúrguer. Doure o lado de baixo por 2 minutos;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/hamburguer-fit/step-7.webp",
+      "alt": "frigideira com hambúrguer artesanal e cheddar",
+      "originalText": "Com o auxílio de uma espátula, vire o hambúrguer. Despeje 1 fio de azeite na frigideira. Coloque 2 fatias de queijo cheddar por cima do hambúrguer;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/hamburguer-fit/step-8.webp",
+      "alt": "frigideira com hambúrguer artesanal e cheddar derretido",
+      "originalText": "Reduza o fogo, despeje um pouquinho de água na frigideira e tampe. Espere cerca de 30 segundos a 1 minuto para o queijo derreter. Desligue o fogo;"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/hamburguer-fit/step-9.webp",
+      "alt": "prato com lanche de hambúrguer artesanal",
+      "originalText": "Para montar o lanche: corte o pão brioche ao meio. Passe ketchup na superfície do pão, coloque 2 folhas de alface, o hambúrguer com o queijo derretido, 3 rodelas de cebola e 2 fatias de tomate. Tampe com a outra base do pão;"
+    },
+    {
+      "stepNumber": 10,
+      "image": "/dishes/steps/hamburguer-fit/step-10.webp",
+      "alt": "prato com lanche de hambúrguer artesanal",
+      "originalText": "O lanche ficou muito gostoso, com o hambúrguer artesanal douradinho por fora e suculento por dentro."
+    }
+  ],
+  "sug-23": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/sufle-legumes/step-1.webp",
+      "alt": "Ingredientes sobre a bancada.",
+      "originalText": "Higienize os vegetais. Separe também as claras das gemas. Descasque e pique a cebola em cubinhos, assim como o alho e a cenoura. A abobrinha também é cortada em cubos pequenos, mas não é preciso descascar. Pique o brócolis grosseiramente e a salsinha finamente;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/sufle-legumes/step-2.webp",
+      "alt": "Alho e cebola picados na frigideira a dourar.",
+      "originalText": "Em uma panela ou frigideira, aqueça o azeite e refogue a cebola. Assim que estiver translúcida, acrescente o alho e doure por 1-2 minutos;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/sufle-legumes/step-3.webp",
+      "alt": "Frigideira com brócolis, cenoura, cebola e alho.",
+      "originalText": "Adicione a cenoura e mexa até dourar. Em seguida, junte o brócolis e refogue por mais 2 minutos;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/sufle-legumes/step-4.webp",
+      "alt": "Frigideira com abobrinha, ervilha, brócolis, cenoura, cebola, alho e temperos.",
+      "originalText": "Coloque a abobrinha, a ervilha e tempere com sal, pimenta e salsinha. Misture bem para incorporar os temperos, por mais 1 minuto;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/sufle-legumes/step-5.webp",
+      "alt": "Uma tigela com os vegetais refogados misturados à farinha.",
+      "originalText": "Assim que os vegetais estiverem bem refogados, adicione a farinha de trigo e misture. Despeje a água e mexa para cozinhar um pouco. Não deixe os vegetais muito moles. Desligue o fogo e reserve para esfriar;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/sufle-legumes/step-6.webp",
+      "alt": "Tigela com claras em neve.",
+      "originalText": "Em uma batedeira, bata as claras em neve - o momento de desligar a batedeira é quando as claras estiverem formando ondas e bem aeradas;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/sufle-legumes/step-7.webp",
+      "alt": "Uma tigela com o refogado de legumes, farinha, claras em neve e gemas.",
+      "originalText": "Bata as gemas com um garfo ligeiramente e adicione ao recipiente com o refogado de legumes frio. Misture tudo para incorporar. Vá acrescentando as claras em neve aos poucos, misturando delicadamente, para não perder a consistência aerada;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/sufle-legumes/step-8.webp",
+      "alt": "Um refratário com a massa do suflê de legumes antes de assar.",
+      "originalText": "Unte com óleo um refratário de 19 cm de diâmetro e transfira nele a massa do suflê. Leve ao forno preaquecido a 180 ºC por aproximadamente 30-35 minutos, ou até dourar;"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/sufle-legumes/step-9.webp",
+      "alt": "Refratário com suflê de legumes.",
+      "originalText": "E pronto! Aproveite esse suflê de legumes fofinho."
+    }
+  ],
+  "sug-22": [],
+  "sug-21": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/panqueca-espinafre/step-1.webp",
+      "alt": "Ingredientes de panqueca de espinafre com frango reunidos na bancada.",
+      "originalText": "Reúna todos os ingredientes;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/panqueca-espinafre/step-2.webp",
+      "alt": "Ovos, leite, farinha e sal sendo batidos no liquidificador.",
+      "originalText": "Coloque os ovos, o leite, a farinha e o sal no liquidificador, e bata por cerca de 3 minutos;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/panqueca-espinafre/step-3.webp",
+      "alt": "Massa verde de panqueca com espinafre batida e homogênea no copo do liquidificador.",
+      "originalText": "Acrescente as folhas de espinafre, e bata por mais 5 minutos, ou até atingir uma massa homogênea, e reserve;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/panqueca-espinafre/step-4.webp",
+      "alt": "Reúna todos os ingredientes;",
+      "originalText": "Reúna todos os ingredientes;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/panqueca-espinafre/step-5.webp",
+      "alt": "Cebola sendo refogada no azeite em panela no fogo médio.",
+      "originalText": "Leve uma uma panela ao fogo médio, adicione o azeite, e refogue a cebola;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/panqueca-espinafre/step-6.webp",
+      "alt": "Alho sendo refogado com a cebola no azeite na panela.",
+      "originalText": "Acrescente o alho e refogue-o;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/panqueca-espinafre/step-7.webp",
+      "alt": "Frango, sal e pimenta sendo misturados ao alho refogado para o recheio.",
+      "originalText": "Junte o frango, o sal e a pimenta, e misture;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/panqueca-espinafre/step-8.webp",
+      "alt": "Frango desfiado com molho de tomate e cebolinha sendo misturado na panela.",
+      "originalText": "Adicione o molho de tomate, a cebolinha, misture, e desligue o fogo;"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/panqueca-espinafre/step-9.webp",
+      "alt": "Massa verde de espinafre cobrindo o fundo da frigideira, formando bolhas ao cozinhar.",
+      "originalText": "Leve uma frigideira (antiaderente ou untada) ao fogo baixo, coloque um pouco da massa, até preencher todo o fundo da frigideira, e deixe-a cozinhar até começar a formar bolhas;"
+    },
+    {
+      "stepNumber": 10,
+      "image": "/dishes/steps/panqueca-espinafre/step-10.webp",
+      "alt": "Massa verde de panqueca sendo virada na frigideira para dourar o outro lado.",
+      "originalText": "Com cuidado, vire a massa, e deixe o outro lado dourar;"
+    },
+    {
+      "stepNumber": 11,
+      "image": "/dishes/steps/panqueca-espinafre/step-11.webp",
+      "alt": "Massa verde de espinafre recheada com frango desfiado sendo enrolada sobre a bancada.",
+      "originalText": "Coloque a massa sobre uma superfície plana, adicione o frango, e enrole a panqueca;"
+    },
+    {
+      "stepNumber": 12,
+      "image": "/dishes/steps/panqueca-espinafre/step-12.webp",
+      "alt": "Panquecas de espinafre recheadas com frango e enroladas, prontas para servir.",
+      "originalText": "Repita o processo até a massa e o recheio acabarem, e sirva!"
+    }
+  ],
+  "sug-6": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/sanduiche-frango/step-1.webp",
+      "alt": "Ingredientes organizados sobre a bancada com pão integral, frango desfiado e vegetais.",
+      "originalText": "Reúna os ingredientes para essa receitinha sinônimo de facilidade! Higienize a alface e o tomate e já tenha o frango cozido e desfiado em mãos;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/sanduiche-frango/step-2.webp",
+      "alt": "Frango desfiado, creme de ricota e milho-verde sendo misturados com colher na tigela.",
+      "originalText": "Em uma tigela pequena, coloque o frango desfiado, o creme de ricota e o milho-verde. Misture com uma colher até que todos os ingredientes se integrem;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/sanduiche-frango/step-3.webp",
+      "alt": "Recheio de frango sendo espalhado sobre a fatia de pão integral.",
+      "originalText": "Sobre um prato ou tábua, coloque uma fatia de pão de forma. Com uma espátula ou colher, distribua o recheio de frango por toda a superfície;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/sanduiche-frango/step-4.webp",
+      "alt": "Alface e rodelas de tomate acomodadas sobre o recheio.",
+      "originalText": "Por cima do recheio, coloque as folhas de alface e, em seguida, acomode as rodelas de tomate, ajustando para que fiquem bem distribuídas;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/sanduiche-frango/step-5.webp",
+      "alt": "Sanduíche natural pronto, inteiro e servido para consumo.",
+      "originalText": "Finalize colocando a segunda fatia de pão por cima. Pressione levemente para assentar o sanduíche e servir. Uma opção rápida, nutritiva e perfeita para levar na bolsa."
+    }
+  ],
+  "sug-26": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/salmao-grelhado/step-1.webp",
+      "alt": "ingredientes para preparar salmão grelhado",
+      "originalText": "Use salmão com pele para manter a suculência. Se preferir sem, retire a pele após grelhar. Tire o peixe da geladeira 25 minutos antes do preparo. Descasque e corte o alho em lâminas. Higienize o brócolis e reúna todos os ingredientes para facilitar o preparo;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/salmao-grelhado/step-2.webp",
+      "alt": "corte na escama do salmão",
+      "originalText": "Coloque a posta de salmão sobre a tábua e, com uma faca afiada, faça três pequenas incisões na pele, com cerca de 4 a 5 cm. Esses cortes ajudam a absorver melhor o tempero, deixam a carne mais suculenta e garantem uma pele crocante ao grelhar;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/salmao-grelhado/step-3.webp",
+      "alt": "tempero no lombo do salmão",
+      "originalText": "Tempere as postas com sal e pimenta-do-reino branca, dos dois lados e esfregando levemente dentro dos cortes e na pele;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/salmao-grelhado/step-4.webp",
+      "alt": "Salmão posicionado na frigideira quente.",
+      "originalText": "Aqueça uma frigideira antiaderente no fogo médio e adicione um pouco de azeite. Coloque a posta de salmão com a pele virada para baixo, pressionando levemente para que ela esteja completamente em contato com a frigideira;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/salmao-grelhado/step-5.webp",
+      "alt": "ponto de cozimento do salmão grelhado",
+      "originalText": "A cor alaranjada do salmão ficará mais esbranquiçada de baixo para cima. Nesse momento, abaixe o fogo e regue o peixe com a própria gordura na frigideira. Assim que a pele estiver crocante, vire o salmão e frite por mais 2 minutos. Depois retire da frigideira e reserve;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/salmao-grelhado/step-6.webp",
+      "alt": "brócolis refogado com lâminas de alho",
+      "originalText": "Na mesma frigideira, adicione os ramos de brócolis e tempere com sal e pimenta-do-reino. Salteie em fogo alto por cerca de 3 minutos, até ficarem macios, mas ainda vibrantes. Em seguida, acrescente o alho e refogue por mais 1 a 2 minutos, apenas até murchar levemente;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/salmao-grelhado/step-7.webp",
+      "alt": "salmão grelhado com brócolis finalizado e empratado.",
+      "originalText": "Sirva o salmão grelhado acompanhado do brócolis salteado e da coalhada. Aproveite!"
+    }
+  ],
+  "sug-27": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/bowl-quinoa/step-1.webp",
+      "alt": "ingredientes reunidos para fazer salada de quinoa",
+      "originalText": "Junte todos os ingredientes. Para começar, coloque a quinoa em uma peneira e lave bem em água corrente por alguns minutos;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/bowl-quinoa/step-2.webp",
+      "alt": "quinoa hidratando na panela",
+      "originalText": "Coloque a quinoa em uma panela e leve ao fogo médio. Frite por cerca de 5 minutos e adicione a água. Tampe a panela parcialmente e, assim que ferver, cozinhe por cerca de 20 minutos ou até a água secar;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/bowl-quinoa/step-3.webp",
+      "alt": "tigela com quinoa hidratada",
+      "originalText": "Quando a quinoa estiver cozida, desligue o fogo, tampe totalmente a panela e deixe a quinoa descansar por 5 minutos. Em seguida, solte os grãos com um garfo e deixe esfriar completamente;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/bowl-quinoa/step-4.webp",
+      "alt": "três recipientes, em cada um, tomate picado, cebola picada e vagem picada",
+      "originalText": "Enquanto a quinoa esfria, prepare os outros ingredientes. Lave e pique em cubos o tomate e o pepino. Descasque e corte a cebola em pedaços pequenos;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/bowl-quinoa/step-5.webp",
+      "alt": "tigela com quinoa e cebola picada",
+      "originalText": "Leve uma frigideira ao fogo alto e, quando aquecer, regue com 2 colheres de azeite. Adicione a cebola e refogue por 2 minutos, ou até ficar transparente. Em uma tigela, coloque a quinoa cozida e a cebola refogada;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/bowl-quinoa/step-6.webp",
+      "alt": "tigela com salada de quinoa",
+      "originalText": "Adicione o tomate e o pepino picado à quinoa. Tempere com sal, pimenta-do-reino, suco de limão e 2 colheres de azeite. Mexa para envolver os ingredientes;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/bowl-quinoa/step-7.webp",
+      "alt": "prato com salada de quinoa",
+      "originalText": "Adicione a cebolinha e a salsinha picada e mexa novamente. Se desejar, leve à geladeira por alguns minutos para deixar a salada ainda mais refrescante. Sirva e aproveite!"
+    }
+  ],
+  "sug-1": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/pao-queijo/step-1.webp",
+      "alt": "Ingredientes do pão de queijo de frigideira reunidos.",
+      "originalText": "Reúna todos os ingredientes do pão de queijo de frigideira;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/pao-queijo/step-2.webp",
+      "alt": "Ingredientes da massa de pão de queijo misturados na tigela.",
+      "originalText": "Em uma vasilha, coloque todos os ingredientes e misture até formar uma massa homogênea;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/pao-queijo/step-3.webp",
+      "alt": "Frigideira com massa de pão de queijo em formato de disco.",
+      "originalText": "Aqueça uma frigideira antiaderente, despeje parte da massa e frite como se fosse uma panqueca, até que as bordas fiquem douradas"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/pao-queijo/step-4.webp",
+      "alt": "Panela com massa assando e prato ao lado com pães de queijos já assados.",
+      "originalText": "Repita o processo até acabar a massa;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/pao-queijo/step-5.webp",
+      "alt": "Prato com alguns pães de queijo de frigideira em formato de discos.",
+      "originalText": "Agora é só servir. Aproveite esse delicioso pão de queijo seja no café da manhã ou da tarde!"
+    }
+  ],
+  "sug-2": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/panqueca-banana/step-1.webp",
+      "alt": "Uma bancada com os ingredientes separados.",
+      "originalText": "Reúna os ingredientes da panqueca de banana fit com aveia;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/panqueca-banana/step-2.webp",
+      "alt": "Um recipiente contendo a mistura de aveia, linhaça e adoçante.",
+      "originalText": "Em uma tigela, misture a aveia e a linhaça. E caso queira deixar mais docinho, acrescente, também, a pitada de adoçante culinário;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/panqueca-banana/step-3.webp",
+      "alt": "Um prato contendo bananas amassadas.",
+      "originalText": "Em um prato e com o auxílio de um garfo, amasse bem a banana;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/panqueca-banana/step-4.webp",
+      "alt": "Um recipiente contendo a mistura de aveia, linhaça, adoçante e bananas amassadas.",
+      "originalText": "Em seguida, junte as claras e as bananas amassadas com a mistura de aveia e linhaça, e mexa bem até todos os ingredientes incorporarem;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/panqueca-banana/step-5.webp",
+      "alt": "Uma frigideira contendo uma porção da massa da panqueca sendo frita.",
+      "originalText": "Unte uma frigideira com óleo de coco, coloque uma pequena porção da massa (cerca de 2 colheres de sopa) e espere dourar um lado. Quando um lado estiver douradinho, repita o processo com o outro lado;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/panqueca-banana/step-6.webp",
+      "alt": "Uma frigideira contendo uma porção da massa da panqueca sendo frita.",
+      "originalText": "Repita o processo com o restante da massa;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/panqueca-banana/step-7.webp",
+      "alt": "Um prato contendo rodelas de banana e panqueca de banana fit com aveia.",
+      "originalText": "Coloque em um prato e sirva com algum complemento, como rodelas de banana, melado de cana ou mel. Bom apetite!"
+    }
+  ],
+  "sug-7": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/mingau-aveia/step-1.webp",
+      "alt": "Uma bancada com os ingredientes da receita.",
+      "originalText": "Reúna os ingredientes para fazer esse delicioso mingau de aveia fit. Se preferir, pode utilizar a aveia fina no lugar da em flocos;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/mingau-aveia/step-2.webp",
+      "alt": "Uma banana sendo amassada com um garfo.",
+      "originalText": "Em um prato raso, descasque a banana e amasse utilizando um garfo até virar uma pastinha. Se gostar, pode amassar menos para ainda sentir a textura da fruta na hora de comer;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/mingau-aveia/step-3.webp",
+      "alt": "Uma panela com leite, cravo e aveia.",
+      "originalText": "Transfira para uma panela média, junte o leite, o cravo e a aveia em flocos;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/mingau-aveia/step-4.webp",
+      "alt": "Uma panela com a mistura dos ingredientes e uma espátula.",
+      "originalText": "Ligue o fogo médio para alto e mexa com uma espátula por cerca de 2 minutos;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/mingau-aveia/step-5.webp",
+      "alt": "Mingau sendo temperado com canela.",
+      "originalText": "Quando começar a ferver, adicione canela e continue misturando até o mingau começar a desgrudar da panela. Não é necessário ferver muito, pois o cozimento continua mesmo após desligar o fogo;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/mingau-aveia/step-6.webp",
+      "alt": "Um recipiente com mingau de aveia fit.",
+      "originalText": "Sirva esse mingau em uma tigela e decore com frutas ou mel, se gostar. Aproveite!"
+    }
+  ],
+  "sug-3": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/tapioca/step-1.webp",
+      "alt": "Ingredientes reunidos em uma bancada.",
+      "originalText": "Organize sua bancada para preparar essa tapioca com ovo. Aproveite para quebrar os ovos e verificar se estão bons;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/tapioca/step-2.webp",
+      "alt": "Queijo ralado espalhado ao fundo de uma frigideira.",
+      "originalText": "Em uma frigideira em fogo baixo, espalhe um pouco de queijo ralado;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/tapioca/step-3.webp",
+      "alt": "Farinha de tapioca adicionada a frigideira.",
+      "originalText": "Adicione a farinha de tapioca por cima, cobrindo até os espaços que estão sem queijo;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/tapioca/step-4.webp",
+      "alt": "Ovos adicionados sobre a camada de farinha de tapioca na frigideira.",
+      "originalText": "Coloque os ovos e com uma colher, espalhe-os sobre a camada de tapioca, estourando as gemas;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/tapioca/step-5.webp",
+      "alt": "Sal, orégano e pimenta adicionados a camada de ovos na frigideira.",
+      "originalText": "Tempere com sal, orégano e pimenta, e em seguida, tampe a frigideira. Deixe em fogo baixo por 5 minutos, ou até cozinhar tudo;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/tapioca/step-6.webp",
+      "alt": "Tapioca com ovo pronta para consumo em um prato com salada.",
+      "originalText": "Dobre a tapioca com ovo ao meio e sirva ainda quente. Combine-a com uma saladinha verde no jantar, ou frutas para o café da manhã!"
+    }
+  ],
+  "sug-11": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/picadinho-carne/step-1.webp",
+      "alt": "Todos os ingredientes do picadinho de carne reunidos na bancada.",
+      "originalText": "Reúna os ingredientes do picadinho de carne;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/picadinho-carne/step-2.webp",
+      "alt": "Cubos de carne colocados em uma travessa.",
+      "originalText": "Corte a carne em cubos e tempere com sal e pimenta-do-reino;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/picadinho-carne/step-3.webp",
+      "alt": "Fartinha de rosca ou de mandioca adicionada por cima dos cubos na travessa.",
+      "originalText": "Adicione um pouco (bem pouco) de farinha de rosca ou de mandioca. Misture bem;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/picadinho-carne/step-4.webp",
+      "alt": "Pedacinhos de carne em uma panela preta.",
+      "originalText": "Em uma panela em fogo médio, coloque o azeite e metade da carne;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/picadinho-carne/step-5.webp",
+      "alt": "Água adicionada na panela com os pedacinhos de carne.",
+      "originalText": "Quando o fundinho começar a grudar, coloque um pouco de água e retire;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/picadinho-carne/step-6.webp",
+      "alt": "Outra metade dos pedacinhos de carne dentro da mesma panela.",
+      "originalText": "Na mesma panela, coloque azeite e o restante da carne. Termine de fritar;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/picadinho-carne/step-7.webp",
+      "alt": "Legumes cortadinhos adicionados dentro da panela.",
+      "originalText": "Assim que ela estiver quase no ponto, volte a carne refogada que estava reservada e adicione a cenoura, cebola, alho-poró, alho e sal. Deixe refogando em fogo baixo;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/picadinho-carne/step-8.webp",
+      "alt": "Talão de couve e salsa adicionado dentro da panela com a carne.",
+      "originalText": "Acrescente os talos de couve e salsinha. Misture;"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/picadinho-carne/step-9.webp",
+      "alt": "Extrato de tomate, cerveja e água adicionada na carne com legumes.",
+      "originalText": "Adicione o extrato de tomate, a cerveja e a água até cobrir a carne. Mexa bem e deixe ferver até reduzir e o molho dar uma engrossada;"
+    },
+    {
+      "stepNumber": 10,
+      "image": "/dishes/steps/picadinho-carne/step-10.webp",
+      "alt": "Picadinho de carne finalizado.",
+      "originalText": "Finalize com salsinha, cebolinha e sirva com arroz e farofa. Bom apetite!"
+    }
+  ],
+  "sug-16": [
+    {
+      "stepNumber": 1,
+      "image": "/dishes/steps/sopa-abobora/step-1.webp",
+      "alt": "Ingredientes do frango sobre a bancada.",
+      "originalText": "Comece organizando sua bancada. Corte grosseiramente a cebola do frango, a cenoura, o alho-poró e o aipo, retirando antes as fibras do aipo. Esprema 3 dentes de alho e reserve;"
+    },
+    {
+      "stepNumber": 2,
+      "image": "/dishes/steps/sopa-abobora/step-2.webp",
+      "alt": "Ingredientes dentro da panela de pressão.",
+      "originalText": "Na panela de pressão, coloque o peito de frango, os vegetais cortados, o alho espremido, a folha de louro, o sal, a pimenta-do-reino e a água;"
+    },
+    {
+      "stepNumber": 3,
+      "image": "/dishes/steps/sopa-abobora/step-3.webp",
+      "alt": "Panela de pressão fechada.",
+      "originalText": "Tampe a panela e leve ao fogo alto até começar a pegar pressão. Assim que iniciar o chiado, abaixe o fogo e cozinhe por 30 minutos;"
+    },
+    {
+      "stepNumber": 4,
+      "image": "/dishes/steps/sopa-abobora/step-4.webp",
+      "alt": "Ingredientes da sopa sobre a bancada.",
+      "originalText": "Enquanto isso, pique a outra metade da cebola em cubinhos. Corte a cebolinha em tirinhas (separe parte mais clara da parte mais verdinha), e esprema os dentes de alho restantes. Descasque, tire as sementes e corte a abóbora cabotiá em cubos grandes e a batata-baroa em rodelas grossas, com cerca de 2 dedos de espessura;"
+    },
+    {
+      "stepNumber": 5,
+      "image": "/dishes/steps/sopa-abobora/step-5.webp",
+      "alt": "Frango e vegetais cozidos.",
+      "originalText": "Após os 30 minutos de cozimento da panela de pressão, desligue o fogo e espere a pressão sair naturalmente antes de abrir;"
+    },
+    {
+      "stepNumber": 6,
+      "image": "/dishes/steps/sopa-abobora/step-6.webp",
+      "alt": "Ingredientes da sopa na panela de pressão.",
+      "originalText": "Retire apenas o peito de frango da panela e reserve. No caldo com os legumes cozidos, adicione a abóbora cabotiá e a batata-baroa;"
+    },
+    {
+      "stepNumber": 7,
+      "image": "/dishes/steps/sopa-abobora/step-7.webp",
+      "alt": "Ingredientes da sopa cozidos na panela de pressão.",
+      "originalText": "Tampe novamente, leve ao fogo alto até pegar pressão e, depois que começar a apitar, abaixe o fogo e cozinhe por mais 7 minutos. Depois desse tempo, desligue o fogo e deixe a pressão sair naturalmente;"
+    },
+    {
+      "stepNumber": 8,
+      "image": "/dishes/steps/sopa-abobora/step-8.webp",
+      "alt": "Frango desfiado.",
+      "originalText": "Enquanto isso, retire o osso do peito de frango e desfie com o auxílio de um garfo. Não se preocupe se alguns pedaços ficarem maiores, pois eles vão terminar de se desmanchar no refogado;"
+    },
+    {
+      "stepNumber": 9,
+      "image": "/dishes/steps/sopa-abobora/step-9.webp",
+      "alt": "Alho e cebola sendo refogados.",
+      "originalText": "Agora, em uma panela, aqueça um fio de azeite em fogo médio e refogue o alho até dourar. Acrescente a cebola picada e refogue até ficar transparente;"
+    },
+    {
+      "stepNumber": 10,
+      "image": "/dishes/steps/sopa-abobora/step-10.webp",
+      "alt": "Frango sendo refogado com o alho e a cebola.",
+      "originalText": "Adicione o frango desfiado e misture bem para envolver no refogado;"
+    },
+    {
+      "stepNumber": 11,
+      "image": "/dishes/steps/sopa-abobora/step-11.webp",
+      "alt": "Frango refogado e temperado.",
+      "originalText": "Abaixe o fogo e tempere com sal, pimenta-do-reino, páprica defumada e a parte mais clara da cebolinha. Misture bem, desligue o fogo e reserve;"
+    },
+    {
+      "stepNumber": 12,
+      "image": "/dishes/steps/sopa-abobora/step-12.webp",
+      "alt": "Ingredientes da sopa processados no liquidificador",
+      "originalText": "Abra a panela de pressão, retire a folha de louro e bata o caldo com a abóbora, a batata-baroa e os vegetais cozidos usando um mixer, até formar um creme liso. Se preferir, bata aos poucos no liquidificador;"
+    },
+    {
+      "stepNumber": 13,
+      "image": "/dishes/steps/sopa-abobora/step-13.webp",
+      "alt": "Sopa com todos os ingredientes incorporados.",
+      "originalText": "Ligue em fogo alto novamente, acrescente o frango e misture bem. Ajuste a textura com água quente, conforme a cremosidade desejada, e deixe cozinhar em fogo médio até começar a borbulhar. Prove e, se necessário, ajuste o sal e os temperos;"
+    },
+    {
+      "stepNumber": 14,
+      "image": "/dishes/steps/sopa-abobora/step-14.webp",
+      "alt": "Porção de sopa de abóbora com frango.",
+      "originalText": "Finalize com a parte mais verde da cebolinha e sirva em seguida. Essa sopa fica ainda mais gostosa acompanhada de torradinhas, bom apetite!"
+    }
+  ]
+}

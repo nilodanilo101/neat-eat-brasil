@@ -71,7 +71,9 @@ async function ensureRecipeStepDetails(title, steps, ingredients, providedStepDe
   return diversifyRecipeStepPhotos(
     steps,
     baseDetails,
-    accurateDishImage || uniquePool[0] || '/dishes/rec-5.jpg'
+    accurateDishImage || uniquePool[0] || '/dishes/rec-5.jpg',
+    '',
+    title
   );
 }
 
@@ -523,7 +525,9 @@ export async function startServer(options = {}) {
         diversifyRecipeStepPhotos(
           suggestion.steps || [],
           suggestion.stepDetails || [],
-          suggestion.image
+          suggestion.image,
+          suggestion.id || sugId,
+          suggestion.title
         )
       );
       const sectionsJson = JSON.stringify(
