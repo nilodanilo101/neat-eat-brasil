@@ -27,6 +27,7 @@ import { searchOpenFoodFacts } from './openFoodFactsService.js';
 import { searchHighResDishPhotos } from './foodImageService.js';
 import { calculateRecipeNutritionTaco, findTacoNutrition } from './tacoDatabase.js';
 import { extractRecipeFromHtml, extractStepTimerSeconds } from './recipeWebScraper.js';
+import { diversifyRecipeStepPhotos } from './stepPhotoMapper.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -56,41 +57,21 @@ async function ensureRecipeStepDetails(title, steps, ingredients, providedStepDe
     // fallback
   }
   if (dishImage) photoPool.push(dishImage);
-  if (photoPool.length === 0) photoPool.push('/dishes/rec-5.jpg');
 
-  return (steps || []).map((stepText, idx) => {
-    const existing = Array.isArray(providedStepDetails) ? providedStepDetails[idx] : null;
-    if (existing && existing.image && String(existing.image).trim()) {
-      return {
-        ...existing,
-        stepNumber: idx + 1,
-        text: stepText,
-      };
-    }
-    const photo = photoPool[idx % photoPool.length];
-    return {
-      stepNumber: idx + 1,
-      section:
-        existing?.section ||
-        (idx === 0
-          ? 'Mise en Place'
-          : idx === steps.length - 1
-          ? 'Finalização & Empratamento'
-          : 'Preparo e Cocção'),
-      text: stepText,
-      image: photo,
-      alt: existing?.alt || `Passo ${idx + 1}: ${stepText.slice(0, 60)}...`,
-      tip:
-        existing?.tip ||
-        (idx === 0
-          ? 'Pese e prepare todos os insumos antes de ligar o fogo.'
-          : idx === steps.length - 1
-          ? 'Verifique a temperatura e o sal antes de empratar.'
-          : 'Mantenha o fogo constante para cozinhar de forma homogênea.'),
-      isKeyFrame: true,
-      timerSeconds: existing?.timerSeconds || 120,
-    };
-  });
+  const uniquePool = Array.from(new Set(photoPool.filter(Boolean)));
+  let baseDetails = Array.isArray(providedStepDetails) ? providedStepDetails : [];
+
+  if (uniquePool.length >= 2 && baseDetails.length === 0) {
+    baseDetails = (steps || []).map((_, i) => ({
+      image: uniquePool[i % uniquePool.length],
+    }));
+  }
+
+  return diversifyRecipeStepPhotos(
+    steps,
+    baseDetails,
+    dishImage || uniquePool[0] || '/dishes/rec-5.jpg'
+  );
 }
 
 function isItemInFridge(ingName, fridgeItems) {
@@ -637,7 +618,13 @@ export async function startServer(options = {}) {
     `).run(suggestion.id, direction, JSON.stringify(suggestion));
 
     if (direction === 'right') {
-      const stepDetailsJson = JSON.stringify(suggestion.stepDetails || []);
+      const stepDetailsJson = JSON.stringify(
+        diversifyRecipeStepPhotos(
+          suggestion.steps || [],
+          suggestion.stepDetails || [],
+          suggestion.image
+        )
+      );
       const sectionsJson = JSON.stringify(
         suggestion.sections || [
           { name: 'Mise en Place & Pré-preparo', stepRange: [1, 2] },

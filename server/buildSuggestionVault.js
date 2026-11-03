@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { diversifyRecipeStepPhotos } from './stepPhotoMapper.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -898,26 +899,7 @@ for (const item of VAULT_ITEMS) {
     secret: 'O controle preciso do fogo e o descanso prévio dos insumos garantem textura gastronômica impecável.',
   };
 
-  item.stepDetails = item.steps.map((text, idx) => ({
-    stepNumber: idx + 1,
-    section:
-      idx === 0
-        ? 'Mise en Place & Pré-preparo'
-        : idx === item.steps.length - 1
-        ? 'Finalização & Empratamento'
-        : 'Cocção & Ponto Ideal',
-    text,
-    image: item.image,
-    alt: `Passo ${idx + 1}: ${item.title}`,
-    tip:
-      idx === 0
-        ? 'Pese todos os insumos e organize os utensílios antes de acender o fogo.'
-        : idx === item.steps.length - 1
-        ? 'Verifique a temperatura e o ponto de sal antes do serviço.'
-        : 'Mantenha calor constante para cocção homogênea.',
-    isKeyFrame: true,
-    timerSeconds: 120,
-  }));
+  item.stepDetails = diversifyRecipeStepPhotos(item.steps, [], item.image);
 }
 
 // Algoritmo culinário de similaridade de títulos

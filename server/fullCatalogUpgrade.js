@@ -2,6 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROBUST_RECIPE_VAULT } from './suggestionEngine.js';
+import { diversifyRecipeStepPhotos } from './stepPhotoMapper.js';
 
 // Dicionário canônico de títulos curtos
 const SHORT_TITLES = {
@@ -258,25 +259,8 @@ export function runFullCatalogUpgrade(dbPath) {
       tags.push('Tirzepatida');
     }
 
-    // Enriquecer stepDetails
-    stepDetails = steps.map((sText, idx) => ({
-      stepNumber: idx + 1,
-      section:
-        idx === 0
-          ? 'Mise en Place & Pré-preparo'
-          : idx === steps.length - 1
-          ? 'Finalização & Empratamento'
-          : 'Preparo e Cocção',
-      text: sText,
-      image: image || '/dishes/rec-5.jpg',
-      alt: `Passo ${idx + 1}: ${title}`,
-      tip:
-        idx === 0
-          ? 'Pese todos os insumos e organize os utensílios na bancada.'
-          : 'Mantenha controle atento de temperatura.',
-      isKeyFrame: true,
-      timerSeconds: 120,
-    }));
+    // Enriquecer stepDetails garantindo fotografias variadas para cada etapa
+    stepDetails = diversifyRecipeStepPhotos(steps, stepDetails, image || '/dishes/rec-5.jpg');
 
     db.prepare(`
       UPDATE recipes
@@ -322,16 +306,7 @@ export function runFullCatalogUpgrade(dbPath) {
         if (v && v.steps) p.steps = v.steps;
       }
 
-      p.stepDetails = (p.steps || []).map((sText, idx) => ({
-        stepNumber: idx + 1,
-        section: idx === 0 ? 'Mise en Place' : idx === p.steps.length - 1 ? 'Finalização' : 'Preparo',
-        text: sText,
-        image: p.image || '/dishes/rec-5.jpg',
-        alt: `Passo ${idx + 1}: ${p.title}`,
-        tip: 'Controle o fogo para melhor textura.',
-        isKeyFrame: true,
-        timerSeconds: 120,
-      }));
+      p.stepDetails = diversifyRecipeStepPhotos(p.steps, p.stepDetails, p.image || '/dishes/rec-5.jpg');
 
       db.prepare('UPDATE daily_discovered_recipes SET recipe_json = ? WHERE id = ?').run(
         JSON.stringify(p),
@@ -352,16 +327,7 @@ export function runFullCatalogUpgrade(dbPath) {
         p.image = '/dishes/frango-xadrez.jpg';
         p.steps = DETAILED_STEPS_CATALOG['sug-9'];
       }
-      p.stepDetails = (p.steps || []).map((sText, idx) => ({
-        stepNumber: idx + 1,
-        section: idx === 0 ? 'Mise en Place' : idx === p.steps.length - 1 ? 'Finalização' : 'Preparo',
-        text: sText,
-        image: p.image || '/dishes/rec-5.jpg',
-        alt: `Passo ${idx + 1}: ${p.title}`,
-        tip: 'Controle o fogo para melhor textura.',
-        isKeyFrame: true,
-        timerSeconds: 120,
-      }));
+      p.stepDetails = diversifyRecipeStepPhotos(p.steps, p.stepDetails, p.image || '/dishes/rec-5.jpg');
       db.prepare('UPDATE suggestion_swipes SET recipe_json = ? WHERE id = ?').run(
         JSON.stringify(p),
         s.id
