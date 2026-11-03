@@ -128,27 +128,6 @@ const BRAZILIAN_STAPLES = [
   { name: 'Azeite de oliva', amount: 15, unit: 'ml', aisle: 'Mercearia', basePrice: 1.2 },
 ];
 
-const SAMPLE_RECIPE_LINKS = [
-  {
-    title: 'Carne Louca com Miolo de Acém',
-    category: 'Almoço',
-    url: 'https://www.receiteria.com.br/receita/carne-louca-com-miolo-de-acem/',
-    badge: '13 Passos • Completa',
-  },
-  {
-    title: 'Strogonoff de Frango Simples',
-    category: 'Almoço',
-    url: 'https://www.receiteria.com.br/receita/strogonoff-de-frango-simples/',
-    badge: 'Passo a Passo com Fotos',
-  },
-  {
-    title: 'Escondidinho de Carne Seca',
-    category: 'Jantar',
-    url: 'https://www.receiteria.com.br/receita/escondidinho-de-carne-seca/',
-    badge: 'Chef Tradicional',
-  },
-];
-
 function formatBRL(value) {
   const num = Number(value);
   const safe = Number.isFinite(num) ? num : 0;
@@ -3026,32 +3005,6 @@ export default function App() {
                     <span className="text-[11px] text-slate-400 mt-1 block">
                       Apenas links diretos são permitidos para garantir a fidelidade dos insumos e fotos dos passos.
                     </span>
-
-                    <div className="mt-2.5 pt-2.5 border-t border-white/5">
-                      <span className="text-[11px] font-bold text-slate-400 block mb-1.5 flex items-center gap-1.5">
-                        <Sparkles className="w-3 h-3 text-emerald-400" />
-                        Ou teste com uma receita real (extrai 100% dos passos e fotos originais):
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {SAMPLE_RECIPE_LINKS.map((sample, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => {
-                              setImportInput(sample.url);
-                              setImportCategory(sample.category);
-                              if (importError) setImportError('');
-                            }}
-                            className="px-2.5 py-1 rounded-lg bg-slate-950/80 hover:bg-emerald-950/40 border border-white/10 hover:border-emerald-500/40 text-[11px] text-slate-300 hover:text-white transition flex items-center gap-1.5 cursor-pointer text-left"
-                          >
-                            <span className="font-semibold">{sample.title}</span>
-                            <span className="text-[9px] px-1 py-0.5 bg-emerald-500/20 text-emerald-300 rounded font-bold">
-                              {sample.badge}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
                   </div>
 
                   {importError && (
