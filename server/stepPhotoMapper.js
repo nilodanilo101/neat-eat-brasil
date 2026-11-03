@@ -185,10 +185,13 @@ export function diversifyRecipeStepPhotos(steps = [], existingStepDetails = [], 
 
   return steps.map((stepText, idx) => {
     const existing = existingStepDetails ? existingStepDetails[idx] : null;
+    const isLastStep = idx === steps.length - 1;
 
     let finalPhoto = null;
-    // Se a foto existente já for variada e não utilizada nesta receita, preserva
-    if (existing?.image && !areAllIdentical && !usedPhotos.has(existing.image)) {
+    if (isLastStep && heroImage) {
+      // O último passo sempre mostra a foto canônica do prato finalizado
+      finalPhoto = heroImage;
+    } else if (existing?.image && !areAllIdentical && !usedPhotos.has(existing.image) && existing.image !== heroImage) {
       finalPhoto = existing.image;
     } else {
       finalPhoto = resolveStepPhoto(stepText, idx, steps.length, heroImage, usedPhotos);
@@ -221,3 +224,88 @@ export function diversifyRecipeStepPhotos(steps = [], existingStepDetails = [], 
     };
   });
 }
+
+export const CANONICAL_DISH_IMAGES = {
+  // Vault de sugestões
+  'sug-1': '/dishes/sug-1.jpg',
+  'sug-2': '/dishes/sug-2.jpg',
+  'sug-3': '/dishes/sug-3.jpg',
+  'sug-4': '/dishes/crepioca-frango.jpg',
+  'sug-5': '/dishes/cuscuz-queijo.jpg',
+  'sug-6': '/dishes/sanduiche-frango.jpg',
+  'sug-7': '/dishes/sug-20.jpg',
+  'sug-8': '/dishes/omelete-com-queijo.jpg',
+  'sug-9': '/dishes/frango-xadrez.jpg',
+  'sug-10': '/dishes/carne-panela-mandioca.jpg',
+  'sug-11': '/dishes/picadinho-carne.jpg',
+  'sug-12': '/dishes/rec-9.jpg',
+  'sug-13': '/dishes/rec-7.jpg',
+  'sug-14': '/dishes/bife-acebolado.jpg',
+  'sug-15': '/dishes/feijoada-light.png',
+  'sug-16': '/dishes/sug-18.jpg',
+  'sug-17': '/dishes/rec-10.jpg',
+  'sug-18': '/dishes/sug-14.jpg',
+  'sug-19': '/dishes/sug-16.jpg',
+  'sug-20': '/dishes/hamburguer-fit.jpg',
+  'sug-21': '/dishes/panqueca-espinafre.jpg',
+  'sug-22': '/dishes/moqueca-banana.jpg',
+  'sug-23': '/dishes/sufle-legumes.jpg',
+  'sug-24': '/dishes/canja-frango.jpg',
+  'sug-25': '/dishes/sug-9.jpg',
+  'sug-26': '/dishes/salmao-grelhado.png',
+  'sug-27': '/dishes/bowl-quinoa.jpg',
+
+  // Sugestões diárias
+  'sug-daily-2026-10-31-1': '/dishes/panqueca-espinafre.jpg',
+  'sug-daily-2026-10-31-2': '/dishes/sug-9.jpg',
+  'sug-daily-2026-11-01-1': '/dishes/carne-panela-mandioca.jpg',
+  'sug-daily-2026-11-01-2': '/dishes/sanduiche-frango.jpg',
+  'sug-daily-2026-11-02-1': '/dishes/sufle-legumes.jpg',
+  'sug-daily-2026-11-02-2': '/dishes/omelete-com-queijo.jpg',
+
+  // Catálogo base de receitas
+  'rec-1': '/dishes/rec-1.jpg',
+  'rec-2': '/dishes/rec-2.jpg',
+  'rec-3': '/dishes/rec-3.jpg',
+  'rec-4': '/dishes/rec-4.jpg',
+  'rec-5': '/dishes/rec-5.jpg',
+  'rec-6': '/dishes/rec-6.jpg',
+  'rec-7': '/dishes/rec-7.jpg',
+  'rec-8': '/dishes/rec-8.jpg',
+  'rec-9': '/dishes/rec-9.jpg',
+  'rec-10': '/dishes/rec-10.jpg',
+  'rec-11': '/dishes/rec-11.jpg',
+  'rec-12': '/dishes/rec-12.jpg',
+  'rec-13': '/dishes/rec-13.jpg',
+  'rec-14': '/dishes/rec-14.jpg',
+  'rec-15': '/dishes/arroz-de-forno-carne-moida.webp',
+};
+
+export function resolveAccurateDishImage(id = '', title = '', fallbackImage = '') {
+  if (id && CANONICAL_DISH_IMAGES[id]) return CANONICAL_DISH_IMAGES[id];
+  const t = (title || '').toLowerCase();
+  if (t.includes('caesar') || t.includes('salada caesar')) return '/dishes/sug-16.jpg';
+  if (t.includes('omelete de forno')) return '/dishes/rec-10.jpg';
+  if (t.includes('omelete')) return '/dishes/omelete-com-queijo.jpg';
+  if (t.includes('sandu') || t.includes('sanduíche')) return '/dishes/sanduiche-frango.jpg';
+  if (t.includes('carne de panela')) return '/dishes/carne-panela-mandioca.jpg';
+  if (t.includes('picadinho com arroz') || t.includes('picadinho tradicional')) return '/dishes/picadinho-carne.jpg';
+  if (t.includes('bife acebolado')) return '/dishes/bife-acebolado.jpg';
+  if (t.includes('feijoada')) return '/dishes/feijoada-light.png';
+  if (t.includes('sopa de abóbora') || t.includes('creme de abóbora')) return '/dishes/sug-18.jpg';
+  if (t.includes('caldo verde')) return '/dishes/sug-14.jpg';
+  if (t.includes('hambúrguer') || t.includes('hamburguer')) return '/dishes/hamburguer-fit.jpg';
+  if (t.includes('panqueca de espinafre')) return '/dishes/panqueca-espinafre.jpg';
+  if (t.includes('moqueca de palmito') || t.includes('moqueca de banana')) return '/dishes/moqueca-banana.jpg';
+  if (t.includes('suflê') || t.includes('sufle')) return '/dishes/sufle-legumes.jpg';
+  if (t.includes('canja')) return '/dishes/canja-frango.jpg';
+  if (t.includes('salmão') || t.includes('salmao')) return '/dishes/salmao-grelhado.png';
+  if (t.includes('quinoa')) return '/dishes/bowl-quinoa.jpg';
+  if (t.includes('cuscuz com queijo') || t.includes('cuscuz recheado')) return '/dishes/cuscuz-queijo.jpg';
+  if (t.includes('crepioca de frango')) return '/dishes/crepioca-frango.jpg';
+  if (t.includes('mingau')) return '/dishes/sug-20.jpg';
+  if (t.includes('xadrez')) return '/dishes/frango-xadrez.jpg';
+  if (t.includes('strogonoff de frango')) return '/dishes/sug-9.jpg';
+  return fallbackImage || '/dishes/rec-5.jpg';
+}
+

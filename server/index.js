@@ -27,7 +27,7 @@ import { searchOpenFoodFacts } from './openFoodFactsService.js';
 import { searchHighResDishPhotos } from './foodImageService.js';
 import { calculateRecipeNutritionTaco, findTacoNutrition } from './tacoDatabase.js';
 import { extractRecipeFromHtml, extractStepTimerSeconds } from './recipeWebScraper.js';
-import { diversifyRecipeStepPhotos } from './stepPhotoMapper.js';
+import { diversifyRecipeStepPhotos, resolveAccurateDishImage } from './stepPhotoMapper.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -47,6 +47,7 @@ async function searchExactDishPhotos(dishTitle, _ingredients = []) {
 }
 
 async function ensureRecipeStepDetails(title, steps, ingredients, providedStepDetails = [], dishImage = '') {
+  const accurateDishImage = resolveAccurateDishImage('', title, dishImage);
   let photoPool = [];
   try {
     const found = await searchExactDishPhotos(title, ingredients);
@@ -56,7 +57,7 @@ async function ensureRecipeStepDetails(title, steps, ingredients, providedStepDe
   } catch {
     // fallback
   }
-  if (dishImage) photoPool.push(dishImage);
+  if (accurateDishImage) photoPool.push(accurateDishImage);
 
   const uniquePool = Array.from(new Set(photoPool.filter(Boolean)));
   let baseDetails = Array.isArray(providedStepDetails) ? providedStepDetails : [];
@@ -70,7 +71,7 @@ async function ensureRecipeStepDetails(title, steps, ingredients, providedStepDe
   return diversifyRecipeStepPhotos(
     steps,
     baseDetails,
-    dishImage || uniquePool[0] || '/dishes/rec-5.jpg'
+    accurateDishImage || uniquePool[0] || '/dishes/rec-5.jpg'
   );
 }
 
@@ -616,6 +617,8 @@ export async function startServer(options = {}) {
         recipe_json = excluded.recipe_json,
         swiped_at = CURRENT_TIMESTAMP
     `).run(suggestion.id, direction, JSON.stringify(suggestion));
+
+    suggestion.image = resolveAccurateDishImage(suggestion.id, suggestion.title, suggestion.image);
 
     if (direction === 'right') {
       const stepDetailsJson = JSON.stringify(

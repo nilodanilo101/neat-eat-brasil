@@ -2,7 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROBUST_RECIPE_VAULT } from './suggestionEngine.js';
-import { diversifyRecipeStepPhotos } from './stepPhotoMapper.js';
+import { diversifyRecipeStepPhotos, resolveAccurateDishImage } from './stepPhotoMapper.js';
 
 // Dicionário canônico de títulos curtos
 const SHORT_TITLES = {
@@ -215,7 +215,7 @@ export function runFullCatalogUpgrade(dbPath) {
 
   for (const r of recipes) {
     let title = SHORT_TITLES[r.id] || r.title;
-    let image = r.image;
+    let image = resolveAccurateDishImage(r.id, title, r.image);
     let steps = JSON.parse(r.steps_json || '[]');
     let stepDetails = JSON.parse(r.step_details_json || '[]');
     let tags = JSON.parse(r.tags_json || '[]');
@@ -227,31 +227,13 @@ export function runFullCatalogUpgrade(dbPath) {
       const vaultMatch = ROBUST_RECIPE_VAULT.find((v) => v.id === r.id);
       if (vaultMatch && vaultMatch.steps && vaultMatch.steps.length >= 5) {
         steps = vaultMatch.steps;
-        if (vaultMatch.image) image = vaultMatch.image;
+        if (vaultMatch.image) image = resolveAccurateDishImage(r.id, title, vaultMatch.image);
       }
     }
 
-    // Casos específicos de imagem / título
-    if (r.id === 'sug-daily-2026-10-31-2' || title.includes('Strogonoff de Frango')) {
-      title = 'Strogonoff de Frango';
-      image = '/dishes/sug-9.jpg';
+    // Casos específicos de tags Tirzepatida
+    if (title.includes('Strogonoff') || title.includes('Sanduíche') || title.includes('Xadrez') || title.includes('Carne de Panela') || title.includes('Caesar') || title.includes('Omelete')) {
       if (!tags.includes('Tirzepatida')) tags.push('Tirzepatida');
-    } else if (r.id === 'sug-daily-2026-11-01-2' || title.includes('Sanduíche')) {
-      title = 'Sanduíche de Frango Cremoso';
-      image = '/dishes/sug-6.jpg';
-      if (!tags.includes('Tirzepatida')) tags.push('Tirzepatida');
-    } else if (r.id === 'sug-9' || title.includes('Xadrez')) {
-      title = 'Frango Xadrez';
-      image = '/dishes/frango-xadrez.jpg';
-      steps = DETAILED_STEPS_CATALOG['sug-9'];
-      if (!tags.includes('Tirzepatida')) tags.push('Tirzepatida');
-    } else if (r.id === 'sug-daily-2026-11-01-1' || title.includes('Carne de Panela')) {
-      title = 'Carne de Panela com Mandioca';
-      image = '/dishes/sug-10.jpg';
-      if (!tags.includes('Tirzepatida')) tags.push('Tirzepatida');
-    } else if (r.id === 'rec-8') {
-      title = 'Strogonoff de Grão-de-Bico';
-      image = '/dishes/rec-8.jpg';
     }
 
     // Regra Tirzepatida: alta proteína com teor de gordura controlado
@@ -282,23 +264,6 @@ export function runFullCatalogUpgrade(dbPath) {
     try {
       const p = JSON.parse(row.recipe_json);
       if (SHORT_TITLES[p.id]) p.title = SHORT_TITLES[p.id];
-      if (p.id === 'sug-daily-2026-10-31-2' || p.title.includes('Strogonoff')) {
-        p.title = 'Strogonoff de Frango';
-        p.image = '/dishes/sug-9.jpg';
-        p.steps = DETAILED_STEPS_CATALOG['sug-daily-2026-10-31-2'];
-      } else if (p.id === 'sug-daily-2026-11-01-2' || p.title.includes('Sanduíche')) {
-        p.title = 'Sanduíche de Frango Cremoso';
-        p.image = '/dishes/sug-6.jpg';
-        p.steps = DETAILED_STEPS_CATALOG['sug-daily-2026-11-01-2'];
-      } else if (p.id === 'sug-daily-2026-11-01-1' || p.title.includes('Carne de Panela')) {
-        p.title = 'Carne de Panela com Mandioca';
-        p.image = '/dishes/sug-10.jpg';
-      } else if (p.id === 'sug-9' || p.title.includes('Xadrez')) {
-        p.title = 'Frango Xadrez';
-        p.image = '/dishes/frango-xadrez.jpg';
-        p.steps = DETAILED_STEPS_CATALOG['sug-9'];
-      }
-
       if (DETAILED_STEPS_CATALOG[p.id]) {
         p.steps = DETAILED_STEPS_CATALOG[p.id];
       } else if (p.steps && p.steps.length < 4) {
@@ -306,7 +271,8 @@ export function runFullCatalogUpgrade(dbPath) {
         if (v && v.steps) p.steps = v.steps;
       }
 
-      p.stepDetails = diversifyRecipeStepPhotos(p.steps, p.stepDetails, p.image || '/dishes/rec-5.jpg');
+      p.image = resolveAccurateDishImage(p.id, p.title, p.image);
+      p.stepDetails = diversifyRecipeStepPhotos(p.steps, p.stepDetails, p.image);
 
       db.prepare('UPDATE daily_discovered_recipes SET recipe_json = ? WHERE id = ?').run(
         JSON.stringify(p),
@@ -322,12 +288,10 @@ export function runFullCatalogUpgrade(dbPath) {
       const p = JSON.parse(s.recipe_json);
       if (SHORT_TITLES[p.id]) p.title = SHORT_TITLES[p.id];
       if (DETAILED_STEPS_CATALOG[p.id]) p.steps = DETAILED_STEPS_CATALOG[p.id];
-      if (p.id === 'sug-9' || p.title.includes('Xadrez')) {
-        p.title = 'Frango Xadrez';
-        p.image = '/dishes/frango-xadrez.jpg';
-        p.steps = DETAILED_STEPS_CATALOG['sug-9'];
-      }
-      p.stepDetails = diversifyRecipeStepPhotos(p.steps, p.stepDetails, p.image || '/dishes/rec-5.jpg');
+
+      p.image = resolveAccurateDishImage(p.id, p.title, p.image);
+      p.stepDetails = diversifyRecipeStepPhotos(p.steps, p.stepDetails, p.image);
+
       db.prepare('UPDATE suggestion_swipes SET recipe_json = ? WHERE id = ?').run(
         JSON.stringify(p),
         s.id
