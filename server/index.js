@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'node:path';
+import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import {
   db,
@@ -18,6 +19,7 @@ import {
 } from './db.js';
 import { CURRENT_VERSION, RELEASE_NOTES } from './changelog.js';
 import { CACHE_DIR } from './imageCache.js';
+import { renderMobileShoppingPageHtml } from './mobileShoppingHtml.js';
 import { parseSefazUrl, parseSefazHtml, parseSefazText, getDemoSefazInvoice } from './sefazParser.js';
 import { CANONICAL_INGREDIENTS, computeCulinaryPortionCost } from './ingredientMatcher.js';
 import { ROBUST_RECIPE_VAULT, isDishTooSimilarToExisting } from './suggestionEngine.js';
@@ -329,6 +331,20 @@ async function syncDailyDiscoveryBatchOncePerDay() {
   }
 }
 
+export function getLocalIpAddress() {
+  try {
+    const nets = os.networkInterfaces();
+    for (const name of Object.keys(nets)) {
+      for (const net of nets[name]) {
+        if (net.family === 'IPv4' && !net.internal) {
+          return net.address;
+        }
+      }
+    }
+  } catch {}
+  return '127.0.0.1';
+}
+
 export async function startServer(options = {}) {
   initDb();
   try {
@@ -376,6 +392,23 @@ export async function startServer(options = {}) {
   });
 
   app.use('/cache/step-images', express.static(CACHE_DIR, { maxAge: '7d' }));
+
+  app.get('/api/mobile-info', (req, res) => {
+    const ip = getLocalIpAddress();
+    const actualPort = req.socket.localPort || port;
+    const tokenQuery = sessionToken ? `?token=${encodeURIComponent(sessionToken)}` : '';
+    res.json({
+      localIp: ip,
+      port: actualPort,
+      mobileUrl: `http://${ip}:${actualPort}/mercado${tokenQuery}`,
+      sessionToken: sessionToken || '',
+    });
+  });
+
+  app.get('/mercado', (req, res) => {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(renderMobileShoppingPageHtml());
+  });
 
   app.get('/api/state', (_req, res) => {
     syncDailyDiscoveryBatchOncePerDay().catch(() => {});
@@ -608,7 +641,14 @@ export async function startServer(options = {}) {
   });
 
   app.post('/api/profile', (req, res) => {
-    const { weekly_budget, dietary_filter, household_size, name } = req.body;
+    const {
+      weekly_budget,
+      dietary_filter,
+      household_size,
+      name,
+      cooking_strategy,
+      prioritize_fridge,
+    } = req.body;
     const current = db.prepare('SELECT * FROM users ORDER BY id ASC LIMIT 1').get();
 
     db.prepare(`
@@ -616,13 +656,17 @@ export async function startServer(options = {}) {
       SET weekly_budget = ?,
           dietary_filter = ?,
           household_size = ?,
-          name = ?
+          name = ?,
+          cooking_strategy = ?,
+          prioritize_fridge = ?
       WHERE id = ?
     `).run(
       weekly_budget ?? current.weekly_budget,
       dietary_filter ?? current.dietary_filter,
       household_size ?? current.household_size,
       name ?? current.name,
+      cooking_strategy ?? current.cooking_strategy ?? 'varied',
+      prioritize_fridge !== undefined ? (prioritize_fridge ? 1 : 0) : (current.prioritize_fridge ?? 0),
       current.id
     );
 
@@ -634,16 +678,18 @@ export async function startServer(options = {}) {
     const budget = req.body.weekly_budget ?? req.body.budget ?? current?.weekly_budget ?? 300;
     const diet = req.body.dietary_filter ?? req.body.preference ?? req.body.diet ?? current?.dietary_filter ?? 'Todas';
     const size = req.body.household_size ?? req.body.householdSize ?? current?.household_size ?? 2;
+    const strategy = req.body.cooking_strategy ?? req.body.cookingStrategy ?? current?.cooking_strategy ?? 'varied';
+    const fridge = req.body.prioritize_fridge ?? req.body.prioritizeFridge ?? Boolean(current?.prioritize_fridge);
 
     if (current) {
       db.prepare(`
         UPDATE users
-        SET weekly_budget = ?, dietary_filter = ?, household_size = ?
+        SET weekly_budget = ?, dietary_filter = ?, household_size = ?, cooking_strategy = ?, prioritize_fridge = ?
         WHERE id = ?
-      `).run(Number(budget), String(diet), Number(size), current.id);
+      `).run(Number(budget), String(diet), Number(size), String(strategy), fridge ? 1 : 0, current.id);
     }
 
-    generateSmartMealPlan(Number(budget), String(diet), Number(size));
+    generateSmartMealPlan(Number(budget), String(diet), Number(size), String(strategy), Boolean(fridge));
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
@@ -1412,9 +1458,11 @@ export async function startServer(options = {}) {
   }
 
   return new Promise((resolve) => {
-    const server = app.listen(port, '127.0.0.1', () => {
+    const server = app.listen(port, '0.0.0.0', () => {
       const actualPort = server.address().port;
+      const localIp = getLocalIpAddress();
       console.log(`NeatEat Brasil server running at http://127.0.0.1:${actualPort}`);
+      console.log(`Modo Mercado disponível no celular em: http://${localIp}:${actualPort}/mercado`);
       resolve({ server, port: actualPort });
     });
   });

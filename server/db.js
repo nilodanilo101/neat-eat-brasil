@@ -31,6 +31,8 @@ export function initDb() {
       supermarket_id TEXT NOT NULL DEFAULT 'atacadao',
       dietary_filter TEXT NOT NULL DEFAULT 'Todas',
       household_size INTEGER NOT NULL DEFAULT 2,
+      cooking_strategy TEXT NOT NULL DEFAULT 'varied',
+      prioritize_fridge INTEGER NOT NULL DEFAULT 0,
       last_seen_version TEXT NOT NULL DEFAULT ''
     );
 
@@ -125,6 +127,8 @@ export function initDb() {
   const safeMigrations = [
     `ALTER TABLE users ADD COLUMN last_seen_version TEXT NOT NULL DEFAULT ''`,
     `ALTER TABLE users ADD COLUMN last_discovery_date TEXT NOT NULL DEFAULT ''`,
+    `ALTER TABLE users ADD COLUMN cooking_strategy TEXT NOT NULL DEFAULT 'varied'`,
+    `ALTER TABLE users ADD COLUMN prioritize_fridge INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE recipes ADD COLUMN portion_weight TEXT NOT NULL DEFAULT '350g por porção'`,
     `ALTER TABLE recipes ADD COLUMN plating_instructions TEXT NOT NULL DEFAULT ''`,
     `ALTER TABLE recipes ADD COLUMN specific_instructions TEXT NOT NULL DEFAULT ''`,
@@ -341,7 +345,13 @@ export function getAllRecipes() {
   });
 }
 
-export function generateSmartMealPlan(weeklyBudget, dietaryFilter, householdSize = 2) {
+export function generateSmartMealPlan(
+  weeklyBudget,
+  dietaryFilter,
+  householdSize = 2,
+  cookingStrategy = 'varied',
+  prioritizeFridge = false
+) {
   const days = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
   const slots = ['Café da Manhã', 'Almoço', 'Jantar'];
   const allRecipes = getAllRecipes();
@@ -361,38 +371,122 @@ export function generateSmartMealPlan(weeklyBudget, dietaryFilter, householdSize
   let eligible = allRecipes.filter(matchesDiet);
   if (eligible.length < 3) eligible = allRecipes;
 
+  // Busca itens em estoque na geladeira para priorização "Desperdício Zero"
+  let fridgeNames = [];
+  try {
+    const fridgeItems = db.prepare('SELECT name FROM fridge_items').all();
+    fridgeNames = fridgeItems.map((f) => (f.name || '').toLowerCase().trim()).filter(Boolean);
+  } catch {}
+
+  const calcFridgeMatches = (recipe) => {
+    if (!prioritizeFridge || fridgeNames.length === 0 || !Array.isArray(recipe.ingredients)) return 0;
+    let count = 0;
+    for (const ing of recipe.ingredients) {
+      const iName = (ing.name || '').toLowerCase().trim();
+      if (fridgeNames.some((fn) => iName.includes(fn) || fn.includes(iName))) {
+        count++;
+      }
+    }
+    return count;
+  };
+
   db.exec('DELETE FROM meal_plans');
   const insertSlot = db.prepare('INSERT INTO meal_plans (day, slot, recipe_id) VALUES (?, ?, ?)');
 
   let runningTotal = 0;
   const usedCounts = new Map();
 
-  for (let dIdx = 0; dIdx < days.length; dIdx++) {
-    const day = days[dIdx];
-    for (const slot of slots) {
-      let pool = eligible.filter((r) => r.category === slot);
-      if (pool.length === 0) pool = eligible;
+  const pickCandidate = (category, dayIndex, slotIndex, remainingStepsCount) => {
+    let pool = eligible.filter((r) => r.category === category);
+    if (pool.length === 0) pool = eligible;
 
-      const scored = pool.map((r) => {
-        const slotCost = r.costPerServing * householdSize;
-        return { recipe: r, slotCost };
+    const scored = pool.map((r) => {
+      const slotCost = r.costPerServing * householdSize;
+      const fridgeMatches = calcFridgeMatches(r);
+      return { recipe: r, slotCost, fridgeMatches };
+    });
+
+    const maxAllowedSlotCost = Math.max(4, (weeklyBudget - runningTotal) / Math.max(1, remainingStepsCount));
+    const affordable = scored.filter((s) => s.slotCost <= maxAllowedSlotCost * 1.25);
+    const candidateList = (affordable.length > 0 ? affordable : scored).sort((a, b) => {
+      if (prioritizeFridge && b.fridgeMatches !== a.fridgeMatches) {
+        return b.fridgeMatches - a.fridgeMatches;
+      }
+      const uA = usedCounts.get(a.recipe.id) || 0;
+      const uB = usedCounts.get(b.recipe.id) || 0;
+      if (uA !== uB) return uA - uB;
+      return a.slotCost - b.slotCost;
+    });
+
+    const chosen = candidateList[(dayIndex + slotIndex) % Math.min(3, candidateList.length)];
+    return chosen;
+  };
+
+  if (cookingStrategy === 'lunch_repeats_dinner') {
+    // ESTRATÉGIA: ALMOÇO VIRA JANTAR (Marmita Prática)
+    // Cozinha uma vez no almoço com rendimento escalado; jantar é a repetição saborosa
+    for (let dIdx = 0; dIdx < days.length; dIdx++) {
+      const day = days[dIdx];
+      const remainingSteps = (days.length - dIdx) * 2;
+
+      // 1. Café da Manhã
+      const breakfast = pickCandidate('Café da Manhã', dIdx, 0, remainingSteps);
+      runningTotal += breakfast.slotCost;
+      usedCounts.set(breakfast.recipe.id, (usedCounts.get(breakfast.recipe.id) || 0) + 1);
+      insertSlot.run(day, 'Café da Manhã', breakfast.recipe.id);
+
+      // 2. Almoço
+      const lunch = pickCandidate('Almoço', dIdx, 1, remainingSteps);
+      runningTotal += lunch.slotCost;
+      usedCounts.set(lunch.recipe.id, (usedCounts.get(lunch.recipe.id) || 0) + 1);
+      insertSlot.run(day, 'Almoço', lunch.recipe.id);
+
+      // 3. Jantar recebe a mesma receita do Almoço (Marmita inteligente)
+      runningTotal += lunch.slotCost;
+      usedCounts.set(lunch.recipe.id, (usedCounts.get(lunch.recipe.id) || 0) + 1);
+      insertSlot.run(day, 'Jantar', lunch.recipe.id);
+    }
+  } else if (cookingStrategy === 'batch_2days') {
+    // ESTRATÉGIA: PREPARO EM LOTE / BATCH COOKING (Cozinhar para 2 Dias)
+    const dayPairs = [
+      ['Segunda', 'Terça'],
+      ['Quarta', 'Quinta'],
+      ['Sexta', 'Sábado'],
+      ['Domingo']
+    ];
+
+    dayPairs.forEach((pair, pairIdx) => {
+      const remainingSteps = (dayPairs.length - pairIdx) * 3;
+      const bFast = pickCandidate('Café da Manhã', pairIdx, 0, remainingSteps);
+      const lunch = pickCandidate('Almoço', pairIdx, 1, remainingSteps);
+      const dinner = pickCandidate('Jantar', pairIdx, 2, remainingSteps);
+
+      pair.forEach((day) => {
+        runningTotal += bFast.slotCost;
+        usedCounts.set(bFast.recipe.id, (usedCounts.get(bFast.recipe.id) || 0) + 1);
+        insertSlot.run(day, 'Café da Manhã', bFast.recipe.id);
+
+        runningTotal += lunch.slotCost;
+        usedCounts.set(lunch.recipe.id, (usedCounts.get(lunch.recipe.id) || 0) + 1);
+        insertSlot.run(day, 'Almoço', lunch.recipe.id);
+
+        runningTotal += dinner.slotCost;
+        usedCounts.set(dinner.recipe.id, (usedCounts.get(dinner.recipe.id) || 0) + 1);
+        insertSlot.run(day, 'Jantar', dinner.recipe.id);
       });
-
-      const remainingSlots = (days.length - dIdx) * 3 - slots.indexOf(slot);
-      const maxAllowedSlotCost = Math.max(4, (weeklyBudget - runningTotal) / Math.max(1, remainingSlots));
-
-      const affordable = scored.filter((s) => s.slotCost <= maxAllowedSlotCost * 1.15);
-      const candidateList = (affordable.length > 0 ? affordable : scored).sort((a, b) => {
-        const uA = usedCounts.get(a.recipe.id) || 0;
-        const uB = usedCounts.get(b.recipe.id) || 0;
-        if (uA !== uB) return uA - uB;
-        return a.slotCost - b.slotCost;
-      });
-
-      const chosen = candidateList[(dIdx + slots.indexOf(slot)) % Math.min(3, candidateList.length)];
-      runningTotal += chosen.slotCost;
-      usedCounts.set(chosen.recipe.id, (usedCounts.get(chosen.recipe.id) || 0) + 1);
-      insertSlot.run(day, slot, chosen.recipe.id);
+    });
+  } else {
+    // ESTRATÉGIA: VARIADA (21 Refeições Únicas)
+    for (let dIdx = 0; dIdx < days.length; dIdx++) {
+      const day = days[dIdx];
+      for (let sIdx = 0; sIdx < slots.length; sIdx++) {
+        const slot = slots[sIdx];
+        const remainingSlots = (days.length - dIdx) * 3 - sIdx;
+        const chosen = pickCandidate(slot, dIdx, sIdx, remainingSlots);
+        runningTotal += chosen.slotCost;
+        usedCounts.set(chosen.recipe.id, (usedCounts.get(chosen.recipe.id) || 0) + 1);
+        insertSlot.run(day, slot, chosen.recipe.id);
+      }
     }
   }
 }

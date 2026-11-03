@@ -56,7 +56,10 @@ import {
   ChefHat,
   Calculator,
   Coins,
+  Smartphone,
+  Share2,
 } from 'lucide-react';
+import QRCode from 'qrcode';
 import {
   playChefServiceBell,
   playCookingTimerAlarm,
@@ -317,6 +320,66 @@ if (typeof window !== 'undefined' && sessionSecurityToken) {
   };
 }
 
+function generateWhatsAppShoppingList(shoppingList = [], checkedMap = {}, householdSize = 2, supermarketName = 'Atacadão') {
+  const categories = {
+    '🥩 Açougue & Proteínas': [],
+    '🥦 Hortifrúti & Feira': [],
+    '🧀 Laticínios & Ovos': [],
+    '🌾 Mercearia & Grãos': [],
+    '🧂 Temperos & Condimentos': [],
+    '🛒 Outros Insumos': [],
+  };
+
+  const categorize = (name = '') => {
+    const n = (name || '').toLowerCase();
+    if (n.includes('frango') || n.includes('carne') || n.includes('patinho') || n.includes('acém') || n.includes('bife') || n.includes('peixe') || n.includes('tilápia') || n.includes('salmão') || n.includes('lombo') || n.includes('calabresa') || n.includes('bacon')) return '🥩 Açougue & Proteínas';
+    if (n.includes('ovo') || n.includes('queijo') || n.includes('ricota') || n.includes('leite') || n.includes('iogurte') || n.includes('manteiga')) return '🧀 Laticínios & Ovos';
+    if (n.includes('cebola') || n.includes('alho') || n.includes('tomate') || n.includes('cenoura') || n.includes('abóbora') || n.includes('batata') || n.includes('espinafre') || n.includes('couve') || n.includes('pimentão') || n.includes('brócolis') || n.includes('banana') || n.includes('limão') || n.includes('alface') || n.includes('cheiro-verde') || n.includes('salsinha')) return '🥦 Hortifrúti & Feira';
+    if (n.includes('sal') || n.includes('pimenta') || n.includes('orégano') || n.includes('páprica') || n.includes('louro') || n.includes('cominho')) return '🧂 Temperos & Condimentos';
+    if (n.includes('arroz') || n.includes('feijão') || n.includes('aveia') || n.includes('tapioca') || n.includes('macarrão') || n.includes('azeite') || n.includes('extrato') || n.includes('shoyu') || n.includes('quinoa') || n.includes('grão-de-bico') || n.includes('polvilho') || n.includes('pão')) return '🌾 Mercearia & Grãos';
+    return '🛒 Outros Insumos';
+  };
+
+  let totalEstimate = 0;
+  let totalItemsCount = 0;
+
+  shoppingList.forEach((item) => {
+    totalEstimate += Number(item.totalPrice) || 0;
+    totalItemsCount++;
+    const cat = categorize(item.name);
+    const isChecked = Boolean(checkedMap[(item.name || '').toLowerCase().trim()]);
+    categories[cat].push({
+      ...item,
+      isChecked,
+    });
+  });
+
+  const now = new Date().toLocaleDateString('pt-BR');
+  let text = `🛒 *LISTA DE COMPRAS • NEATEAT BRASIL*\\n`;
+  text += `📅 _Semana de ${now}_ • ${householdSize} ${householdSize === 1 ? 'pessoa' : 'pessoas'}\\n`;
+  text += `🏪 Supermercado: *${supermarketName || 'Atacadão'}*\\n`;
+  text += `────────────────────\\n\\n`;
+
+  for (const [catName, items] of Object.entries(categories)) {
+    if (items.length === 0) continue;
+    text += `*${catName}*\\n`;
+    items.forEach((it) => {
+      const mark = it.isChecked ? '✅' : '⬜';
+      const formattedAmount = `${it.amount} ${it.unit}`;
+      const priceText = it.totalPrice ? ` (~R$ ${Number(it.totalPrice).toFixed(2).replace('.', ',')})` : '';
+      text += `${mark} ${it.name} • ${formattedAmount}${priceText}\\n`;
+    });
+    text += `\\n`;
+  }
+
+  text += `────────────────────\\n`;
+  text += `💰 *Total Estimado:* R$ ${totalEstimate.toFixed(2).replace('.', ',')}\\n`;
+  text += `📦 *Total:* ${totalItemsCount} insumos\\n`;
+  text += `\\n_Sincronizado via NeatEat Brasil 3.5.0_`;
+
+  return text;
+}
+
 export default function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -385,6 +448,68 @@ export default function App() {
 
   // Quick Repeat / Marmita Meal Target
   const [repeatRecipeTarget, setRepeatRecipeTarget] = useState(null); // { recipe, sourceDay, sourceSlot }
+
+  // Mobile Supermarket & WhatsApp state (NeatEat 3.5.0)
+  const [mobileInfo, setMobileInfo] = useState(null);
+  const [mobileQrModalOpen, setMobileQrModalOpen] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
+  const [toastMessage, setToastMessage] = useState('');
+
+  useEffect(() => {
+    if (toastMessage) {
+      const t = setTimeout(() => setToastMessage(''), 3500);
+      return () => clearTimeout(t);
+    }
+  }, [toastMessage]);
+
+  function handleShareWhatsApp() {
+    const waText = generateWhatsAppShoppingList(
+      data?.shoppingList || [],
+      data?.checkedMap || {},
+      data?.user?.household_size || 2,
+      data?.user?.supermarket_id || 'Atacadão'
+    );
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(waText).catch(() => {});
+    }
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`;
+    window.open(waUrl, '_blank');
+    setToastMessage('Lista de compras enviada para o WhatsApp e copiada!');
+  }
+
+  function handleCopyFormattedList() {
+    const waText = generateWhatsAppShoppingList(
+      data?.shoppingList || [],
+      data?.checkedMap || {},
+      data?.user?.household_size || 2,
+      data?.user?.supermarket_id || 'Atacadão'
+    );
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(waText).then(() => {
+        setToastMessage('Lista organizada por corredores copiada!');
+      });
+    } else {
+      setToastMessage('Não foi possível copiar automaticamente.');
+    }
+  }
+
+  async function handleOpenMobileQrCode() {
+    try {
+      const res = await fetch('/api/mobile-info');
+      const json = await res.json();
+      setMobileInfo(json);
+      const dataUrl = await QRCode.toDataURL(json.mobileUrl, {
+        width: 320,
+        margin: 2,
+        color: { dark: '#042f2e', light: '#ffffff' },
+      });
+      setQrCodeDataUrl(dataUrl);
+      setMobileQrModalOpen(true);
+    } catch (err) {
+      console.error('Erro ao gerar QR Code do celular:', err);
+      setToastMessage('Erro ao obter link do celular.');
+    }
+  }
 
   // SEFAZ / NFC-e Invoice & Price Calibration Modal State
   const [sefazModalOpen, setSefazModalOpen] = useState(false);
@@ -767,10 +892,13 @@ export default function App() {
           weekly_budget: Number(budgetDraft),
           dietary_filter: data.user.dietary_filter,
           household_size: data.user.household_size,
+          cooking_strategy: data.user.cooking_strategy || 'varied',
+          prioritize_fridge: Boolean(data.user.prioritize_fridge),
         }),
       });
       const json = await res.json();
       setData(json);
+      setToastMessage('Cardápio semanal recalculado com sucesso!');
     } catch (err) {
       console.error('Erro ao gerar plano inteligente:', err);
     } finally {
@@ -1872,6 +2000,68 @@ export default function App() {
                 </div>
               </div>
 
+              {/* SELETORES: ESTRATÉGIA DE COCÇÃO & DESPERDÍCIO ZERO */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 pt-3 border-t border-slate-800/60 items-center">
+                {/* Rotina de Cocção */}
+                <div className="md:col-span-7 bg-slate-950/70 p-3.5 rounded-2xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <Utensils className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <div>
+                      <span className="text-xs font-bold text-slate-200 block">Rotina de Cocção</span>
+                      <span className="text-[11px] text-slate-400 block">
+                        {user.cooking_strategy === 'lunch_repeats_dinner'
+                          ? 'Dobra a panela do almoço e repete no jantar (-50% de louça)'
+                          : user.cooking_strategy === 'batch_2days'
+                          ? 'Cozinha Segunda/Quarta/Sexta/Domingo em lote (2 dias)'
+                          : 'Prepara uma receita única para cada uma das 21 refeições'}
+                      </span>
+                    </div>
+                  </div>
+                  <select
+                    value={user.cooking_strategy || 'varied'}
+                    onChange={(e) => updateProfile({ cooking_strategy: e.target.value })}
+                    className="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-bold text-emerald-300 focus:outline-none focus:border-emerald-500 cursor-pointer"
+                  >
+                    <option value="varied">🎲 Variada (21 Pratos Únicos)</option>
+                    <option value="lunch_repeats_dinner">🍲 Marmita Prática (Almoço vira Jantar)</option>
+                    <option value="batch_2days">⏱️ Preparo em Lote (Cozinhar p/ 2 Dias)</option>
+                  </select>
+                </div>
+
+                {/* Desperdício Zero (Priorizar Geladeira) */}
+                <div className="md:col-span-5 bg-slate-950/70 p-3.5 rounded-2xl border border-white/5 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <Refrigerator className={`w-4 h-4 shrink-0 ${user.prioritize_fridge ? 'text-teal-400' : 'text-slate-400'}`} />
+                    <div>
+                      <span className="text-xs font-bold text-slate-200 block">Desperdício Zero</span>
+                      <span className="text-[11px] text-slate-400 block">
+                        {user.prioritize_fridge
+                          ? 'Prioriza no cardápio insumos que já tem em casa'
+                          : 'Planeja sem priorizar o estoque da geladeira'}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => updateProfile({ prioritize_fridge: user.prioritize_fridge ? 0 : 1 })}
+                    className={`px-3 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition cursor-pointer border ${
+                      user.prioritize_fridge
+                        ? 'bg-teal-500/20 text-teal-300 border-teal-500/40 shadow-sm shadow-teal-950/50'
+                        : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                    }`}
+                  >
+                    {user.prioritize_fridge ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-teal-400" />
+                        <span>Ativo</span>
+                      </>
+                    ) : (
+                      <span>Desativado</span>
+                    )}
+                  </button>
+                </div>
+              </div>
+
               {user.dietary_filter === 'Tirzepatida' && (
                 <div className="mt-3 p-3 rounded-xl bg-teal-950/40 border border-teal-500/30 flex items-start gap-2.5 text-teal-200 text-xs">
                   <Sparkles className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
@@ -2260,6 +2450,57 @@ export default function App() {
         {activeTab === 'shopping' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-4 space-y-5">
+              {/* PAINEL LEVAR AO SUPERMERCADO (WHATSAPP & QR CODE NO CELULAR) */}
+              <div className="bg-gradient-to-br from-emerald-950/60 via-slate-900 to-teal-950/50 rounded-3xl p-5 sm:p-6 border border-emerald-500/30 shadow-xl backdrop-blur-xl space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center">
+                      <Smartphone className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-sm text-slate-100">
+                        Levar ao Supermercado
+                      </h4>
+                      <p className="text-[11px] text-emerald-300/80 font-medium">
+                        Sua lista no bolso sem complicação
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    Novo v3.5
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleShareWhatsApp}
+                    className="py-3 px-3 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.98] shadow-md shadow-[#25D366]/20 cursor-pointer"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span>WhatsApp</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleOpenMobileQrCode}
+                    className="py-3 px-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.98] shadow-md shadow-teal-950/40 cursor-pointer"
+                  >
+                    <QrCode className="w-4 h-4" />
+                    <span>QR no Celular</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleCopyFormattedList}
+                  className="w-full py-2.5 px-3 rounded-xl bg-slate-950/80 hover:bg-slate-800 text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-white/5 cursor-pointer transition"
+                >
+                  <Copy className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Copiar Lista por Corredores</span>
+                </button>
+              </div>
+
               {/* PAINEL DO MERCADO (MODO FOCO & TOTAL DINÂMICO NO CARRINHO) */}
               <div className="bg-slate-900/85 rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-xl backdrop-blur-xl space-y-4">
                 <div className="flex items-center justify-between">
@@ -4925,6 +5166,94 @@ export default function App() {
           </div>
         );
       })()}
+
+      {/* MODAL: MODO MERCADO NO CELULAR (QR CODE) */}
+      {mobileQrModalOpen && (
+        <div
+          onClick={() => setMobileQrModalOpen(false)}
+          className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl space-y-4 text-center"
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-white/5">
+              <div className="flex items-center gap-2.5 text-left">
+                <div className="w-9 h-9 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30 flex items-center justify-center">
+                  <Smartphone className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-base text-white">Lista no Celular</h3>
+                  <p className="text-[11px] text-slate-400 font-medium">Use enquanto faz compras</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setMobileQrModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="bg-white p-3.5 rounded-2xl inline-block shadow-lg mx-auto">
+              {qrCodeDataUrl ? (
+                <img src={qrCodeDataUrl} alt="QR Code Lista de Compras" className="w-56 h-56 object-contain mx-auto" />
+              ) : (
+                <div className="w-56 h-56 flex items-center justify-center text-slate-400 text-xs">Gerando QR Code...</div>
+              )}
+            </div>
+
+            <div className="space-y-2 text-left bg-slate-950/80 p-3.5 rounded-2xl border border-white/5 text-xs text-slate-300">
+              <p className="font-semibold text-slate-300">
+                1. Aponte a câmera do celular (conectado ao mesmo Wi-Fi de casa).
+              </p>
+              <p className="font-semibold text-slate-300">
+                2. A lista de compras abre no navegador do celular, marcando itens em tempo real!
+              </p>
+              {mobileInfo?.mobileUrl && (
+                <div className="pt-2 flex items-center justify-between gap-2 border-t border-white/5">
+                  <span className="text-[11px] text-teal-400 font-mono truncate">{mobileInfo.mobileUrl}</span>
+                  <button
+                    onClick={() => {
+                      if (navigator.clipboard) {
+                        navigator.clipboard.writeText(mobileInfo.mobileUrl);
+                        setToastMessage('Link copiado!');
+                      }
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-teal-600/30 text-teal-300 text-[11px] font-bold border border-teal-500/40 hover:bg-teal-600/50 cursor-pointer"
+                  >
+                    Copiar
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={handleShareWhatsApp}
+                className="flex-1 py-3 px-3 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-md shadow-[#25D366]/20"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>WhatsApp</span>
+              </button>
+              <button
+                onClick={() => setMobileQrModalOpen(false)}
+                className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition cursor-pointer"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TOAST FLUTUANTE DE SUCESSO */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-emerald-600 text-white font-extrabold text-xs sm:text-sm px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 border border-emerald-400/40 animate-bounce">
+          <CheckCircle2 className="w-4 h-4 text-emerald-100 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
 
       {/* MODAL 5: NOVIDADES DA VERSÃO (APARECE APENAS NA ABERTURA QUANDO ATUALIZADO) */}
       {changelogModalOpen && latestRelease && (

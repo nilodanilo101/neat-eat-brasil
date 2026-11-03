@@ -1,6 +1,21 @@
-export const CURRENT_VERSION = '3.1.0';
+export const CURRENT_VERSION = '3.5.0';
 
 export const RELEASE_NOTES = [
+  {
+    version: '3.5.0',
+    date: '03/11/2026',
+    title: 'NeatEat Brasil 3.5 — Ponte Supermercado (WhatsApp & QR Code no Celular), Modo Marmita & Desperdício Zero',
+    summary:
+      'Uma grande atualização voltada para a vida real de quem cozinha e faz supermercado. Conectamos seu computador ao celular para levar a lista de compras no bolso via WhatsApp ou QR Code em tempo real, introduzimos o Modo Marmita inteligente (Almoço vira Jantar) que poupa 50% de louça e tempo no fogão, e o Planejamento Inverso Desperdício Zero que prioriza o que já está na sua geladeira.',
+    items: [
+      '📲 Ponte Supermercado no WhatsApp: exportação instantânea da lista consolidada de compras formatada por corredores reais de supermercado (Açougue, Hortifrúti, Laticínios, Mercearia e Temperos) com caixas de checagem [ ] e valores estimados prontos para enviar no WhatsApp ou copiar.',
+      '📱 Modo Mercado no Celular com QR Code: aponte a câmera do celular para o QR Code na tela de compras e abra sua lista interativa diretamente no smartphone, marcando os itens no carrinho em tempo real enquanto caminha no supermercado.',
+      '🍲 Modo Marmita Inteligente (Almoço vira Jantar): estratégia prática de cocção que dobra o rendimento da receita do almoço com uma panela só e replica como jantar prático, reduzindo o tempo de cozinha pela metade e enxugando a lista de compras em até 35%.',
+      '⏱️ Preparo em Lote (Batch Cooking para 2 Dias): alterne para cozinhar apenas 3 a 4 vezes na semana em vez de 21 preparos exaustivos.',
+      '🧊 Planejamento Inverso Desperdício Zero: interruptor para priorizar insumos que já estão na sua geladeira e despensa, dando preferência no cardápio aos ingredientes com estoque para evitar desperdício e economizar dinheiro imediatamente.',
+      '📸 Acervo 100% Autêntico e Dedicado: 34 bibliotecas fotográficas dedicadas com etapas reais para cada prato do acervo, eliminando fotos cruzadas e garantindo fidelidade gastronômica impecável.'
+    ]
+  },
   {
     version: '3.1.0',
     date: '03/11/2026',
