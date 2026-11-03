@@ -242,116 +242,6 @@ function getFullState() {
   };
 }
 
-const DAILY_ROTATION_THEMES = [
-  {
-    title: 'Strogonoff Caseiro de Frango com Batata Palha',
-    category: 'Almoço',
-    prepTime: 25,
-    servings: 3,
-    calories: 460,
-    protein: 34,
-    carbs: 38,
-    fat: 18,
-    tags: ['Alta Proteína', 'Rápido', 'Econômico'],
-    portionWeight: '360g por porção',
-    ingredients: [
-      { name: 'Peito de frango', amount: 450, unit: 'g', aisle: 'Açougue', basePrice: 9.90 },
-      { name: 'Creme de leite', amount: 200, unit: 'g', aisle: 'Mercearia', basePrice: 3.50 },
-      { name: 'Molho de tomate', amount: 120, unit: 'g', aisle: 'Mercearia', basePrice: 1.80 },
-      { name: 'Arroz branco', amount: 200, unit: 'g', aisle: 'Mercearia', basePrice: 1.50 },
-    ],
-  },
-  {
-    title: 'Carne de Panela Desfiada com Mandioca Cozida',
-    category: 'Almoço',
-    prepTime: 40,
-    servings: 3,
-    calories: 490,
-    protein: 37,
-    carbs: 42,
-    fat: 19,
-    tags: ['Alta Proteína', 'Sem Glúten', 'Sem Lactose'],
-    portionWeight: '390g por porção',
-    ingredients: [
-      { name: 'Carne bovina (acém)', amount: 500, unit: 'g', aisle: 'Açougue', basePrice: 17.50 },
-      { name: 'Mandioca descascada', amount: 350, unit: 'g', aisle: 'Hortifruti', basePrice: 2.90 },
-      { name: 'Cebola', amount: 120, unit: 'g', aisle: 'Hortifruti', basePrice: 0.90 },
-      { name: 'Tomate', amount: 120, unit: 'g', aisle: 'Hortifruti', basePrice: 1.10 },
-    ],
-  },
-  {
-    title: 'Suflê Leve de Legumes com Queijo Gratinado',
-    category: 'Jantar',
-    prepTime: 30,
-    servings: 2,
-    calories: 310,
-    protein: 18,
-    carbs: 22,
-    fat: 16,
-    tags: ['Vegetariano', 'Econômico'],
-    portionWeight: '250g por porção',
-    ingredients: [
-      { name: 'Cenoura', amount: 150, unit: 'g', aisle: 'Hortifruti', basePrice: 1.20 },
-      { name: 'Chuchu ou abobrinha', amount: 150, unit: 'g', aisle: 'Hortifruti', basePrice: 1.30 },
-      { name: 'Ovo', amount: 3, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 2.70 },
-      { name: 'Queijo muçarela', amount: 80, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 3.90 },
-    ],
-  },
-  {
-    title: 'Panqueca Proteica de Espinafre com Frango e Ricota',
-    category: 'Jantar',
-    prepTime: 25,
-    servings: 2,
-    calories: 375,
-    protein: 33,
-    carbs: 28,
-    fat: 13,
-    tags: ['Alta Proteína', 'Econômico'],
-    portionWeight: '310g por porção',
-    ingredients: [
-      { name: 'Peito de frango', amount: 300, unit: 'g', aisle: 'Açougue', basePrice: 6.90 },
-      { name: 'Espinafre ou couve', amount: 80, unit: 'g', aisle: 'Hortifruti', basePrice: 1.80 },
-      { name: 'Ovo', amount: 2, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 1.80 },
-      { name: 'Leite integral', amount: 160, unit: 'ml', aisle: 'Laticínios e Ovos', basePrice: 1.10 },
-    ],
-  },
-  {
-    title: 'Sanduíche Natural de Frango Cremoso no Pão Integral',
-    category: 'Café da Manhã',
-    prepTime: 10,
-    servings: 2,
-    calories: 320,
-    protein: 24,
-    carbs: 32,
-    fat: 10,
-    tags: ['Rápido', 'Alta Proteína', 'Econômico'],
-    portionWeight: '210g por porção',
-    ingredients: [
-      { name: 'Pão integral', amount: 120, unit: 'g', aisle: 'Padaria', basePrice: 2.80 },
-      { name: 'Peito de frango', amount: 200, unit: 'g', aisle: 'Açougue', basePrice: 4.60 },
-      { name: 'Cenoura', amount: 80, unit: 'g', aisle: 'Hortifruti', basePrice: 0.65 },
-      { name: 'Requeijão cremoso', amount: 60, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 2.10 },
-    ],
-  },
-  {
-    title: 'Omelete Recheado com Queijo Minas e Ervas Finas',
-    category: 'Café da Manhã',
-    prepTime: 8,
-    servings: 1,
-    calories: 285,
-    protein: 21,
-    carbs: 5,
-    fat: 19,
-    tags: ['Low Carb', 'Sem Glúten', 'Rápido', 'Alta Proteína', 'Vegetariano'],
-    portionWeight: '180g por porção',
-    ingredients: [
-      { name: 'Ovo', amount: 3, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 2.70 },
-      { name: 'Queijo minas frescal', amount: 50, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 2.40 },
-      { name: 'Tomate', amount: 60, unit: 'g', aisle: 'Hortifruti', basePrice: 0.55 },
-    ],
-  },
-];
-
 let syncingDailyDate = null;
 
 async function syncDailyDiscoveryBatchOncePerDay() {
@@ -604,8 +494,16 @@ export async function startServer(options = {}) {
 
   // TINDER-STYLE SUGGESTION SWIPE (LEFT = PASS, RIGHT = ADD TO CATALOG)
   app.post('/api/suggestions/swipe', (req, res) => {
-    const { suggestion, direction } = req.body;
-    if (!suggestion || !suggestion.id || !['left', 'right'].includes(direction)) {
+    let suggestion = req.body.suggestion || req.body.recipe;
+    let direction = req.body.direction;
+    if (!direction && req.body.action) {
+      direction = req.body.action === 'like' ? 'right' : req.body.action === 'dismiss' ? 'left' : req.body.action;
+    }
+    const sugId = suggestion?.id || req.body.suggestionId;
+    if (!suggestion && sugId) {
+      suggestion = ROBUST_RECIPE_VAULT.find((v) => v.id === sugId);
+    }
+    if (!suggestion || !sugId || !['left', 'right'].includes(direction)) {
       return res.status(400).json({ error: 'Dados de swipe inválidos.' });
     }
 
@@ -616,9 +514,9 @@ export async function startServer(options = {}) {
         action = excluded.action,
         recipe_json = excluded.recipe_json,
         swiped_at = CURRENT_TIMESTAMP
-    `).run(suggestion.id, direction, JSON.stringify(suggestion));
+    `).run(sugId, direction, JSON.stringify(suggestion));
 
-    suggestion.image = resolveAccurateDishImage(suggestion.id, suggestion.title, suggestion.image);
+    suggestion.image = resolveAccurateDishImage(sugId, suggestion.title, suggestion.image);
 
     if (direction === 'right') {
       const stepDetailsJson = JSON.stringify(
@@ -729,22 +627,36 @@ export async function startServer(options = {}) {
 
   app.post('/api/plan/generate', (req, res) => {
     const current = db.prepare('SELECT * FROM users ORDER BY id ASC LIMIT 1').get();
-    const budget = req.body.weekly_budget ?? current.weekly_budget;
-    const diet = req.body.dietary_filter ?? current.dietary_filter;
-    const size = req.body.household_size ?? current.household_size;
+    const budget = req.body.weekly_budget ?? req.body.budget ?? current?.weekly_budget ?? 300;
+    const diet = req.body.dietary_filter ?? req.body.preference ?? req.body.diet ?? current?.dietary_filter ?? 'Todas';
+    const size = req.body.household_size ?? req.body.householdSize ?? current?.household_size ?? 2;
 
-    db.prepare(`
-      UPDATE users
-      SET weekly_budget = ?, dietary_filter = ?, household_size = ?
-      WHERE id = ?
-    `).run(budget, diet, size, current.id);
+    if (current) {
+      db.prepare(`
+        UPDATE users
+        SET weekly_budget = ?, dietary_filter = ?, household_size = ?
+        WHERE id = ?
+      `).run(Number(budget), String(diet), Number(size), current.id);
+    }
 
-    generateSmartMealPlan(Number(budget), diet, Number(size));
+    generateSmartMealPlan(Number(budget), String(diet), Number(size));
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
   app.post('/api/plan/slot', (req, res) => {
-    const { day, slot, recipe_id } = req.body;
+    const day = req.body.day;
+    const slot = req.body.slot;
+    const recipe_id = req.body.recipe_id || req.body.recipeId;
+
+    if (!day || !slot || !recipe_id) {
+      return res.status(400).json({ error: 'Parâmetros inválidos: day, slot e recipe_id são obrigatórios.' });
+    }
+
+    const recipeExists = db.prepare('SELECT id FROM recipes WHERE id = ?').get(recipe_id);
+    if (!recipeExists) {
+      return res.status(404).json({ error: `Receita com ID "${recipe_id}" não encontrada no catálogo.` });
+    }
+
     db.prepare(`
       INSERT INTO meal_plans (day, slot, recipe_id)
       VALUES (?, ?, ?)
@@ -923,11 +835,14 @@ export async function startServer(options = {}) {
       return res.status(400).json({ error: 'Preço inválido para o insumo.' });
     }
     const updatedPrices = updateMarketPrice(key, numPrice, supermarket || 'Ajuste Manual do Usuário');
+    const fullState = getFullState();
     res.json({
       success: true,
       message: 'Preço do insumo atualizado e fichas técnicas recalculadas.',
       prices: updatedPrices,
-      fullState: getFullState(),
+      fullState,
+      ...fullState,
+      currentVersion: appVersion || CURRENT_VERSION,
     });
   });
 
@@ -935,10 +850,13 @@ export async function startServer(options = {}) {
   app.post('/api/market-prices/recalculate', (_req, res) => {
     try {
       recalcRecipesCost();
+      const fullState = getFullState();
       res.json({
         success: true,
         message: 'Todas as fichas técnicas foram recalculadas com os preços médios mais recentes.',
-        fullState: getFullState(),
+        fullState,
+        ...fullState,
+        currentVersion: appVersion || CURRENT_VERSION,
       });
     } catch (err) {
       res.status(500).json({ error: 'Erro ao recalcular custos: ' + err.message });
@@ -1483,7 +1401,7 @@ export async function startServer(options = {}) {
   } else {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, hmr: { port: 0 } },
       appType: 'spa',
     });
     app.use(vite.middlewares);

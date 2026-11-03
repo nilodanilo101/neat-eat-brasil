@@ -333,6 +333,14 @@ export default function App() {
   const [swapSlotTarget, setSwapSlotTarget] = useState(null); // { day, slot }
   const [changelogModalOpen, setChangelogModalOpen] = useState(false);
 
+  // Fallback seguro contra imagens quebradas ou offline
+  const handleImgError = (e) => {
+    if (e?.currentTarget) {
+      e.currentTarget.onerror = null;
+      e.currentTarget.src = '/dishes/rec-5.jpg';
+    }
+  };
+
   // Planner UI Mode & State (Visão Semanal vs Foco Diário + Progressive Disclosure Menu)
   const [plannerViewMode, setPlannerViewMode] = useState('week'); // 'week' | 'day'
   const [plannerSelectedDay, setPlannerSelectedDay] = useState('Segunda');
@@ -340,7 +348,7 @@ export default function App() {
 
   useEffect(() => {
     function handleGlobalClick(e) {
-      if (activeMealMenu && !e.target.closest('[data-meal-menu]')) {
+      if (activeMealMenu && !e.target.closest('[data-meal-menu-container]')) {
         setActiveMealMenu(null);
       }
     }
@@ -1369,7 +1377,6 @@ export default function App() {
     return (
       <div
         key={`${day}-${slot}`}
-        data-meal-menu
         className="group relative rounded-2xl border border-white/5 bg-slate-950/70 hover:bg-slate-900/90 hover:border-emerald-500/40 p-2.5 transition-all duration-200 flex flex-col justify-between gap-2 shadow-sm"
       >
         {/* 1. Header do Card: Turno Discreto + Preço em Tipografia Limpa */}
@@ -1399,6 +1406,7 @@ export default function App() {
             src={recipe.image}
             alt={recipe.title}
             loading="lazy"
+            onError={handleImgError}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/20" />
@@ -1442,7 +1450,7 @@ export default function App() {
 
           {/* Menu de Contexto 3 Pontinhos (Acessível no Touch e Desktop) */}
           <div className="absolute top-1.5 right-1.5 z-10" onClick={(e) => e.stopPropagation()}>
-            <div className="relative">
+            <div data-meal-menu-container className="relative">
               <button
                 type="button"
                 onClick={() => setActiveMealMenu(isMenuOpen ? null : { day, slot })}
@@ -1981,7 +1989,7 @@ export default function App() {
                   {DAYS.map((day) => {
                     const daySlots = SLOTS.map((slot) => {
                       const found = mealPlan.find((m) => m.day === day && m.slot === slot);
-                      const recipe = found ? recipeMap.get(found.recipe_id) : recipes[0];
+                      const recipe = (found && recipeMap.get(found.recipe_id)) || recipes[0];
                       return { slot, recipe };
                     });
 
@@ -2051,7 +2059,7 @@ export default function App() {
                       <div className="grid grid-cols-7 gap-3">
                         {DAYS.map((day) => {
                           const found = mealPlan.find((m) => m.day === day && m.slot === slot);
-                          const recipe = found ? recipeMap.get(found.recipe_id) : recipes[0];
+                          const recipe = (found && recipeMap.get(found.recipe_id)) || recipes[0];
                           return (
                             <div key={day} className="space-y-1.5">
                               <div className="text-[10px] font-bold uppercase text-slate-400 text-center tracking-wider pb-0.5">
@@ -2077,7 +2085,7 @@ export default function App() {
                     const isSelected = plannerSelectedDay === day;
                     const daySlots = SLOTS.map((slot) => {
                       const found = mealPlan.find((m) => m.day === day && m.slot === slot);
-                      return found ? recipeMap.get(found.recipe_id) : recipes[0];
+                      return (found && recipeMap.get(found.recipe_id)) || recipes[0];
                     }).filter(Boolean);
                     const dayCost = daySlots.reduce((acc, r) => acc + getRecipeMealCost(r), 0);
                     const dayCals = daySlots.reduce((acc, r) => acc + (r?.calories || 0), 0);
@@ -2119,7 +2127,7 @@ export default function App() {
                     const found = mealPlan.find(
                       (m) => m.day === plannerSelectedDay && m.slot === slot
                     );
-                    const recipe = found ? recipeMap.get(found.recipe_id) : recipes[0];
+                    const recipe = (found && recipeMap.get(found.recipe_id)) || recipes[0];
                     if (!recipe) return null;
                     const mealCost = getRecipeMealCost(recipe);
 
@@ -2137,6 +2145,7 @@ export default function App() {
                             <img
                               src={recipe.image}
                               alt={recipe.title}
+                              onError={handleImgError}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
@@ -3060,6 +3069,7 @@ export default function App() {
                         <img
                           src={recipe.image}
                           alt={recipe.title}
+                          onError={handleImgError}
                           className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
@@ -3722,6 +3732,7 @@ export default function App() {
               <img
                 src={selectedRecipeModal.image}
                 alt={selectedRecipeModal.title}
+                onError={handleImgError}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-black/40" />
@@ -3958,6 +3969,7 @@ export default function App() {
                                 alt={d.alt || stepText}
                                 loading="lazy"
                                 decoding="async"
+                                onError={handleImgError}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                               />
                               <div className="absolute inset-0 bg-black/30 group-hover:bg-black/0 transition" />
@@ -4758,6 +4770,7 @@ export default function App() {
                       <img
                         src={r.image}
                         alt={r.title}
+                        onError={handleImgError}
                         className="w-12 h-12 rounded-xl object-cover shrink-0 bg-slate-800 border border-white/10"
                       />
                       <div>
@@ -5012,6 +5025,7 @@ export default function App() {
                     <img
                       src={rec.image}
                       alt={rec.title}
+                      onError={handleImgError}
                       className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-white/30 shadow-md shrink-0 bg-slate-900"
                     />
                     <div>
@@ -5415,6 +5429,7 @@ export default function App() {
                             src={currentStepDetail.image}
                             alt={currentStepDetail.alt || currentStepText}
                             decoding="async"
+                            onError={handleImgError}
                             className="w-full h-56 sm:h-72 object-cover transition-transform duration-300 group-hover:scale-102"
                           />
                           <button
