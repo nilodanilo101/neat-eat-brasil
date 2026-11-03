@@ -1,6 +1,21 @@
-export const CURRENT_VERSION = '3.5.0';
+export const CURRENT_VERSION = '4.0.0';
 
 export const RELEASE_NOTES = [
+  {
+    version: '4.0.0',
+    date: '03/11/2026',
+    title: 'NeatEat Brasil 4.0 — Memória Gastronômica Canônica, Central de Ingredientes & Sinônimos Culinários Inteligentes',
+    summary:
+      'Uma versão histórica que transforma o NeatEat Brasil no mais sofisticado ecossistema gastronômico digital. Integramos os fundamentos das 5 maiores obras de culinária do mundo (The Culinary Institute of America, Le Cordon Bleu, Marcella Hazan, Rita Lobo e Senac), reformulamos a seção para a novíssima Central de "Ingredientes" com edição de quantidades em tempo real e introduzimos a inteligência de equivalência canônica de sinônimos culinários.',
+    items: [
+      '🧠 Memória Gastronômica Canônica Integrada: síntese prática das 5 obras fundamentais (CIA, Le Cordon Bleu, Marcella Hazan, Rita Lobo e Senac) gravada na inteligência do app, instruindo técnicas reais como Reação de Maillard, Deglaçagem do Fond, Carryover Cooking (repouso de carnes), Tríade Soffritto/Battuto, Mantecatura aveludada, Branqueamento com Shocking e Caldos na Pressão.',
+      '🥫 Nova Central de Ingredientes (Substituindo Geladeira & IA): reformulação completa da dinâmica de estoque com controle granular, edição instantânea de quantidades (gramas, quilos, unidades, litros) e remoção rápida de insumos.',
+      '🥩 Inteligência de Sinônimos Culinários: o app agora compreende equivalências gastronômicas automáticas — "carne moída", "acém moído", "patinho moído" e "músculo moído" são reconhecidos como o mesmo insumo ao abater compras e sugerir receitas!',
+      '📚 Manual Gastronômico do Chef na Interface: nova enciclopédia acessível com 1 clique na barra superior com capítulos interativos de Termodinâmica da Cocção, Cozinha Italiana Clássica, Técnicas de Vegetais, Caldos Caseiros e Confeitaria de Precisão.',
+      '🔥 Dicas Técnicas de Chef no Modo Cozinhar: instruções operacionais de alto nível inseridas dinamicamente nos passos de preparo (quando selar sem mexer, momento exato de juntar o alho à cebola, descanso de bifes e emulsão de massas).',
+      '⚖️ Calibração Precisa e Edição de Insumos: ajuste manual direto de peso e unidade para cada alimento disponível na sua despensa e geladeira.'
+    ]
+  },
   {
     version: '3.5.0',
     date: '03/11/2026',

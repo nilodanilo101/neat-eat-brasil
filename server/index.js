@@ -32,6 +32,7 @@ import { searchHighResDishPhotos } from './foodImageService.js';
 import { calculateRecipeNutritionTaco, findTacoNutrition } from './tacoDatabase.js';
 import { extractRecipeFromHtml, extractStepTimerSeconds } from './recipeWebScraper.js';
 import { diversifyRecipeStepPhotos, resolveAccurateDishImage } from './stepPhotoMapper.js';
+import { CULINARY_MANUAL, areCulinaryIngredientsEquivalent, enrichStepWithCulinaryWisdom } from './culinaryKnowledgeEngine.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -82,8 +83,10 @@ async function ensureRecipeStepDetails(title, steps, ingredients, providedStepDe
 }
 
 function isItemInFridge(ingName, fridgeItems) {
+  if (!ingName || !Array.isArray(fridgeItems)) return false;
   const target = (ingName || '').toLowerCase().trim();
   for (const f of fridgeItems) {
+    if (areCulinaryIngredientsEquivalent(ingName, f.name)) return true;
     const fName = (f.name || '').toLowerCase().trim();
     if (fName === target) return true;
     if (fName.length >= 4 && target.includes(fName)) return true;
@@ -239,6 +242,7 @@ function getFullState() {
     tasteProfile: suggestionsState.tasteProfile,
     releaseNotes: RELEASE_NOTES,
     currentVersion: CURRENT_VERSION,
+    culinaryManual: CULINARY_MANUAL,
     totals: {
       grossTotal: Number(grossTotal.toFixed(2)),
       fridgeSavings: Number(fridgeSavings.toFixed(2)),
@@ -419,6 +423,10 @@ export async function startServer(options = {}) {
       ...getFullState(),
       currentVersion: appVersion || CURRENT_VERSION,
     });
+  });
+
+  app.get('/api/culinary-manual', (_req, res) => {
+    res.json(CULINARY_MANUAL);
   });
 
   app.get('/api/recipes/search-image', async (req, res) => {
@@ -719,12 +727,12 @@ export async function startServer(options = {}) {
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
   });
 
-  // ADICIONAR OU INCREMENTAR ITEM NA GELADEIRA (EX: DO OPEN FOOD FACTS OU FORMULÁRIO)
-  app.post('/api/fridge', (req, res) => {
+  // ADICIONAR OU INCREMENTAR ITEM NA GELADEIRA / INGREDIENTES
+  const postFridgeHandler = (req, res) => {
     const { name, category = 'Mercearia', amount = 1, unit = 'un' } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ error: 'Nome inválido' });
     const trimmed = name.trim();
-    const numAmount = Math.max(0.1, Number(amount) || 1);
+    const numAmount = Math.max(0.01, Number(amount) || 1);
     const trimmedUnit = String(unit || 'un').trim();
     const existing = db.prepare('SELECT id, amount FROM fridge_items WHERE LOWER(name) = LOWER(?)').get(trimmed);
 
@@ -744,9 +752,59 @@ export async function startServer(options = {}) {
     }
 
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
-  });
+  };
+  app.post('/api/fridge', postFridgeHandler);
+  app.post('/api/ingredients', postFridgeHandler);
 
-  app.post('/api/fridge/toggle', (req, res) => {
+  // EDITAR QUANTIDADE, UNIDADE E NOME DE UM INGREDIENTE ESPECÍFICO
+  const putFridgeHandler = (req, res) => {
+    const { id } = req.params;
+    const { name, amount, unit, category } = req.body;
+    const numAmount = Math.max(0, parseFloat(amount) || 0);
+    const trimmedUnit = String(unit || 'un').trim();
+    const trimmedName = String(name || '').trim();
+
+    const existing = db.prepare('SELECT id FROM fridge_items WHERE id = ?').get(id);
+    if (!existing) {
+      return res.status(404).json({ error: 'Ingrediente não encontrado' });
+    }
+
+    if (trimmedName) {
+      db.prepare(`
+        UPDATE fridge_items
+        SET name = ?,
+            amount = ?,
+            unit = ?,
+            category = COALESCE(?, category),
+            last_updated = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).run(trimmedName, numAmount, trimmedUnit, category || null, id);
+    } else {
+      db.prepare(`
+        UPDATE fridge_items
+        SET amount = ?,
+            unit = ?,
+            category = COALESCE(?, category),
+            last_updated = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).run(numAmount, trimmedUnit, category || null, id);
+    }
+
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
+  };
+  app.put('/api/fridge/:id', putFridgeHandler);
+  app.put('/api/ingredients/:id', putFridgeHandler);
+
+  // EXCLUIR INGREDIENTE ESPECÍFICO POR ID
+  const deleteFridgeHandler = (req, res) => {
+    const { id } = req.params;
+    db.prepare('DELETE FROM fridge_items WHERE id = ?').run(id);
+    res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
+  };
+  app.delete('/api/fridge/:id', deleteFridgeHandler);
+  app.delete('/api/ingredients/:id', deleteFridgeHandler);
+
+  const toggleFridgeHandler = (req, res) => {
     const { name, category = 'Mercearia' } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ error: 'Nome inválido' });
     const trimmed = name.trim();
@@ -759,12 +817,16 @@ export async function startServer(options = {}) {
     }
 
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
-  });
+  };
+  app.post('/api/fridge/toggle', toggleFridgeHandler);
+  app.post('/api/ingredients/toggle', toggleFridgeHandler);
 
-  app.post('/api/fridge/clear', (_req, res) => {
+  const clearFridgeHandler = (_req, res) => {
     db.prepare('DELETE FROM fridge_items').run();
     res.json({ ...getFullState(), currentVersion: appVersion || CURRENT_VERSION });
-  });
+  };
+  app.post('/api/fridge/clear', clearFridgeHandler);
+  app.post('/api/ingredients/clear', clearFridgeHandler);
 
   app.post('/api/shopping/toggle', (req, res) => {
     const { itemKey } = req.body;

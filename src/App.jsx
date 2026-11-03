@@ -9,6 +9,7 @@ import {
   Wallet,
   Check,
   Plus,
+  Minus,
   Clock,
   Flame,
   Search,
@@ -22,6 +23,8 @@ import {
   Pencil,
   Trash2,
   Scale,
+  Soup,
+  Salad,
   Utensils,
   FileText,
   Image as ImageIcon,
@@ -69,6 +72,11 @@ import {
   isSoundEnabled,
   toggleSound,
 } from './soundEffects.js';
+import {
+  areCulinaryIngredientsEquivalent,
+  CULINARY_MANUAL,
+  enrichStepWithCulinaryWisdom,
+} from './culinaryKnowledge.js';
 
 const DAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 const SLOTS = ['Café da Manhã', 'Almoço', 'Jantar'];
@@ -416,7 +424,7 @@ function generateWhatsAppShoppingList(shoppingList = [], checkedMap = {}, househ
   text += `────────────────────\\n`;
   text += `💰 *Total Estimado:* R$ ${totalEstimate.toFixed(2).replace('.', ',')}\\n`;
   text += `📦 *Total:* ${totalItemsCount} insumos\\n`;
-  text += `\\n_Sincronizado via NeatEat Brasil 3.5.0_`;
+  text += `\\n_Sincronizado via NeatEat Brasil 4.0.0_`;
 
   return text;
 }
@@ -822,6 +830,11 @@ export default function App() {
   const [importError, setImportError] = useState('');
   const [importSuccess, setImportSuccess] = useState('');
   const [newFridgeItem, setNewFridgeItem] = useState('');
+  const [newIngredientAmount, setNewIngredientAmount] = useState('1');
+  const [newIngredientUnit, setNewIngredientUnit] = useState('un');
+  const [editingFridgeItem, setEditingFridgeItem] = useState(null); // { id, name, amount, unit, category }
+  const [culinaryManualModalOpen, setCulinaryManualModalOpen] = useState(false);
+  const [activeManualChapter, setActiveManualChapter] = useState('fogo_calor');
 
   // Market Prices Intelligence state
   const [pricesModalOpen, setPricesModalOpen] = useState(false);
@@ -988,14 +1001,77 @@ export default function App() {
     setData(json);
   }
 
+  async function handleAddFridgeItem(name, category = 'Mercearia', amount = 1, unit = 'un') {
+    if (!name || !name.trim()) return;
+    playPopCheck();
+    const res = await fetch('/api/fridge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name.trim(),
+        category,
+        amount: Math.max(0.01, parseFloat(amount) || 1),
+        unit: String(unit || 'un').trim(),
+      }),
+    });
+    const json = await res.json();
+    setData(json);
+  }
+
+  async function handleUpdateFridgeItem(id, updateData) {
+    playPopCheck();
+    try {
+      const res = await fetch(`/api/fridge/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateData),
+      });
+      const json = await res.json();
+      setData(json);
+      setEditingFridgeItem(null);
+    } catch (err) {
+      console.error('Erro ao atualizar ingrediente:', err);
+    }
+  }
+
+  async function handleDeleteFridgeItem(id) {
+    try {
+      const res = await fetch(`/api/fridge/${id}`, {
+        method: 'DELETE',
+      });
+      const json = await res.json();
+      setData(json);
+      if (editingFridgeItem?.id === id) {
+        setEditingFridgeItem(null);
+      }
+    } catch (err) {
+      console.error('Erro ao excluir ingrediente:', err);
+    }
+  }
+
+  async function handleQuickAdjustFridgeAmount(item, delta) {
+    const current = parseFloat(item.amount) || 0;
+    const nextAmount = Math.max(0, parseFloat((current + delta).toFixed(2)));
+    if (nextAmount === 0) {
+      handleDeleteFridgeItem(item.id);
+    } else {
+      handleUpdateFridgeItem(item.id, {
+        amount: nextAmount,
+        unit: item.unit,
+        name: item.name,
+        category: item.category,
+      });
+    }
+  }
+
   async function handleClearFridge() {
-    if (!window.confirm('Tem certeza de que deseja esvaziar todos os itens da geladeira?')) return;
+    if (!window.confirm('Tem certeza de que deseja esvaziar todo o estoque de ingredientes?')) return;
     try {
       const res = await fetch('/api/fridge/clear', { method: 'POST' });
       const json = await res.json();
       setData(json);
     } catch (err) {
-      console.error('Erro ao limpar geladeira:', err);
+      console.error('Erro ao limpar estoque de ingredientes:', err);
     }
   }
 
@@ -1528,6 +1604,7 @@ export default function App() {
     const isIngInFridge = (ingName) => {
       const target = (ingName || '').toLowerCase().trim();
       for (const f of fridgeItems) {
+        if (areCulinaryIngredientsEquivalent(ingName, f.name)) return true;
         const fName = (f.name || '').toLowerCase().trim();
         if (fName === target) return true;
         if (fName.length >= 4 && target.includes(fName)) return true;
@@ -1959,8 +2036,18 @@ export default function App() {
             </div>
           </div>
 
-          {/* Controls: Audio Sound FX & APIs */}
+          {/* Controls: Audio Sound FX, Manual Gastronômico & APIs */}
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setCulinaryManualModalOpen(true)}
+              title="Manual Gastronômico do Chef (CIA, Le Cordon Bleu, Marcella Hazan, Rita Lobo, Senac)"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs font-bold transition cursor-pointer shadow-sm bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 hover:from-amber-500/25 hover:to-orange-500/25 text-amber-300 border-amber-500/35 hover:border-amber-400 active:scale-95"
+            >
+              <ChefHat className="w-4 h-4 text-amber-400" />
+              <span className="hidden sm:inline">Manual Gastronômico</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setApiKeysModalOpen(true)}
@@ -2011,7 +2098,7 @@ export default function App() {
               },
               {
                 id: 'fridge',
-                label: 'Geladeira & IA',
+                label: 'Ingredientes',
                 icon: Refrigerator,
                 count: fridgeItems.length,
               },
@@ -2930,21 +3017,21 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 3: GELADEIRA & IA IMPORTADOR */}
+        {/* TAB 3: CENTRAL DE INGREDIENTES & IA */}
         {activeTab === 'fridge' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-5 space-y-6">
               <div className="bg-slate-900/85 rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-xl backdrop-blur-xl space-y-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
-                    <Refrigerator className="w-5 h-5" />
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-600/25 shrink-0">
+                    <Utensils className="w-5 h-5" />
                   </div>
                   <div>
                     <h3 className="font-extrabold text-base text-white">
-                      O que tem na sua geladeira / despensa?
+                      Central de Ingredientes & Estoque
                     </h3>
                     <p className="text-xs text-slate-400">
-                      Marque o que você já tem em casa para abater da lista de compras e descobrir receitas!
+                      Gerencie as quantidades disponíveis de cada insumo. O NeatEat reconhece sinônimos gastronômicos (ex: carne moída e acém moído são equivalentes) e abate do seu mercado!
                     </p>
                   </div>
                 </div>
@@ -2954,7 +3041,7 @@ export default function App() {
                     <Receipt className="w-5 h-5 text-emerald-400 shrink-0" />
                     <div>
                       <p className="text-xs font-bold text-emerald-200">Entrada Automática por Nota Fiscal</p>
-                      <p className="text-[11px] text-emerald-400/90 font-medium">Abasteça quantidades e calibre preços com cupom da SEFAZ</p>
+                      <p className="text-[11px] text-emerald-400/90 font-medium">Abasteça quantidades reais e calibre preços com cupom da SEFAZ</p>
                     </div>
                   </div>
                   <button
@@ -3031,28 +3118,63 @@ export default function App() {
                   </button>
                 </div>
 
+                {/* FORMULÁRIO DE ADIÇÃO DE INGREDIENTE COM QUANTIDADE E UNIDADE */}
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
                     if (!newFridgeItem.trim()) return;
-                    handleToggleFridgeItem(newFridgeItem);
+                    handleAddFridgeItem(
+                      newFridgeItem,
+                      'Mercearia',
+                      parseFloat(newIngredientAmount) || 1,
+                      newIngredientUnit
+                    );
                     setNewFridgeItem('');
                   }}
-                  className="flex gap-2"
+                  className="space-y-2 bg-slate-950/50 p-3 rounded-2xl border border-white/5"
                 >
-                  <input
-                    type="text"
-                    placeholder="Ex: Batata inglesa, Tomate, Frango..."
-                    value={newFridgeItem}
-                    onChange={(e) => setNewFridgeItem(e.target.value)}
-                    className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3.5 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
-                  />
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold flex items-center gap-1 cursor-pointer transition shadow-xs"
-                  >
-                    <Plus className="w-4 h-4" /> Adicionar
-                  </button>
+                  <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block">
+                    Adicionar Alimento ao Estoque:
+                  </span>
+                  <div className="flex flex-wrap sm:flex-nowrap gap-2">
+                    <input
+                      type="text"
+                      placeholder="Ex: Carne moída, Batata, Frango..."
+                      value={newFridgeItem}
+                      onChange={(e) => setNewFridgeItem(e.target.value)}
+                      className="flex-1 min-w-[140px] rounded-xl border border-white/10 bg-slate-950/80 px-3.5 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
+                    />
+                    <input
+                      type="number"
+                      step="any"
+                      min="0.1"
+                      placeholder="Qtd"
+                      value={newIngredientAmount}
+                      onChange={(e) => setNewIngredientAmount(e.target.value)}
+                      className="w-20 rounded-xl border border-white/10 bg-slate-950/80 px-2.5 py-2 text-sm text-white font-mono font-bold text-center focus:outline-none focus:border-emerald-500"
+                    />
+                    <select
+                      value={newIngredientUnit}
+                      onChange={(e) => setNewIngredientUnit(e.target.value)}
+                      className="w-24 rounded-xl border border-white/10 bg-slate-950/80 px-2 py-2 text-xs font-semibold text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
+                    >
+                      <option value="un">un</option>
+                      <option value="g">g</option>
+                      <option value="kg">kg</option>
+                      <option value="ml">ml</option>
+                      <option value="L">L</option>
+                      <option value="colheres">colheres</option>
+                      <option value="xícara">xícara</option>
+                      <option value="lata">lata</option>
+                      <option value="pacote">pct</option>
+                    </select>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold flex items-center justify-center gap-1 cursor-pointer transition shadow-sm active:scale-95 shrink-0"
+                    >
+                      <Plus className="w-4 h-4" /> Adicionar
+                    </button>
+                  </div>
                 </form>
 
                 <div>
@@ -3062,7 +3184,7 @@ export default function App() {
                   <div className="flex flex-wrap gap-2">
                     {QUICK_FRIDGE_SUGGESTIONS.map((sug) => {
                       const active = fridgeItems.some(
-                        (f) => f.name.toLowerCase() === sug.name.toLowerCase()
+                        (f) => areCulinaryIngredientsEquivalent(sug.name, f.name) || f.name.toLowerCase() === sug.name.toLowerCase()
                       );
                       return (
                         <button
@@ -3083,7 +3205,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Lista Completa dos Itens Atualmente na Geladeira */}
+                {/* Lista Completa dos Itens Atualmente no Estoque */}
                 <div className="pt-3 border-t border-white/5 space-y-3">
                   <div className="flex items-center justify-between">
                     <h4 className="text-xs font-black uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
@@ -3096,45 +3218,93 @@ export default function App() {
                         onClick={handleClearFridge}
                         className="text-[10px] font-bold text-rose-400 hover:text-rose-300 cursor-pointer transition"
                       >
-                        Limpar Geladeira
+                        Limpar Estoque
                       </button>
                     )}
                   </div>
 
                   {fridgeItems.length === 0 ? (
                     <div className="py-6 text-center text-slate-500 text-xs">
-                      Sua geladeira está vazia no momento. Adicione itens acima ou importe seu cupom de compras!
+                      Seu estoque está vazio no momento. Adicione alimentos acima ou importe seu cupom de compras!
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
                       {fridgeItems.map((f) => (
                         <div
                           key={f.id || f.name}
-                          className="p-2.5 rounded-xl bg-slate-950/60 border border-white/5 flex items-center justify-between gap-2 shadow-sm group hover:border-emerald-500/30 transition"
+                          className="p-2.5 rounded-2xl bg-slate-950/70 border border-white/5 flex items-center justify-between gap-2 shadow-sm group hover:border-emerald-500/35 transition"
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="text-base leading-none shrink-0">
                               {getIngredientEmoji(f.name, f.category)}
                             </span>
                             <div className="min-w-0">
-                              <p className="text-xs font-bold text-slate-200 truncate">
+                              <p className="text-xs font-bold text-slate-200 truncate" title={f.name}>
                                 {f.name}
                               </p>
-                              {f.amount > 0 && (
-                                <p className="text-[10px] font-bold text-emerald-400">
-                                  {f.amount} {f.unit}
-                                </p>
-                              )}
+                              <div className="flex items-center gap-1 mt-0.5">
+                                <span className="text-[11px] font-black px-1.5 py-0.5 rounded-md bg-emerald-950/60 text-emerald-300 border border-emerald-500/30">
+                                  {f.amount} {f.unit || 'un'}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => handleToggleFridgeItem(f.name, f.category)}
-                            title="Remover da geladeira"
-                            className="w-6 h-6 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 flex items-center justify-center cursor-pointer transition shrink-0"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
+
+                          <div className="flex items-center gap-1 shrink-0">
+                            {/* Ajuste rápido -1 */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const step = f.unit === 'g' || f.unit === 'ml' ? -100 : -1;
+                                handleQuickAdjustFridgeAmount(f, step);
+                              }}
+                              title="Diminuir quantidade"
+                              className="w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition text-xs"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
+
+                            {/* Ajuste rápido +1 */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const step = f.unit === 'g' || f.unit === 'ml' ? 100 : 1;
+                                handleQuickAdjustFridgeAmount(f, step);
+                              }}
+                              title="Aumentar quantidade"
+                              className="w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition text-xs"
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+
+                            {/* Editar quantidade detalhada */}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setEditingFridgeItem({
+                                  id: f.id,
+                                  name: f.name,
+                                  amount: f.amount,
+                                  unit: f.unit || 'un',
+                                  category: f.category || 'Mercearia',
+                                })
+                              }
+                              title="Editar quantidade e unidade"
+                              className="w-6 h-6 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-amber-950/40 flex items-center justify-center cursor-pointer transition"
+                            >
+                              <Pencil className="w-3 h-3" />
+                            </button>
+
+                            {/* Excluir */}
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteFridgeItem(f.id)}
+                              title="Remover do estoque"
+                              className="w-6 h-6 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 flex items-center justify-center cursor-pointer transition shrink-0"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -3226,10 +3396,10 @@ export default function App() {
               <div className="bg-slate-900/85 rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-xl backdrop-blur-xl space-y-4">
                 <div>
                   <h2 className="text-lg font-extrabold text-white">
-                    Sugestões da IA com o que você já tem em casa
+                    Sugestões da IA com os seus Ingredientes
                   </h2>
                   <p className="text-xs text-slate-400">
-                    Receitas ordenadas pela maior compatibilidade com sua geladeira e menor custo médio adicional:
+                    Receitas ordenadas pela compatibilidade com seu estoque de insumos e menor custo adicional:
                   </p>
                 </div>
 
@@ -3249,7 +3419,7 @@ export default function App() {
                                 : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
                             }`}
                           >
-                            {rec.matchPct}% na geladeira ({rec.matchedCount}/{rec.totalIngs})
+                            {rec.matchPct}% no seu estoque ({rec.matchedCount}/{rec.totalIngs})
                           </span>
                           <span className="text-xs font-bold text-slate-400">
                             {rec.category}
@@ -3942,10 +4112,8 @@ export default function App() {
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                           {activeSuggestion.ingredients.map((ing, idx) => {
-                            const isItemInFridge = activeSuggestion.fridgeMatch?.matchedItems?.some(
-                              (m) =>
-                                m.name.toLowerCase() === ing.name.toLowerCase() ||
-                                ing.name.toLowerCase().includes(m.name.toLowerCase())
+                            const isItemInFridge = fridgeItems.some((f) =>
+                              areCulinaryIngredientsEquivalent(ing.name, f.name)
                             );
                             return (
                               <span
@@ -3963,7 +4131,7 @@ export default function App() {
                                 </span>
                                 {isItemInFridge ? (
                                   <span className="text-[10px] font-black text-emerald-300 px-1.5 py-0.5 rounded bg-emerald-900/60">
-                                    ✓ Na Geladeira
+                                    ✓ No Estoque
                                   </span>
                                 ) : (
                                   <span className="text-emerald-400 font-bold">
@@ -4371,14 +4539,25 @@ export default function App() {
                               {stepText}
                             </p>
 
-                            {d && d.tip && (
-                              <div className="p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/30 flex items-start gap-2 text-xs text-amber-200">
-                                <Lightbulb className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                                <p className="leading-snug">
-                                  <strong className="text-amber-300">Dica do Chef:</strong> {d.tip}
-                                </p>
-                              </div>
-                            )}
+                            {(() => {
+                              const chefWisdom = d?.tip
+                                ? { tip: d.tip }
+                                : enrichStepWithCulinaryWisdom(stepText, idx, steps.length, selectedRecipeModal.title);
+                              if (!chefWisdom || !chefWisdom.tip) return null;
+                              return (
+                                <div className="p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/30 flex items-start gap-2 text-xs text-amber-200">
+                                  <Lightbulb className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                                  <div className="leading-snug">
+                                    {chefWisdom.highlight && (
+                                      <span className="font-extrabold text-amber-300 block mb-0.5">
+                                        💡 {chefWisdom.highlight}:
+                                      </span>
+                                    )}
+                                    <p>{chefWisdom.tip}</p>
+                                  </div>
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                       );
@@ -5919,15 +6098,32 @@ export default function App() {
                       </div>
 
                       {/* DICA DO CHEF PARA ESTE PASSO */}
-                      {currentStepDetail && currentStepDetail.tip && (
-                        <div className="p-3.5 rounded-2xl bg-amber-950/30 border border-amber-500/30 flex items-start gap-3">
-                          <Lightbulb className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                          <div className="text-xs text-amber-200 leading-relaxed">
-                            <strong className="font-bold text-amber-300">Dica do Chef: </strong>
-                            {currentStepDetail.tip}
+                      {(() => {
+                        const tipInfo = currentStepDetail?.tip
+                          ? { tip: currentStepDetail.tip }
+                          : enrichStepWithCulinaryWisdom(
+                              currentStepText,
+                              cookingSession.stepIndex,
+                              cookingSteps.length,
+                              cookingSession.recipe.title
+                            );
+                        if (!tipInfo || !tipInfo.tip) return null;
+                        return (
+                          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-950/40 to-slate-900 border border-amber-500/40 flex items-start gap-3 shadow-md">
+                            <Lightbulb className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                            <div className="text-xs text-amber-200 leading-relaxed">
+                              {tipInfo.highlight ? (
+                                <strong className="font-extrabold text-amber-300 block mb-0.5">
+                                  💡 {tipInfo.highlight}:
+                                </strong>
+                              ) : (
+                                <strong className="font-bold text-amber-300">Dica do Chef: </strong>
+                              )}
+                              <span>{tipInfo.tip}</span>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
 
                       {/* INGREDIENTS MENTIONED IN THIS STEP */}
                       {stepIngredients.length > 0 && (
@@ -7492,6 +7688,305 @@ export default function App() {
                 {zoomedImage.alt}
               </p>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: EDITAR QUANTIDADE E DETALHES DO INGREDIENTE */}
+      {editingFridgeItem && (
+        <div
+          onClick={() => setEditingFridgeItem(null)}
+          className="fixed inset-0 z-60 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-slate-900/98 text-slate-100 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-white/10 backdrop-blur-2xl space-y-5 animate-fade-in"
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+                  <Pencil className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-base text-white">Editar Quantidade</h3>
+                  <p className="text-xs text-slate-400">Ajuste o estoque disponível deste insumo</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingFridgeItem(null)}
+                className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleUpdateFridgeItem(editingFridgeItem.id, {
+                  name: editingFridgeItem.name,
+                  amount: parseFloat(editingFridgeItem.amount) || 0,
+                  unit: editingFridgeItem.unit,
+                  category: editingFridgeItem.category,
+                });
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="text-xs font-bold text-slate-300 block mb-1.5 uppercase tracking-wider">
+                  Nome do Alimento
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editingFridgeItem.name}
+                  onChange={(e) =>
+                    setEditingFridgeItem({ ...editingFridgeItem, name: e.target.value })
+                  }
+                  className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-300 block mb-1.5 uppercase tracking-wider">
+                    Quantidade
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    required
+                    value={editingFridgeItem.amount}
+                    onChange={(e) =>
+                      setEditingFridgeItem({ ...editingFridgeItem, amount: e.target.value })
+                    }
+                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3.5 py-2.5 text-sm text-white font-mono font-bold focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-300 block mb-1.5 uppercase tracking-wider">
+                    Unidade
+                  </label>
+                  <select
+                    value={editingFridgeItem.unit || 'un'}
+                    onChange={(e) =>
+                      setEditingFridgeItem({ ...editingFridgeItem, unit: e.target.value })
+                    }
+                    className="w-full rounded-xl bg-slate-950/80 border border-white/10 px-3 py-2.5 text-sm text-white font-semibold focus:outline-none focus:border-emerald-500 cursor-pointer"
+                  >
+                    <option value="un">Unidade (un)</option>
+                    <option value="g">Gramas (g)</option>
+                    <option value="kg">Quilos (kg)</option>
+                    <option value="ml">Mililitros (ml)</option>
+                    <option value="L">Litros (L)</option>
+                    <option value="colheres">Colheres</option>
+                    <option value="xícara">Xícaras</option>
+                    <option value="lata">Lata</option>
+                    <option value="pacote">Pacote</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Botões de ajuste rápido */}
+              <div>
+                <span className="text-[11px] font-bold text-slate-400 block mb-1.5">
+                  Atalhos de ajuste rápido:
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { label: '+100g', delta: 100, unit: 'g' },
+                    { label: '+500g', delta: 500, unit: 'g' },
+                    { label: '1 kg', setVal: 1, unit: 'kg' },
+                    { label: '+1 un', delta: 1, unit: 'un' },
+                    { label: '+2 un', delta: 2, unit: 'un' },
+                    { label: '+6 un', delta: 6, unit: 'un' },
+                  ].map((p, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        const cur = parseFloat(editingFridgeItem.amount) || 0;
+                        const nextVal = p.setVal !== undefined ? p.setVal : cur + p.delta;
+                        setEditingFridgeItem({
+                          ...editingFridgeItem,
+                          amount: String(nextVal),
+                          unit: p.unit || editingFridgeItem.unit,
+                        });
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-emerald-300 border border-emerald-500/20 cursor-pointer transition"
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => handleDeleteFridgeItem(editingFridgeItem.id)}
+                  className="px-3.5 py-2.5 rounded-xl bg-rose-950/50 hover:bg-rose-900/50 text-rose-300 border border-rose-500/30 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Excluir</span>
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-md shadow-emerald-950/50 flex items-center justify-center gap-1.5 cursor-pointer transition"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Salvar Quantidade</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: MANUAL GASTRONÔMICO DO CHEF (CIA, CORDON BLEU, HAZAN, RITA LOBO, SENAC) */}
+      {culinaryManualModalOpen && (
+        <div
+          onClick={() => setCulinaryManualModalOpen(false)}
+          className="fixed inset-0 z-60 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-slate-900/98 text-slate-100 rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-hidden flex flex-col shadow-2xl border border-white/10 backdrop-blur-2xl animate-fade-in"
+          >
+            {/* Header */}
+            <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between gap-4 shrink-0 bg-slate-950/50">
+              <div className="flex items-start sm:items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-rose-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/25 shrink-0">
+                  <ChefHat className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
+                      Manual Gastronômico do Chef
+                    </h2>
+                    <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      5 Obras Fundamentais
+                    </span>
+                    <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      v4.0.0
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                    Fundamentos de Termodinâmica da Cocção, Bases Italianas, Técnicas Francesas, Caldos Caseiros e Confeitaria de Precisão gravados na memória do NeatEat.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCulinaryManualModalOpen(false)}
+                className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Chapter Pills Navigation */}
+            <div className="p-3 sm:px-6 bg-slate-950/40 border-b border-white/5 flex gap-2 overflow-x-auto shrink-0">
+              {CULINARY_MANUAL.sections.map((sec) => {
+                const isActive = activeManualChapter === sec.id;
+                return (
+                  <button
+                    key={sec.id}
+                    type="button"
+                    onClick={() => setActiveManualChapter(sec.id)}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap transition cursor-pointer flex items-center gap-2 border ${
+                      isActive
+                        ? 'bg-amber-500/20 text-amber-200 border-amber-500/50 shadow-md'
+                        : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 border-white/5 hover:border-white/10'
+                    }`}
+                  >
+                    <span>{sec.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Chapter Content */}
+            <div className="p-5 sm:p-6 overflow-y-auto space-y-6 flex-1">
+              {(() => {
+                const section =
+                  CULINARY_MANUAL.sections.find((s) => s.id === activeManualChapter) ||
+                  CULINARY_MANUAL.sections[0];
+                return (
+                  <div className="space-y-6">
+                    {/* Chapter Origin Header */}
+                    <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/30 via-slate-900 to-slate-950 border border-amber-500/30 flex items-start gap-3.5">
+                      <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
+                        <BookOpen className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 block">
+                          Referência Bibliográfica Canônica
+                        </span>
+                        <h3 className="text-base font-extrabold text-white mt-0.5">
+                          {section.origin}
+                        </h3>
+                        <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                          {section.summary}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Topics Grid */}
+                    <div className="grid grid-cols-1 gap-4">
+                      {section.topics.map((t, idx) => (
+                        <div
+                          key={idx}
+                          className="p-4 sm:p-5 rounded-2xl bg-slate-950/70 border border-white/10 space-y-3.5 shadow-md hover:border-amber-500/30 transition"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2.5">
+                            <h4 className="text-sm sm:text-base font-extrabold text-slate-100 flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                              <span>{t.name}</span>
+                            </h4>
+                            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                              Técnica Canônica
+                            </span>
+                          </div>
+
+                          {/* Regra de Ouro */}
+                          <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-500/30 flex items-start gap-2.5">
+                            <Flame className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                            <div>
+                              <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider block">
+                                Regra de Ouro do Chef
+                              </span>
+                              <p className="text-xs font-bold text-amber-200 mt-0.5 leading-snug">
+                                {t.rule}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Fundamento Científico */}
+                          <div className="text-xs text-slate-300 leading-relaxed space-y-1">
+                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
+                              Fundamento Físico-Químico
+                            </span>
+                            <p>{t.explanation}</p>
+                          </div>
+
+                          {/* Dica Prática */}
+                          <div className="p-2.5 rounded-xl bg-slate-900 border border-white/5 flex items-start gap-2 text-xs text-emerald-300">
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                            <p className="leading-snug">
+                              <strong className="text-emerald-200">Aplicação prática:</strong>{' '}
+                              {t.tip}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         </div>
       )}

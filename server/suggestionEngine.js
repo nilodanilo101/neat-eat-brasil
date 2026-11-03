@@ -1,4 +1,5 @@
 import { computeCulinaryPortionCost } from './ingredientMatcher.js';
+import { areCulinaryIngredientsEquivalent } from './culinaryKnowledgeEngine.js';
 
 
 // ============================================================================
@@ -4453,6 +4454,10 @@ export function computeFridgeMatch(ingredients = [], fridgeItems = [], marketPri
     let foundInFridge = false;
 
     for (const f of normalizedFridge) {
+      if (areCulinaryIngredientsEquivalent(ing.name, f.raw?.name || '')) {
+        foundInFridge = true;
+        break;
+      }
       if (f.clean === cleanIng) {
         foundInFridge = true;
         break;
