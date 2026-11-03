@@ -1,6 +1,22 @@
-export const CURRENT_VERSION = '3.0.0';
+export const CURRENT_VERSION = '3.1.0';
 
 export const RELEASE_NOTES = [
+  {
+    version: '3.1.0',
+    date: '03/11/2026',
+    title: 'NeatEat Brasil 3.1 — Preferência Tirzepatida / Mounjaro, Pilha Inteligente Anti-Duplicidade & Padrão Chef Rigoroso',
+    summary:
+      'Uma atualização focada em precisão médica, gastronômica e usabilidade impecável. Adicionamos o perfil especializado Tirzepatida/Mounjaro com porções leves e alta proteína magra para preservação muscular, deduplicação culinária sem pratos repetidos na pilha de sugestões, garantia de 5+ receitas diárias com passo a passo ilustrado e títulos curtos e autênticos.',
+    items: [
+      '💉 Perfil Especializado Tirzepatida / Mounjaro: filtro dedicado no cardápio e no planejador semanal com alimentos pensados para usuários de GLP-1/GIP (alta proteína magra de 24g a 38g para evitar perda de massa muscular, porções leves de 220g a 320g para conforto gástrico e digestão facilitada sem gorduras pesadas).',
+      '🎯 Pilha de Sugestões Sem Repetições: algoritmo culinário que impede pratos idênticos ou semelhantes aos já existentes no catálogo (ex: evita variações repetidas de strogonoff, panquecas ou crepiocas).',
+      '⭐ Garantia de 5+ Sugestões Diárias: a pilha diária agora entrega invariavelmente ao menos 5 opções ricas e distintas por dia para inspirar seu cardápio.',
+      '📸 Sugestões 100% Ilustradas com Fotos em Cada Passo: todas as receitas do acervo e descobertas do dia possuem fotos em cada etapa do preparo e entram no catálogo com suas fichas técnicas completas.',
+      '🏷️ Títulos Gastronômicos Curtos e Diretos: padronização de todos os pratos no formato limpo dos grandes portais culinários (ex: "Sanduíche de Frango Cremoso", "Frango Xadrez", "Strogonoff de Frango").',
+      '👨‍🍳 Fim dos Passos Genéricos: padronização operacional de 5 a 7 etapas detalhadas de chef (mise en place, selagem, ponto e finalização) para todas as receitas presentes e futuras, corrigindo definitivamente Frango Xadrez e pratos diários.',
+      '🖼️ Fotos Locais Verificadas e Estáveis: restauração e fixação definitiva de fotos que estavam inacessíveis (Strogonoff de Frango, Sanduíche Natural, Frango Xadrez).'
+    ]
+  },
   {
     version: '3.0.0',
     date: '02/11/2026',

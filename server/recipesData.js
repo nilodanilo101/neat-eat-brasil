@@ -1,1291 +1,2404 @@
 /**
  * Catálogo Oficial de Fichas Técnicas & Receitas do NeatEat Brasil
- * Padrão Gastronômico com Seções, Dicas Operacionais por Passo,
- * Marcos Visuais (Key-Frames) e Bloco "Anote aí..." (Variações, Conservação ❄️ e Segredo 🔥)
+ * Padrão Gastronômico com Títulos Curtos, Seções, Passos Operacionais Detalhados,
+ * Fotos Individuais por Passo e Foco em Saúde e Qualidade (Inclui Aliados Tirzepatida / Mounjaro)
  */
 
 export const INITIAL_RECIPES = [
-  // 1. CAFÉ DA MANHÃ — CREPIOCA PROTEICA
   {
-    id: 'rec-1',
-    title: 'Crepioca Proteica com Queijo Coalho e Tomate',
-    category: 'Café da Manhã',
-    prepTime: 10,
-    servings: 1,
-    calories: 320,
-    protein: 21,
-    carbs: 24,
-    fat: 14,
-    tags: ['Rápido', 'Sem Glúten', 'Vegetariano', 'Alta Proteína', 'Econômico', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-1.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '210g por porção',
-    platingInstructions:
-      'Dobrar a crepioca em meia-lua no centro de um prato raso branco aquecido, deixando o queijo coalho levemente gratinado visível na borda. Finalizar com orégano fresco polvilhado e fio leve de azeite.',
-    specificInstructions:
-      'Utilizar frigideira antiaderente de 20cm em fogo médio-baixo para não ressecar a massa. Consumir imediatamente após o preparo.',
-    sections: [
-      { name: 'Massa e Emulsão', stepRange: [1, 2] },
-      { name: 'Recheio e Dobra', stepRange: [3, 4] },
+    "id": "rec-1",
+    "title": "Crepioca com Queijo Coalho",
+    "category": "Café da Manhã",
+    "prepTime": 10,
+    "servings": 1,
+    "calories": 320,
+    "protein": 24,
+    "carbs": 24,
+    "fat": 13,
+    "tags": [
+      "Tirzepatida",
+      "Alta Proteína",
+      "Rápido",
+      "Sem Glúten",
+      "Vegetariano",
+      "Econômico",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'Você pode substituir o queijo coalho por ricota temperada ou queijo minas padrão, reduzindo gorduras saturadas sem perder a cremosidade.',
-      storage: 'A crepioca pronta deve ser consumida imediatamente; não recomendamos congelar pronta. A mistura líquida de ovos com goma pode ser guardada na geladeira em pote fechado por até 24 horas.',
-      secret: 'O segredo da crepioca macia e flexível (sem ficar borrachenta) é usar fogo brando e tampar a frigideira por 45 segundos logo após despejar a massa para que o vapor asse o centro por igual.',
+    "image": "/dishes/rec-1.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "210g por porção",
+    "platingInstructions": "Dobrar a crepioca em meia-lua no centro de um prato raso branco aquecido, deixando o queijo coalho levemente gratinado visível na borda. Finalizar com orégano fresco polvilhado e fio leve de azeite.",
+    "specificInstructions": "Utilizar frigideira antiaderente de 20cm em fogo médio-baixo para não ressecar a massa. Consumir imediatamente após o preparo.",
+    "sections": [
+      {
+        "name": "Massa e Emulsão",
+        "stepRange": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "Recheio e Dobra",
+        "stepRange": [
+          3,
+          5
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "Você pode substituir o queijo coalho por ricota temperada ou queijo minas padrão, reduzindo gorduras saturadas sem perder a cremosidade.",
+      "storage": "A crepioca pronta deve ser consumida imediatamente. A mistura líquida de ovos com goma pode ser guardada na geladeira em pote fechado por até 24 horas.",
+      "secret": "O segredo da crepioca macia e flexível é usar fogo brando e tampar a frigideira por 45 segundos logo após despejar a massa para que o vapor asse o centro por igual."
     },
-    ingredients: [
-      { section: 'Massa', name: 'Goma de tapioca', amount: 40, unit: 'g', aisle: 'Mercearia', basePrice: 0.95 },
-      { section: 'Massa', name: 'Ovo', amount: 2, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 1.80 },
-      { section: 'Recheio', name: 'Queijo coalho ou minas', amount: 40, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 2.40 },
-      { section: 'Recheio', name: 'Tomate', amount: 50, unit: 'g', aisle: 'Hortifruti', basePrice: 0.65 },
-      { section: 'Recheio', name: 'Orégano', amount: 2, unit: 'g', aisle: 'Temperos', basePrice: 0.15 },
+    "ingredients": [
+      {
+        "section": "Massa",
+        "name": "Goma de tapioca",
+        "amount": 40,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 0.95
+      },
+      {
+        "section": "Massa",
+        "name": "Ovo",
+        "amount": 2,
+        "unit": "un",
+        "aisle": "Laticínios e Ovos",
+        "basePrice": 1.8
+      },
+      {
+        "section": "Recheio",
+        "name": "Queijo coalho ou minas",
+        "amount": 40,
+        "unit": "g",
+        "aisle": "Laticínios e Ovos",
+        "basePrice": 2.4
+      },
+      {
+        "section": "Recheio",
+        "name": "Tomate",
+        "amount": 50,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 0.65
+      },
+      {
+        "section": "Recheio",
+        "name": "Orégano",
+        "amount": 2,
+        "unit": "g",
+        "aisle": "Temperos",
+        "basePrice": 0.15
+      }
     ],
-    steps: [
-      'Bata os ovos com a goma de tapioca e uma pitada de sal usando um garfo ou fouet até ficar completamente homogêneo e sem grumos.',
-      'Aqueça uma frigideira antiaderente untada com gotas de azeite em fogo médio-baixo e despeje a massa espalhando por todo o fundo.',
-      'Quando a borda começar a soltar e o centro firmar (cerca de 2 minutos), distribua o queijo coalho fatiado, os cubinhos de tomate e o orégano em uma das metades.',
-      'Dobre a outra metade por cima formando uma meia-lua, abaixe o fogo e deixe dourar por 1 minuto de cada lado até o queijo fundir por completo.',
+    "steps": [
+      "Pese os 40g de goma de tapioca e separe os 2 ovos frescos, o queijo coalho em cubos ou fatias e o tomate sem sementes.",
+      "Quebre os 2 ovos em uma tigela média, adicione uma pitada de sal fino e a goma de tapioca, batendo com garfo ou fouet por 1 minuto até formar emulsão homogênea e sem grumos.",
+      "Aqueça uma frigideira antiaderente untada com gotas de azeite em fogo médio-baixo e despeje toda a massa cobrindo o fundo.",
+      "Tampe a frigideira por 45 segundos até a massa firmar o centro e soltar das bordas sem queimar.",
+      "Distribua o queijo coalho e os cubinhos de tomate em uma das metades, dobre em meia-lua e pressione por 1 minuto para fundir o queijo."
     ],
-    stepDetails: [
+    "stepDetails": [
       {
-        stepNumber: 1,
-        section: 'Massa e Emulsão',
-        text: 'Bata os ovos com a goma de tapioca e uma pitada de sal usando um garfo ou fouet até ficar completamente homogêneo e sem grumos.',
-        image: '/dishes/steps/crepioca/step-2.webp',
-        alt: 'Massa líquida de ovo, goma de tapioca e sal batida até ficar homogênea.',
-        tip: 'Bater bem incorpora ar, tornando a crepioca mais fofinha e leve.',
-        isKeyFrame: true,
-        timerSeconds: 60,
+        "stepNumber": 1,
+        "section": "Mise en Place",
+        "text": "Pese os 40g de goma de tapioca e separe os 2 ovos frescos, o queijo coalho em cubos ou fatias e o tomate sem sementes.",
+        "image": "/dishes/steps/crepioca/step-2.webp",
+        "alt": "Insumos medidos na bancada para a crepioca.",
+        "tip": "Tirar as sementes do tomate evita umidade excessiva na massa.",
+        "isKeyFrame": true,
+        "timerSeconds": 60
       },
       {
-        stepNumber: 2,
-        section: 'Massa e Emulsão',
-        text: 'Aqueça uma frigideira antiaderente untada com gotas de azeite em fogo médio-baixo e despeje a massa espalhando por todo o fundo.',
-        image: '/dishes/steps/crepioca/step-3.webp',
-        alt: 'Frigideira antiaderente untada com a massa da crepioca espalhada no fundo.',
-        tip: 'A frigideira não pode estar excessivamente quente para não queimar o fundo antes de cozinhar por cima.',
-        isKeyFrame: false,
-        timerSeconds: 120,
+        "stepNumber": 2,
+        "section": "Massa e Emulsão",
+        "text": "Quebre os 2 ovos em uma tigela média, adicione uma pitada de sal fino e a goma de tapioca, batendo com garfo ou fouet por 1 minuto até formar emulsão homogênea e sem grumos.",
+        "image": "/dishes/steps/crepioca/step-2.webp",
+        "alt": "Massa líquida de ovo, goma de tapioca e sal batida até ficar homogênea.",
+        "tip": "Bater bem incorpora ar, tornando a crepioca mais fofinha e leve.",
+        "isKeyFrame": false,
+        "timerSeconds": 60
       },
       {
-        stepNumber: 3,
-        section: 'Recheio e Dobra',
-        text: 'Quando a borda começar a soltar e o centro firmar (cerca de 2 minutos), distribua o queijo coalho fatiado, os cubinhos de tomate e o orégano em uma das metades.',
-        image: '/dishes/steps/crepioca/step-4.webp',
-        alt: 'Queijo coalho, cubinhos de tomate e orégano distribuídos na metade da crepioca.',
-        tip: 'Retire as sementes do tomate para não soltar água em excesso na massa.',
-        isKeyFrame: true,
-        timerSeconds: 90,
+        "stepNumber": 3,
+        "section": "Cocção em Fogo Brando",
+        "text": "Aqueça uma frigideira antiaderente untada com gotas de azeite em fogo médio-baixo e despeje toda a massa cobrindo o fundo.",
+        "image": "/dishes/steps/crepioca/step-3.webp",
+        "alt": "Frigideira antiaderente untada com a massa da crepioca espalhada no fundo.",
+        "tip": "A frigideira não pode estar excessivamente quente para não queimar o fundo antes de cozinhar por cima.",
+        "isKeyFrame": false,
+        "timerSeconds": 120
       },
       {
-        stepNumber: 4,
-        section: 'Recheio e Dobra',
-        text: 'Dobre a outra metade por cima formando uma meia-lua, abaixe o fogo e deixe dourar por 1 minuto de cada lado até o queijo fundir por completo.',
-        image: '/dishes/steps/crepioca/step-5.webp',
-        alt: 'Crepioca dobrada em meia-lua dourada com queijo fundido pronta para servir.',
-        tip: 'Pressione levemente com uma espátula de silicone para selar as bordas.',
-        isKeyFrame: true,
-        timerSeconds: 60,
+        "stepNumber": 4,
+        "section": "Abafamento a Vapor",
+        "text": "Tampe a frigideira por 45 segundos até a massa firmar o centro e soltar das bordas sem queimar.",
+        "image": "/dishes/steps/crepioca/step-4.webp",
+        "alt": "Frigideira tampada para o vapor assar o centro da crepioca por igual.",
+        "tip": "O vapor interno é o segredo para a textura elástica e macia sem ressecar.",
+        "isKeyFrame": true,
+        "timerSeconds": 45
       },
-    ],
+      {
+        "stepNumber": 5,
+        "section": "Recheio e Dobra",
+        "text": "Distribua o queijo coalho e os cubinhos de tomate em uma das metades, dobre em meia-lua e pressione por 1 minuto para fundir o queijo.",
+        "image": "/dishes/steps/crepioca/step-5.webp",
+        "alt": "Crepioca dobrada em meia-lua dourada com queijo fundido pronta para servir.",
+        "tip": "Pressione levemente com uma espátula de silicone para selar as bordas.",
+        "isKeyFrame": true,
+        "timerSeconds": 60
+      }
+    ]
   },
-
-  // 2. OVERNIGHT OATS
   {
-    id: 'rec-2',
-    title: 'Overnight Oats de Banana, Aveia e Pasta de Amendoim',
-    category: 'Café da Manhã',
-    prepTime: 5,
-    servings: 1,
-    calories: 380,
-    protein: 15,
-    carbs: 52,
-    fat: 12,
-    tags: ['Vegetariano', 'Econômico', 'Rápido', 'Meal Prep', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-2.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '310g por porção',
-    platingInstructions:
-      'Montar em camadas visíveis em pote de vidro hermético de 350ml: base de aveia hidratada, rodelas de banana e topo finalizado com swirl de pasta de amendoim e canela polvilhada.',
-    specificInstructions:
-      'Manter sob refrigeração (4°C) por no mínimo 4 horas antes de servir. Validade na geladeira: até 48 horas.',
-    sections: [
-      { name: 'Hidratação da Base', stepRange: [1, 1] },
-      { name: 'Montagem em Camadas & Topo', stepRange: [2, 4] },
+    "id": "rec-2",
+    "title": "Overnight Oats de Banana",
+    "category": "Café da Manhã",
+    "prepTime": 5,
+    "servings": 1,
+    "calories": 360,
+    "protein": 22,
+    "carbs": 48,
+    "fat": 9,
+    "tags": [
+      "Tirzepatida",
+      "Alta Proteína",
+      "Vegetariano",
+      "Econômico",
+      "Rápido",
+      "Meal Prep",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'Excelente opção de meal-prep para adiantar o café da manhã de 2 a 3 dias da semana de uma só vez.',
-      storage: 'Conservar sempre em pote hermético de vidro na geladeira (4°C) por até 3 dias. Não recomendamos congelar, pois a banana perde a textura ao descongelar.',
-      secret: 'Adicionar uma colherzinha de café de sementes de chia junto à aveia cria uma consistência de pudim ainda mais cremosa e saciante.',
+    "image": "/dishes/rec-2.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "280g por porção",
+    "platingInstructions": "Servir diretamente no pote de vidro hermético ou em taça de sobremesa com as rodelas de banana e chia decorando o topo.",
+    "specificInstructions": "Deixar refrigerando por pelo menos 4 horas (idealmente 8 horas durante a noite) para hidratação perfeita da aveia.",
+    "sections": [
+      {
+        "name": "Base e Mistura",
+        "stepRange": [
+          1,
+          3
+        ]
+      },
+      {
+        "name": "Refrigeração e Serviço",
+        "stepRange": [
+          4,
+          5
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "O overnight oats é a preparação perfeita para meal prep semanal, economizando tempo nas manhãs corridas.",
+      "storage": "Conservar na geladeira em pote fechado por até 4 dias.",
+      "secret": "A semente de chia cria um gel natural que confere a consistência idêntica à de um pudim artesanal."
     },
-    ingredients: [
-      { section: 'Base Hidratada', name: 'Aveia em flocos', amount: 50, unit: 'g', aisle: 'Mercearia', basePrice: 0.85 },
-      { section: 'Base Hidratada', name: 'Leite integral ou vegetal', amount: 150, unit: 'ml', aisle: 'Laticínios e Ovos', basePrice: 1.10 },
-      { section: 'Fruta & Recheio', name: 'Banana nanica', amount: 1, unit: 'un', aisle: 'Hortifruti', basePrice: 0.90 },
-      { section: 'Cobertura', name: 'Pasta de amendoim', amount: 20, unit: 'g', aisle: 'Mercearia', basePrice: 1.20 },
-      { section: 'Cobertura', name: 'Canela em pó', amount: 2, unit: 'g', aisle: 'Temperos', basePrice: 0.15 },
+    "ingredients": [
+      {
+        "section": "Base",
+        "name": "Aveia em flocos finos",
+        "amount": 40,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 0.6
+      },
+      {
+        "section": "Base",
+        "name": "Leite desnatado ou vegetal",
+        "amount": 120,
+        "unit": "ml",
+        "aisle": "Laticínios e Ovos",
+        "basePrice": 0.8
+      },
+      {
+        "section": "Base",
+        "name": "Iogurte natural desnatado",
+        "amount": 80,
+        "unit": "g",
+        "aisle": "Laticínios e Ovos",
+        "basePrice": 1.5
+      },
+      {
+        "section": "Topo",
+        "name": "Banana madura fatiada",
+        "amount": 80,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 0.6
+      },
+      {
+        "section": "Topo",
+        "name": "Sementes de chia e canela",
+        "amount": 10,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 0.4
+      }
     ],
-    steps: [
-      'No pote de vidro, misture a aveia em flocos, o leite e metade da canela em pó com uma colher até que todos os flocos fiquem submersos.',
-      'Corte a banana nanica em rodelas de cerca de 0,5cm e acomode-as sobre a camada de aveia hidratada.',
-      'Coloque a pasta de amendoim no centro do topo e polvilhe o restante da canela em pó.',
-      'Feche o pote com tampa hermética e leve à geladeira por no mínimo 4 horas (ou durante a noite inteira) antes de consumir gelado.',
+    "steps": [
+      "Em um pote de vidro de 350ml, coloque os 40g de aveia em flocos e 1 colher de sementes de chia.",
+      "Despeje os 120ml de leite e adicione os 80g de iogurte natural desnatado com uma pitada de canela em pó.",
+      "Misture vigorosamente com uma colher até que todos os flocos de aveia estejam embebidos no líquido cremoso.",
+      "Acomode metade das rodelas de banana sobre a mistura, feche o pote hermeticamente e leve à geladeira por no mínimo 4 horas.",
+      "Pela manhã, abra o pote, finalize com o restante da banana fresca fatiada e uma pitada extra de canela antes de servir."
     ],
-    stepDetails: [
+    "stepDetails": [
       {
-        stepNumber: 1,
-        section: 'Hidratação da Base',
-        text: 'No pote de vidro, misture a aveia em flocos, o leite e metade da canela em pó com uma colher até que todos os flocos fiquem submersos.',
-        image: '/dishes/steps/overnight-oats/step-2.webp',
-        alt: 'Aveia em flocos, leite e canela misturados no fundo do pote de vidro.',
-        tip: 'Usar aveia em flocos médios dá melhor textura do que farinha de aveia.',
-        isKeyFrame: true,
-        timerSeconds: 60,
+        "stepNumber": 1,
+        "section": "Mise en Place Secos",
+        "text": "Em um pote de vidro de 350ml, coloque os 40g de aveia em flocos e 1 colher de sementes de chia.",
+        "image": "/dishes/steps/overnight-oats/step-1.webp",
+        "alt": "Pote de vidro com aveia e chia.",
+        "tip": "A chia garante absorção completa e fibras solúveis benéficas.",
+        "isKeyFrame": true,
+        "timerSeconds": 30
       },
       {
-        stepNumber: 2,
-        section: 'Montagem em Camadas & Topo',
-        text: 'Corte a banana nanica em rodelas de cerca de 0,5cm e acomode-as sobre a camada de aveia hidratada.',
-        image: '/dishes/steps/overnight-oats/step-5.webp',
-        alt: 'Rodelas frescas de banana nanica dispostas sobre a camada de aveia.',
-        tip: 'Bananas bem maduras adoçam naturalmente a preparação sem necessidade de açúcar ou adoçante.',
-        isKeyFrame: false,
-        timerSeconds: 60,
+        "stepNumber": 2,
+        "section": "Adição de Líquidos",
+        "text": "Despeje os 120ml de leite e adicione os 80g de iogurte natural desnatado com uma pitada de canela em pó.",
+        "image": "/dishes/steps/overnight-oats/step-2.webp",
+        "alt": "Leite e iogurte adicionados ao pote.",
+        "tip": "Usar iogurte desnatado aumenta a proteína sem gordura excessiva.",
+        "isKeyFrame": false,
+        "timerSeconds": 30
       },
       {
-        stepNumber: 3,
-        section: 'Montagem em Camadas & Topo',
-        text: 'Coloque a pasta de amendoim no centro do topo e polvilhe o restante da canela em pó.',
-        image: '/dishes/steps/overnight-oats/step-3.webp',
-        alt: 'Pasta de amendoim colocada no centro e finalizada com canela polvilhada.',
-        tip: 'Se a pasta estiver firme, aqueça por 10 segundos no micro-ondas para espalhar com facilidade.',
-        isKeyFrame: true,
-        timerSeconds: 30,
+        "stepNumber": 3,
+        "section": "Emulsão & Hidratação",
+        "text": "Misture vigorosamente com uma colher até que todos os flocos de aveia estejam embebidos no líquido cremoso.",
+        "image": "/dishes/steps/overnight-oats/step-3.webp",
+        "alt": "Mistura homogênea de aveia, chia, leite e iogurte.",
+        "tip": "Raspe o fundo para não deixar aveia seca acumulada.",
+        "isKeyFrame": true,
+        "timerSeconds": 45
       },
       {
-        stepNumber: 4,
-        section: 'Montagem em Camadas & Topo',
-        text: 'Feche o pote com tampa hermética e leve à geladeira por no mínimo 4 horas (ou durante a noite inteira) antes de consumir gelado.',
-        image: '/dishes/steps/overnight-oats/step-6.webp',
-        alt: 'Pote hermético de overnight oats cremoso após resfriar na geladeira.',
-        tip: 'A refrigeração lenta permite que as fibras da aveia absorvam o líquido gradualmente.',
-        isKeyFrame: false,
-        timerSeconds: 0,
+        "stepNumber": 4,
+        "section": "Refrigeração Noturna",
+        "text": "Acomode metade das rodelas de banana sobre a mistura, feche o pote hermeticamente e leve à geladeira por no mínimo 4 horas.",
+        "image": "/dishes/steps/overnight-oats/step-4.webp",
+        "alt": "Pote fechado pronto para repouso na geladeira.",
+        "tip": "O repouso de 8 horas extrai a cremosidade máxima.",
+        "isKeyFrame": false,
+        "timerSeconds": 60
       },
-    ],
+      {
+        "stepNumber": 5,
+        "section": "Finalização & Serviço",
+        "text": "Pela manhã, abra o pote, finalize com o restante da banana fresca fatiada e uma pitada extra de canela antes de servir.",
+        "image": "/dishes/steps/overnight-oats/step-5.webp",
+        "alt": "Overnight oats cremoso com banana fresca por cima pronto para consumo.",
+        "tip": "Consuma gelado ou deixe 5 minutos em temperatura ambiente.",
+        "isKeyFrame": true,
+        "timerSeconds": 30
+      }
+    ]
   },
-
-  // 3. OVOS MEXIDOS CREMOSOS
   {
-    id: 'rec-3',
-    title: 'Ovos Mexidos Cremosos com Pão Francês e Mamão',
-    category: 'Café da Manhã',
-    prepTime: 8,
-    servings: 1,
-    calories: 360,
-    protein: 18,
-    carbs: 38,
-    fat: 14,
-    tags: ['Vegetariano', 'Econômico', 'Rápido', 'Clássico', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-3.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '280g por porção',
-    platingInstructions:
-      'Dispor os ovos mexidos no centro de prato aquecido, acompanhados de meia fatia de pão francês tostado na manteiga e fatias de mamão formosa ao lado.',
-    specificInstructions:
-      'Fogo muito baixo e constante. O ovo continua cozinhando pelo calor residual mesmo após desligar a frigideira.',
-    sections: [
-      { name: 'Cocção dos Ovos', stepRange: [1, 2] },
-      { name: 'Finalização e Serviço', stepRange: [3, 3] },
+    "id": "rec-3",
+    "title": "Ovos Mexidos com Pão Francês",
+    "category": "Café da Manhã",
+    "prepTime": 10,
+    "servings": 1,
+    "calories": 310,
+    "protein": 21,
+    "carbs": 28,
+    "fat": 13,
+    "tags": [
+      "Tirzepatida",
+      "Alta Proteína",
+      "Vegetariano",
+      "Econômico",
+      "Rápido",
+      "Clássico",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'Ovos mexidos de hotel exigem controle de calor brando e paciência: nunca cozinhe em fogo alto.',
-      storage: 'Ovos mexidos não devem ser guardados nem congelados; perdem umidade e soltam soro desagradável. Prepare e sirva na hora.',
-      secret: 'Tire a frigideira do fogo 30 segundos antes do ponto desejado, quando os ovos ainda parecerem ligeiramente úmidos. O calor residual da panela atinge a cremosidade exata.',
+    "image": "/dishes/rec-3.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "250g por porção",
+    "platingInstructions": "Dispor o pão tostado dourado ao centro, os ovos mexidos aveludados e brilhantes por cima e as fatias de mamão fresco ao lado.",
+    "specificInstructions": "Ovos mexidos de hotel exigem controle de calor brando: nunca cozinhe em fogo alto.",
+    "sections": [
+      {
+        "name": "Mise en Place & Tostagem",
+        "stepRange": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "Cocção Lenta dos Ovos",
+        "stepRange": [
+          3,
+          4
+        ]
+      },
+      {
+        "name": "Finalização & Empratamento",
+        "stepRange": [
+          5,
+          6
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "Ovos mexidos de padrão hoteleiro internacional baseiam-se na coagulação lenta das proteínas do ovo sem ressecar.",
+      "storage": "Prepare e sirva imediatamente.",
+      "secret": "Tire a frigideira do fogo 30 segundos antes do ponto final: o calor residual atinge a textura cremosa perfeita."
     },
-    ingredients: [
-      { section: 'Ovos', name: 'Ovo', amount: 3, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 2.70 },
-      { section: 'Ovos', name: 'Manteiga', amount: 15, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 1.20 },
-      { section: 'Acompanhamento', name: 'Pão francês', amount: 1, unit: 'un', aisle: 'Padaria', basePrice: 0.90 },
-      { section: 'Acompanhamento', name: 'Mamão formosa', amount: 100, unit: 'g', aisle: 'Hortifruti', basePrice: 1.20 },
-      { section: 'Ovos', name: 'Sal refinado', amount: 2, unit: 'g', aisle: 'Temperos', basePrice: 0.10 },
-    ],
-    steps: [
-      'Quebre os ovos em uma tigela, tempere com sal e bata levemente com garfo apenas para romper as gemas.',
-      'Derreta a manteiga em fogo baixo na frigideira, despeje os ovos e mexa continuamente com espátula de silicone em movimentos circulares lentos do centro para as bordas.',
-      'Retire do fogo assim que formar uma pasta aveludada e brilhante. Sirva sobre o pão tostado e acompanhe com o mamão fresco.',
-    ],
-    stepDetails: [
+    "ingredients": [
       {
-        stepNumber: 1,
-        section: 'Cocção dos Ovos',
-        text: 'Quebre os ovos em uma tigela, tempere com sal e bata levemente com garfo apenas para romper as gemas.',
-        image: '/dishes/steps/ovos-mexidos/step-2.webp',
-        alt: 'Ovos caipiras quebrados na tigela batidos suavemente com garfo.',
-        tip: 'Não bata demais para não aerar a mistura; queremos densidade cremosa.',
-        isKeyFrame: false,
-        timerSeconds: 30,
+        "section": "Ovos",
+        "name": "Ovo",
+        "amount": 3,
+        "unit": "un",
+        "aisle": "Laticínios e Ovos",
+        "basePrice": 2.7
       },
       {
-        stepNumber: 2,
-        section: 'Cocção dos Ovos',
-        text: 'Derreta a manteiga em fogo baixo na frigideira, despeje os ovos e mexa continuamente com espátula de silicone em movimentos circulares lentos do centro para as bordas.',
-        image: '/dishes/steps/ovos-mexidos/step-4.webp',
-        alt: 'Ovos cozinhando lentamente na manteiga derretida com espátula de silicone.',
-        tip: 'Se a frigideira começar a chiar alto, afaste do fogo por 10 segundos continuando a mexer.',
-        isKeyFrame: true,
-        timerSeconds: 180,
+        "section": "Ovos",
+        "name": "Manteiga",
+        "amount": 10,
+        "unit": "g",
+        "aisle": "Laticínios e Ovos",
+        "basePrice": 0.8
       },
       {
-        stepNumber: 3,
-        section: 'Finalização e Serviço',
-        text: 'Retire do fogo assim que formar uma pasta aveludada e brilhante. Sirva sobre o pão tostado e acompanhe com o mamão fresco.',
-        image: '/dishes/steps/ovos-mexidos/step-6.webp',
-        alt: 'Ovos mexidos cremosos aveludados servidos com pão tostado e mamão.',
-        tip: 'Sirva em prato pré-aquecido para manter a temperatura ideal até a primeira garfada.',
-        isKeyFrame: true,
-        timerSeconds: 60,
+        "section": "Acompanhamento",
+        "name": "Pão francês",
+        "amount": 1,
+        "unit": "un",
+        "aisle": "Padaria",
+        "basePrice": 0.9
       },
+      {
+        "section": "Acompanhamento",
+        "name": "Mamão formosa",
+        "amount": 100,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 1.2
+      },
+      {
+        "section": "Ovos",
+        "name": "Sal refinado",
+        "amount": 2,
+        "unit": "g",
+        "aisle": "Temperos",
+        "basePrice": 0.1
+      }
     ],
+    "steps": [
+      "Separe 3 ovos frescos, 10g de manteiga de qualidade, 1 pão francês fresco e 100g de mamão formosa fatiado.",
+      "Corte o pão francês ao meio e toste a face interna na frigideira quente com uma ponta de manteiga até ficar dourado e crocante.",
+      "Quebre os 3 ovos em uma tigela funda, tempere com sal fino e bata suavemente com um garfo por 20 segundos apenas para romper as gemas sem aerar.",
+      "Em frigideira antiaderente em fogo bem baixo, derreta a manteiga e despeje os ovos batidos.",
+      "Com uma espátula de silicone, faça movimentos circulares lentos das bordas para o centro, cozinhando em fogo brando até formar dobras aveludadas.",
+      "Retire da frigideira quando os ovos ainda estiverem ligeiramente úmidos e sirva sobre o pão tostado acompanhado de mamão fresco."
+    ],
+    "stepDetails": [
+      {
+        "stepNumber": 1,
+        "section": "Mise en Place & Cortes",
+        "text": "Separe 3 ovos frescos, 10g de manteiga de qualidade, 1 pão francês fresco e 100g de mamão formosa fatiado.",
+        "image": "/dishes/steps/ovos-mexidos/step-2.webp",
+        "alt": "Ingredientes organizados na bancada.",
+        "tip": "Usar ovos em temperatura ambiente garante coagulação uniforme.",
+        "isKeyFrame": true,
+        "timerSeconds": 60
+      },
+      {
+        "stepNumber": 2,
+        "section": "Tostagem do Pão",
+        "text": "Corte o pão francês ao meio e toste a face interna na frigideira quente com uma ponta de manteiga até ficar dourado e crocante.",
+        "image": "/dishes/steps/ovos-mexidos/step-6.webp",
+        "alt": "Pão francês tostado dourado.",
+        "tip": "A casca crocante sustenta a umidade dos ovos sem amolecer.",
+        "isKeyFrame": false,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 3,
+        "section": "Batimento Suave",
+        "text": "Quebre os 3 ovos em uma tigela funda, tempere com sal fino e bata suavemente com um garfo por 20 segundos apenas para romper as gemas sem aerar.",
+        "image": "/dishes/steps/ovos-mexidos/step-2.webp",
+        "alt": "Ovos batidos suavemente na tigela.",
+        "tip": "Não bata excessivamente para não criar bolhas de ar grandes.",
+        "isKeyFrame": true,
+        "timerSeconds": 30
+      },
+      {
+        "stepNumber": 4,
+        "section": "Cocção Lenta",
+        "text": "Em frigideira antiaderente em fogo bem baixo, derreta a manteiga e despeje os ovos batidos.",
+        "image": "/dishes/steps/ovos-mexidos/step-4.webp",
+        "alt": "Ovos cozinhando lentamente em fogo baixo.",
+        "tip": "O fogo deve ser o mais baixo possível do fogão.",
+        "isKeyFrame": false,
+        "timerSeconds": 150
+      },
+      {
+        "stepNumber": 5,
+        "section": "Movimentos em Espiral",
+        "text": "Com uma espátula de silicone, faça movimentos circulares lentos das bordas para o centro, cozinhando em fogo brando até formar dobras aveludadas.",
+        "image": "/dishes/steps/ovos-mexidos/step-4.webp",
+        "alt": "Espátula formando ondas aveludadas nos ovos.",
+        "tip": "Se a panela chiar alto, levante-a por 5 segundos para esfriar.",
+        "isKeyFrame": true,
+        "timerSeconds": 90
+      },
+      {
+        "stepNumber": 6,
+        "section": "Empratamento Imediato",
+        "text": "Retire da frigideira quando os ovos ainda estiverem ligeiramente úmidos e sirva sobre o pão tostado acompanhado de mamão fresco.",
+        "image": "/dishes/steps/ovos-mexidos/step-6.webp",
+        "alt": "Ovos mexidos cremosos servidos sobre o pão com mamão ao lado.",
+        "tip": "Sirva em prato morno para manter a temperatura ideal.",
+        "isKeyFrame": true,
+        "timerSeconds": 30
+      }
+    ]
   },
-
-  // 4. CUSCUZ NORDESTINO COM OVO ESTRELADO
   {
-    id: 'rec-4',
-    title: 'Cuscuz Nordestino com Ovo Estrelado e Coentro',
-    category: 'Café da Manhã',
-    prepTime: 18,
-    servings: 1,
-    calories: 340,
-    protein: 16,
-    carbs: 46,
-    fat: 10,
-    tags: ['Econômico', 'Regional', 'Rápido', 'Vegetariano', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-4.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '260g por porção',
-    platingInstructions:
-      'Desenformar o cuscuz no centro do prato, acomodar o ovo estrelado com gema mole no topo e finalizar com cheiro-verde fresco e fio de azeite.',
-    specificInstructions:
-      'Respeitar os 10 minutos de hidratação do flocão antes de levar ao fogo para garantir textura macia e fofa.',
-    sections: [
-      { name: 'Hidratação e Cozimento do Cuscuz', stepRange: [1, 2] },
-      { name: 'Ovo Estrelado e Montagem', stepRange: [3, 3] },
+    "id": "rec-4",
+    "title": "Cuscuz com Ovo Estrelado",
+    "category": "Café da Manhã",
+    "prepTime": 18,
+    "servings": 1,
+    "calories": 340,
+    "protein": 16,
+    "carbs": 46,
+    "fat": 10,
+    "tags": [
+      "Econômico",
+      "Regional",
+      "Rápido",
+      "Vegetariano",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'O cuscuz de milho é um dos carboidratos mais limpos, econômicos e versáteis da culinária brasileira.',
-      storage: 'O cuscuz cozido dura até 3 dias na geladeira em pote hermético. Para reaquecer mantendo a maciez, borrife um pouco de água e aqueça por 45 segundos no micro-ondas.',
-      secret: 'O segredo do cuscuz bem soltinho e fofo é não apertar a massa ao colocar na cuscuzeira: apenas acomode com a colher suavemente para o vapor circular livremente.',
+    "image": "/dishes/rec-4.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "260g por porção",
+    "platingInstructions": "Desenformar o cuscuz no centro do prato, acomodar o ovo estrelado com gema mole no topo e finalizar com cheiro-verde fresco e fio de azeite.",
+    "specificInstructions": "Respeitar os 10 minutos de hidratação do flocão antes de levar ao fogo para garantir textura macia e fofa.",
+    "sections": [
+      {
+        "name": "Hidratação e Cozimento do Cuscuz",
+        "stepRange": [
+          1,
+          3
+        ]
+      },
+      {
+        "name": "Ovo Estrelado e Montagem",
+        "stepRange": [
+          4,
+          6
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "O cuscuz de milho é um dos carboidratos mais limpos, econômicos e versáteis da culinária brasileira.",
+      "storage": "O cuscuz cozido dura até 3 dias na geladeira em pote hermético.",
+      "secret": "O segredo do cuscuz fofo é nunca apertar a massa ao colocar na cuscuzeira: acomode com a colher suavemente."
     },
-    ingredients: [
-      { section: 'Cuscuz', name: 'Flocão de milho', amount: 80, unit: 'g', aisle: 'Mercearia', basePrice: 0.70 },
-      { section: 'Cuscuz', name: 'Água filtrada', amount: 60, unit: 'ml', aisle: 'Mercearia', basePrice: 0.10 },
-      { section: 'Cuscuz', name: 'Sal refinado', amount: 2, unit: 'g', aisle: 'Temperos', basePrice: 0.10 },
-      { section: 'Topo', name: 'Ovo', amount: 2, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 1.80 },
-      { section: 'Topo', name: 'Azeite de oliva', amount: 10, unit: 'ml', aisle: 'Mercearia', basePrice: 0.60 },
-      { section: 'Finalização', name: 'Cheiro-verde ou coentro', amount: 10, unit: 'g', aisle: 'Hortifruti', basePrice: 0.40 },
-    ],
-    steps: [
-      'Em uma tigela, hidrate o flocão de milho com a água e o sal. Misture bem e deixe descansar por 10 minutos para absorver o líquido.',
-      'Coloque água no fundo da cuscuzeira e transfira a massa hidratada sem compactar. Tampe e cozinhe em fogo médio por cerca de 8 minutos até subir aroma característico.',
-      'Enquanto o cuscuz cozinha, frite os ovos em frigideira com o azeite deixando a gema mole. Desenforme o cuscuz, cubra com os ovos e finalize com cheiro-verde.',
-    ],
-    stepDetails: [
+    "ingredients": [
       {
-        stepNumber: 1,
-        section: 'Hidratação e Cozimento do Cuscuz',
-        text: 'Em uma tigela, hidrate o flocão de milho com a água e o sal. Misture bem e deixe descansar por 10 minutos para absorver o líquido.',
-        image: '/dishes/steps/cuscuz/step-2.webp',
-        alt: 'Flocão de milho hidratando com água e sal em tigela de cerâmica.',
-        tip: 'A massa deve parecer areia de praia úmida, soltando dos dedos.',
-        isKeyFrame: true,
-        timerSeconds: 600,
+        "section": "Cuscuz",
+        "name": "Flocão de milho",
+        "amount": 80,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 0.7
       },
       {
-        stepNumber: 2,
-        section: 'Hidratação e Cozimento do Cuscuz',
-        text: 'Coloque água no fundo da cuscuzeira e transfira a massa hidratada sem compactar. Tampe e cozinhe em fogo médio por cerca de 8 minutos até subir aroma característico.',
-        image: '/dishes/steps/cuscuz/step-5.webp',
-        alt: 'Massa fofa transferida para o cesto da cuscuzeira para cozinhar no vapor.',
-        tip: 'Nunca aperte o flocão na cuscuzeira, senão ele fica denso e pesado.',
-        isKeyFrame: true,
-        timerSeconds: 480,
+        "section": "Cuscuz",
+        "name": "Água filtrada",
+        "amount": 60,
+        "unit": "ml",
+        "aisle": "Mercearia",
+        "basePrice": 0.1
       },
       {
-        stepNumber: 3,
-        section: 'Ovo Estrelado e Montagem',
-        text: 'Enquanto o cuscuz cozinha, frite os ovos em frigideira com o azeite deixando a gema mole. Desenforme o cuscuz, cubra com os ovos e finalize com cheiro-verde.',
-        image: '/dishes/steps/cuscuz/step-6.webp',
-        alt: 'Cuscuz nordestino macio desenformado e coberto com ovo estrelado e coentro.',
-        tip: 'A gema mole se mistura ao cuscuz quente formando um molho rico e aveludado.',
-        isKeyFrame: true,
-        timerSeconds: 180,
+        "section": "Cuscuz",
+        "name": "Sal refinado",
+        "amount": 2,
+        "unit": "g",
+        "aisle": "Temperos",
+        "basePrice": 0.1
       },
+      {
+        "section": "Topo",
+        "name": "Ovo",
+        "amount": 2,
+        "unit": "un",
+        "aisle": "Laticínios e Ovos",
+        "basePrice": 1.8
+      },
+      {
+        "section": "Topo",
+        "name": "Azeite de oliva",
+        "amount": 10,
+        "unit": "ml",
+        "aisle": "Mercearia",
+        "basePrice": 0.6
+      },
+      {
+        "section": "Finalização",
+        "name": "Cheiro-verde ou coentro",
+        "amount": 10,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 0.4
+      }
     ],
+    "steps": [
+      "Meça 80g de flocão de milho, 60ml de água filtrada, uma pitada de sal marinho, 2 ovos frescos e cheiro-verde picado.",
+      "Em uma tigela de cerâmica, regue o flocão de milho com a água e o sal, misturando com as pontas dos dedos até obter textura de areia de praia úmida.",
+      "Cubra a tigela com um pano limpo e deixe o flocão descansar por 10 minutos para absorver todo o líquido e hidratar as fibras.",
+      "Adicione água no compartimento inferior da cuscuzeira e transfira a massa com colher, acomodando sem compactar.",
+      "Tampe e leve ao fogo médio por 8 minutos até subir o aroma perfumado e a massa firmar fofa e macia.",
+      "Frite os ovos em frigideira com fio de azeite deixando a gema mole, desenforme o cuscuz no prato e monte os ovos por cima com cheiro-verde."
+    ],
+    "stepDetails": [
+      {
+        "stepNumber": 1,
+        "section": "Mise en Place",
+        "text": "Meça 80g de flocão de milho, 60ml de água filtrada, uma pitada de sal marinho, 2 ovos frescos e cheiro-verde picado.",
+        "image": "/dishes/steps/cuscuz/step-2.webp",
+        "alt": "Insumos pesados para o cuscuz.",
+        "tip": "Usar água em temperatura ambiente para hidratar.",
+        "isKeyFrame": true,
+        "timerSeconds": 60
+      },
+      {
+        "stepNumber": 2,
+        "section": "Hidratação dos Grânulos",
+        "text": "Em uma tigela de cerâmica, regue o flocão de milho com a água e o sal, misturando com as pontas dos dedos até obter textura de areia de praia úmida.",
+        "image": "/dishes/steps/cuscuz/step-2.webp",
+        "alt": "Flocão de milho umedecido.",
+        "tip": "A textura deve soltar facilmente dos dedos.",
+        "isKeyFrame": false,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 3,
+        "section": "Descanso e Expansão",
+        "text": "Cubra a tigela com um pano limpo e deixe o flocão descansar por 10 minutos para absorver todo o líquido e hidratar as fibras.",
+        "image": "/dishes/steps/cuscuz/step-2.webp",
+        "alt": "Tigela descansando coberta.",
+        "tip": "O descanso evita que o cuscuz fique ressecado.",
+        "isKeyFrame": true,
+        "timerSeconds": 600
+      },
+      {
+        "stepNumber": 4,
+        "section": "Montagem na Cuscuzeira",
+        "text": "Adicione água no compartimento inferior da cuscuzeira e transfira a massa com colher, acomodando sem compactar.",
+        "image": "/dishes/steps/cuscuz/step-5.webp",
+        "alt": "Massa acomodada na cuscuzeira.",
+        "tip": "Não pressione para o vapor circular livremente.",
+        "isKeyFrame": false,
+        "timerSeconds": 60
+      },
+      {
+        "stepNumber": 5,
+        "section": "Cocção a Vapor",
+        "text": "Tampe e leve ao fogo médio por 8 minutos até subir o aroma perfumado e a massa firmar fofa e macia.",
+        "image": "/dishes/steps/cuscuz/step-5.webp",
+        "alt": "Cuscuz cozinhando no vapor.",
+        "tip": "O aroma perfumado de milho indica que está pronto.",
+        "isKeyFrame": true,
+        "timerSeconds": 480
+      },
+      {
+        "stepNumber": 6,
+        "section": "Ovos Estrelados & Serviço",
+        "text": "Frite os ovos em frigideira com fio de azeite deixando a gema mole, desenforme o cuscuz no prato e monte os ovos por cima com cheiro-verde.",
+        "image": "/dishes/steps/cuscuz/step-6.webp",
+        "alt": "Cuscuz servido com ovos estrelados e coentro fresco.",
+        "tip": "A gema cremosa se mistura ao cuscuz quente.",
+        "isKeyFrame": true,
+        "timerSeconds": 180
+      }
+    ]
   },
-
-  // 5. PF BRASILEIRO TRADICIONAL
   {
-    id: 'rec-5',
-    title: 'PF Brasileiro: Frango Grelhado, Arroz, Feijão Carioca e Salada',
-    category: 'Almoço',
-    prepTime: 25,
-    servings: 2,
-    calories: 520,
-    protein: 42,
-    carbs: 58,
-    fat: 12,
-    tags: ['Alta Proteína', 'Equilibrado', 'Clássico Brasileiro', 'Econômico', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-5.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '450g por porção',
-    platingInstructions:
-      'Montagem no sentido horário: feijão conchado cobrindo metade do arroz branco soltinho, filé de frango dourado e fatiado no centro, e salada verde colorida ao lado.',
-    specificInstructions:
-      'Grelhar o frango em frigideira bem quente para criar crosta dourada saborosa (Reação de Maillard) sem desidratar o interior da carne.',
-    sections: [
-      { name: 'Marinada e Cocção do Frango', stepRange: [1, 2] },
-      { name: 'Aquece Base e Montagem do Prato', stepRange: [3, 3] },
+    "id": "rec-5",
+    "title": "PF de Frango Grelhado",
+    "category": "Almoço",
+    "prepTime": 25,
+    "servings": 2,
+    "calories": 490,
+    "protein": 42,
+    "carbs": 52,
+    "fat": 11,
+    "tags": [
+      "Tirzepatida",
+      "Alta Proteína",
+      "Equilibrado",
+      "Clássico Brasileiro",
+      "Econômico",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'O Prato Feito perfeito é a base da nutrição brasileira: combinação de aminoácidos do arroz com feijão e proteína magra de alto valor biológico.',
-      storage: 'Arroz, feijão e frango podem ser guardados em marmitas separadas ou conjuntas na geladeira por até 4 dias, ou congelados por até 90 dias.',
-      secret: 'Para o filé de peito de frango não ressecar, deixe-o marinar por 10 minutos com alho, sal e algumas gotas de limão, e sele em frigideira muito quente por apenas 3 a 4 minutos de cada lado sem furar a carne.',
+    "image": "/dishes/rec-5.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "420g por porção",
+    "platingInstructions": "Disposição tradicional brasileira: arroz branco soltinho, feijão carioca cremoso, filé de frango fatiado no centro e salada fresca temperada.",
+    "specificInstructions": "Grelhar o frango em frigideira bem quente para criar crosta dourada saborosa mantendo suculência interna.",
+    "sections": [
+      {
+        "name": "Mise en Place & Marinada",
+        "stepRange": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "Grelhado Perfeito",
+        "stepRange": [
+          3,
+          5
+        ]
+      },
+      {
+        "name": "Montagem do Prato Feito",
+        "stepRange": [
+          6,
+          7
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "O Prato Feito brasileiro é nutricionalmente perfeito: proteína magra, carboidrato complexo e feijão com aminoácidos complementares.",
+      "storage": "O frango grelhado e o feijão duram 3 dias refrigerados em potes separados.",
+      "secret": "Deixar o filé de frango descansar 2 minutos na tábua antes de cortar retém todos os sucos internos."
     },
-    ingredients: [
-      { section: 'Frango', name: 'Peito de frango em filés', amount: 300, unit: 'g', aisle: 'Açougue', basePrice: 6.90 },
-      { section: 'Frango', name: 'Alho picado', amount: 10, unit: 'g', aisle: 'Hortifruti', basePrice: 0.35 },
-      { section: 'Frango', name: 'Limão tahiti', amount: 1, unit: 'un', aisle: 'Hortifruti', basePrice: 0.50 },
-      { section: 'Base', name: 'Arroz branco cozido', amount: 250, unit: 'g', aisle: 'Mercearia', basePrice: 1.40 },
-      { section: 'Base', name: 'Feijão carioca cozido', amount: 200, unit: 'g', aisle: 'Mercearia', basePrice: 1.80 },
-      { section: 'Salada', name: 'Alface americana', amount: 80, unit: 'g', aisle: 'Hortifruti', basePrice: 1.20 },
-      { section: 'Salada', name: 'Tomate salada', amount: 100, unit: 'g', aisle: 'Hortifruti', basePrice: 1.10 },
-      { section: 'Geral', name: 'Azeite de oliva', amount: 15, unit: 'ml', aisle: 'Mercearia', basePrice: 0.80 },
-    ],
-    steps: [
-      'Tempere os filés de peito de frango com o alho picado, suco de meio limão, sal e uma pitada de pimenta-do-reino. Deixe tomar gosto por 5 minutos.',
-      'Aqueça uma frigideira de fundo grosso com um fio de azeite em fogo médio-alto e grelhe os filés por cerca de 3 a 4 minutos de cada lado até ficarem bem dourados e suculentos.',
-      'Aqueça o arroz soltinho e o feijão temperado. Monte as porções dividindo o arroz, o feijão com caldo espesso, o filé de frango fatiado e a salada fresca temperada.',
-    ],
-    stepDetails: [
+    "ingredients": [
       {
-        stepNumber: 1,
-        section: 'Marinada e Cocção do Frango',
-        text: 'Tempere os filés de peito de frango com o alho picado, suco de meio limão, sal e uma pitada de pimenta-do-reino. Deixe tomar gosto por 5 minutos.',
-        image: '/dishes/steps/frango-grelhado/step-2.webp',
-        alt: 'Filés de peito de frango marinando com alho, suco de limão e especiarias.',
-        tip: 'Bata levemente nos filés com as costas da faca para uniformizar a espessura antes de grelhar.',
-        isKeyFrame: false,
-        timerSeconds: 300,
+        "section": "Frango",
+        "name": "Peito de frango em filés",
+        "amount": 300,
+        "unit": "g",
+        "aisle": "Açougue",
+        "basePrice": 6.9
       },
       {
-        stepNumber: 2,
-        section: 'Marinada e Cocção do Frango',
-        text: 'Aqueça uma frigideira de fundo grosso com um fio de azeite em fogo médio-alto e grelhe os filés por cerca de 3 a 4 minutos de cada lado até ficarem bem dourados e suculentos.',
-        image: '/dishes/steps/frango-grelhado/step-5.webp',
-        alt: 'Filé de frango dourando em frigideira de fundo grosso com crosta suculenta.',
-        tip: 'Não fique mexendo no filé enquanto grelha; deixe formar a crosta dourada antes de virar.',
-        isKeyFrame: true,
-        timerSeconds: 240,
+        "section": "Base",
+        "name": "Arroz branco cozido",
+        "amount": 150,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 1.2
       },
       {
-        stepNumber: 3,
-        section: 'Aquece Base e Montagem do Prato',
-        text: 'Aqueça o arroz soltinho e o feijão temperado. Monte as porções dividindo o arroz, o feijão com caldo espesso, o filé de frango fatiado e a salada fresca temperada.',
-        image: '/dishes/steps/frango-grelhado/step-7.webp',
-        alt: 'PF montado com arroz branco soltinho, feijão carioca, frango fatiado e salada.',
-        tip: 'Deixe o frango descansar por 2 minutos antes de fatiar para os sucos internos se redistribuírem.',
-        isKeyFrame: true,
-        timerSeconds: 120,
+        "section": "Base",
+        "name": "Feijão carioca cozido",
+        "amount": 150,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 1.4
       },
+      {
+        "section": "Salada",
+        "name": "Alface e tomate frescos",
+        "amount": 100,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 1.1
+      },
+      {
+        "section": "Tempero",
+        "name": "Alho, limão e azeite",
+        "amount": 15,
+        "unit": "ml",
+        "aisle": "Mercearia",
+        "basePrice": 0.8
+      }
     ],
+    "steps": [
+      "Limpe e corte 300g de peito de frango em filés médios uniformes. Pique 2 dentes de alho e esprema o suco de meio limão fresco.",
+      "Tempere os filés com alho picado, suco de limão, sal refinado e pimenta-do-reino moída na hora, deixando tomar gosto por 5 minutos.",
+      "Aqueça uma frigideira de fundo grosso com 10ml de azeite em fogo médio-alto até começar a estalar suavemente.",
+      "Acomode os filés na frigideira sem sobrepor e grelhe por 3 a 4 minutos sem mexer para formar crosta dourada saborosa.",
+      "Vire os filés e doure o outro lado por mais 3 minutos até atingir 74°C no centro, garantindo máxima suculência.",
+      "Aqueça o arroz branco soltinho e o feijão carioca com caldo denso em panelas separadas.",
+      "Monte o prato clássico: arroz branco em um terço, feijão ao lado, filé grelhado fatiado e salada fresca de alface e tomate temperada na hora."
+    ],
+    "stepDetails": [
+      {
+        "stepNumber": 1,
+        "section": "Mise en Place",
+        "text": "Limpe e corte 300g de peito de frango em filés médios uniformes. Pique 2 dentes de alho e esprema o suco de meio limão fresco.",
+        "image": "/dishes/steps/pf-frango/step-1.webp",
+        "alt": "Filés de frango e temperos preparados.",
+        "tip": "Filés com espessura homogênea cozinham no mesmo tempo.",
+        "isKeyFrame": true,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 2,
+        "section": "Marinada Rápida",
+        "text": "Tempere os filés com alho picado, suco de limão, sal refinado e pimenta-do-reino moída na hora, deixando tomar gosto por 5 minutos.",
+        "image": "/dishes/steps/pf-frango/step-1.webp",
+        "alt": "Filés marinando com alho e limão.",
+        "tip": "O limão amacia as fibras e confere frescor.",
+        "isKeyFrame": false,
+        "timerSeconds": 300
+      },
+      {
+        "stepNumber": 3,
+        "section": "Aquecimento da Frigideira",
+        "text": "Aqueça uma frigideira de fundo grosso com 10ml de azeite em fogo médio-alto até começar a estalar suavemente.",
+        "image": "/dishes/steps/pf-frango/step-2.webp",
+        "alt": "Frigideira aquecendo com azeite.",
+        "tip": "A frigideira deve chiar assim que o frango encostar.",
+        "isKeyFrame": false,
+        "timerSeconds": 60
+      },
+      {
+        "stepNumber": 4,
+        "section": "Selagem em Alta Temperatura",
+        "text": "Acomode os filés na frigideira sem sobrepor e grelhe por 3 a 4 minutos sem mexer para formar crosta dourada saborosa.",
+        "image": "/dishes/steps/pf-frango/step-2.webp",
+        "alt": "Filés de frango dourando na frigideira quente.",
+        "tip": "Não mexa nos primeiros minutos para criar a crosta dourada.",
+        "isKeyFrame": true,
+        "timerSeconds": 240
+      },
+      {
+        "stepNumber": 5,
+        "section": "Ponto Suculento",
+        "text": "Vire os filés e doure o outro lado por mais 3 minutos até atingir 74°C no centro, garantindo máxima suculência.",
+        "image": "/dishes/steps/pf-frango/step-2.webp",
+        "alt": "Filés virados com crosta dourada perfeita.",
+        "tip": "Deixe descansar 2 minutos antes de fatiar para não perder líquido.",
+        "isKeyFrame": true,
+        "timerSeconds": 180
+      },
+      {
+        "stepNumber": 6,
+        "section": "Aquecimento da Base",
+        "text": "Aqueça o arroz branco soltinho e o feijão carioca com caldo denso em panelas separadas.",
+        "image": "/dishes/steps/pf-frango/step-3.webp",
+        "alt": "Arroz e feijão aquecendo fumegantes.",
+        "tip": "Um feijão com caldo espesso une todo o prato feito.",
+        "isKeyFrame": false,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 7,
+        "section": "Montagem do Prato Feito",
+        "text": "Monte o prato clássico: arroz branco em um terço, feijão ao lado, filé grelhado fatiado e salada fresca de alface e tomate temperada na hora.",
+        "image": "/dishes/steps/pf-frango/step-3.webp",
+        "alt": "PF clássico montado harmoniosamente no prato.",
+        "tip": "Sirva com folhas frescas bem secas e temperadas com azeite e flor de sal.",
+        "isKeyFrame": true,
+        "timerSeconds": 60
+      }
+    ]
   },
-
-  // 6. PICADINHO DE CARNE MOÍDA COM CABOTIÁ
   {
-    id: 'rec-6',
-    title: 'Picadinho de Carne Moída com Abóbora Cabotiá e Arroz Integral',
-    category: 'Almoço',
-    prepTime: 30,
-    servings: 2,
-    calories: 440,
-    protein: 36,
-    carbs: 45,
-    fat: 12,
-    tags: ['Alta Proteína', 'Rico em Fibras', 'Econômico', 'Conforto', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-6.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '420g por porção',
-    platingInstructions:
-      'Colocar o arroz integral na lateral e o refogado de carne moída com cubos alaranjados de cabotiá ao centro, finalizado com cheiro-verde picadinho.',
-    specificInstructions:
-      'Dourar a carne moída até secar toda a água antes de juntar a abóbora, garantindo sabor concentrado e molho aveludado.',
-    sections: [
-      { name: 'Refogado e Selagem da Carne', stepRange: [1, 2] },
-      { name: 'Cocção da Abóbora & Finalização', stepRange: [3, 4] },
+    "id": "rec-6",
+    "title": "Picadinho com Abóbora",
+    "category": "Almoço",
+    "prepTime": 30,
+    "servings": 2,
+    "calories": 460,
+    "protein": 36,
+    "carbs": 45,
+    "fat": 14,
+    "tags": [
+      "Alta Proteína",
+      "Rico em Fibras",
+      "Econômico",
+      "Conforto",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'A abóbora cabotiá cozinha rápido e agrega betacaroteno e fibras ao prato, além de render bastante gastando pouco.',
-      storage: 'Excelente para congelamento em marmitas herméticas: dura até 90 dias no freezer sem alterar o sabor.',
-      secret: 'Deixe a casca da abóbora cabotiá bem higienizada e picada em cubinhos; além de concentrar fibras e nutrientes, ela evita que a abóbora desmanche totalmente no molho.',
+    "image": "/dishes/rec-6.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "400g por porção",
+    "platingInstructions": "Dispor a carne refogada avermelhada com os cubos macios de abóbora sobre o arroz integral com cheiro-verde.",
+    "specificInstructions": "Cozinhar a abóbora até ficar macia na ponta do garfo sem desmanchar.",
+    "sections": [
+      {
+        "name": "Preparo dos Insumos",
+        "stepRange": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "Refogado e Cocção da Carne",
+        "stepRange": [
+          3,
+          4
+        ]
+      },
+      {
+        "name": "Finalização e Serviço",
+        "stepRange": [
+          5,
+          6
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "A abóbora cabotiá adiciona dulçor natural, fibras solúveis e betacaroteno ao picadinho de carne.",
+      "storage": "Dura 3 dias na geladeira em pote fechado ou até 30 dias congelado.",
+      "secret": "Selar bem a carne moída até secar a água e dourar garante molho escuro e rico."
     },
-    ingredients: [
-      { section: 'Refogado', name: 'Carne moída (acém ou patinho)', amount: 300, unit: 'g', aisle: 'Açougue', basePrice: 9.90 },
-      { section: 'Refogado', name: 'Cebola picada', amount: 80, unit: 'g', aisle: 'Hortifruti', basePrice: 0.60 },
-      { section: 'Refogado', name: 'Alho picado', amount: 10, unit: 'g', aisle: 'Hortifruti', basePrice: 0.35 },
-      { section: 'Legumes', name: 'Abóbora cabotiá em cubos', amount: 250, unit: 'g', aisle: 'Hortifruti', basePrice: 1.50 },
-      { section: 'Base', name: 'Arroz integral cozido', amount: 250, unit: 'g', aisle: 'Mercearia', basePrice: 1.60 },
-      { section: 'Finalização', name: 'Cheiro-verde picado', amount: 15, unit: 'g', aisle: 'Hortifruti', basePrice: 0.50 },
-      { section: 'Geral', name: 'Azeite de oliva', amount: 15, unit: 'ml', aisle: 'Mercearia', basePrice: 0.80 },
+    "ingredients": [
+      {
+        "section": "Carne",
+        "name": "Carne moída (acém ou patinho)",
+        "amount": 300,
+        "unit": "g",
+        "aisle": "Açougue",
+        "basePrice": 7.8
+      },
+      {
+        "section": "Legumes",
+        "name": "Abóbora cabotiá em cubos",
+        "amount": 200,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 1.6
+      },
+      {
+        "section": "Base",
+        "name": "Arroz integral cozido",
+        "amount": 160,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 1.4
+      },
+      {
+        "section": "Aromáticos",
+        "name": "Cebola, alho e tomate",
+        "amount": 80,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 0.9
+      },
+      {
+        "section": "Finalização",
+        "name": "Cheiro-verde picado",
+        "amount": 15,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 0.35
+      }
     ],
-    steps: [
-      'Aqueça o azeite em uma panela média e refogue a cebola e o alho até ficarem bem dourados e aromáticos.',
-      'Junte a carne moída, tempere com sal, páprica e pimenta, e refogue em fogo médio-alto mexendo até que toda a água seque e a carne fique marronzinha.',
-      'Acrescente os cubos de abóbora cabotiá e 1/2 xícara de água quente. Tampe a panela e cozinhe por cerca de 12 minutos até a abóbora ficar macia e o molho encorpado.',
-      'Desligue o fogo, salpique o cheiro-verde fresco e sirva quente acompanhado do arroz integral.',
+    "steps": [
+      "Descasque e corte 200g de abóbora cabotiá em cubos médios de 2 cm. Pique cebola, alho e cheiro-verde.",
+      "Aqueça uma panela funda com azeite em fogo alto e refogue a carne moída temperada com sal e pimenta até secar o líquido.",
+      "Junte a cebola picada e o alho amassado à carne dourada, refogando por 2 minutos até ficarem translúcidos.",
+      "Adicione os cubos de abóbora, 1 colher de extrato de tomate e 150ml de água fervente.",
+      "Abaixe o fogo, tampe a panela e cozinhe por 12 a 15 minutos até a abóbora amaciar e o molho reduzir encorpado.",
+      "Acerte o sal, salpique cheiro-verde fresco picado e sirva fumegante com arroz integral soltinho."
     ],
-    stepDetails: [
+    "stepDetails": [
       {
-        stepNumber: 1,
-        section: 'Refogado e Selagem da Carne',
-        text: 'Aqueça o azeite em uma panela média e refogue a cebola e o alho até ficarem bem dourados e aromáticos.',
-        image: '/dishes/steps/carne-abobora/step-1.webp',
-        alt: 'Cebola picada e alho refogando no azeite quente até dourarem.',
-        tip: 'Doure a cebola primeiro; o alho entra depois para não amargar.',
-        isKeyFrame: false,
-        timerSeconds: 180,
+        "stepNumber": 1,
+        "section": "Mise en Place",
+        "text": "Descasque e corte 200g de abóbora cabotiá em cubos médios de 2 cm. Pique cebola, alho e cheiro-verde.",
+        "image": "/dishes/rec-6.jpg",
+        "alt": "Abóbora em cubos e temperos picados.",
+        "tip": "Cortar a abóbora em cubos uniformes garante cozimento igual.",
+        "isKeyFrame": true,
+        "timerSeconds": 120
       },
       {
-        stepNumber: 2,
-        section: 'Refogado e Selagem da Carne',
-        text: 'Junte a carne moída, tempere com sal, páprica e pimenta, e refogue em fogo médio-alto mexendo até que toda a água seque e a carne fique marronzinha.',
-        image: '/dishes/steps/carne-abobora/step-2.webp',
-        alt: 'Carne moída refogada com páprica e temperos até secar e caramelizar.',
-        tip: 'Pressione com a colher de pau para soltar bem os grumos de carne moída.',
-        isKeyFrame: true,
-        timerSeconds: 360,
+        "stepNumber": 2,
+        "section": "Selagem da Carne",
+        "text": "Aqueça uma panela funda com azeite em fogo alto e refogue a carne moída temperada com sal e pimenta até secar o líquido.",
+        "image": "/dishes/rec-6.jpg",
+        "alt": "Carne moída dourando na panela.",
+        "tip": "Deixe secar todo o líquido para caramelizar os açúcares da carne.",
+        "isKeyFrame": false,
+        "timerSeconds": 300
       },
       {
-        stepNumber: 3,
-        section: 'Cocção da Abóbora & Finalização',
-        text: 'Acrescente os cubos de abóbora cabotiá e 1/2 xícara de água quente. Tampe a panela e cozinhe por cerca de 12 minutos até a abóbora ficar macia e o molho encorpado.',
-        image: '/dishes/steps/carne-abobora/step-3.webp',
-        alt: 'Cubos de abóbora cabotiá cozinhando no caldo da carne moída até amaciar.',
-        tip: 'Espete com a ponta do garfo: a abóbora deve estar macia por dentro mas íntegra.',
-        isKeyFrame: true,
-        timerSeconds: 720,
+        "stepNumber": 3,
+        "section": "Refogado Aromático",
+        "text": "Junte a cebola picada e o alho amassado à carne dourada, refogando por 2 minutos até ficarem translúcidos.",
+        "image": "/dishes/rec-6.jpg",
+        "alt": "Cebola e alho refogando com a carne.",
+        "tip": "Refogar no fundo da panela solta os sabores caramelizados.",
+        "isKeyFrame": false,
+        "timerSeconds": 120
       },
       {
-        stepNumber: 4,
-        section: 'Cocção da Abóbora & Finalização',
-        text: 'Desligue o fogo, salpique o cheiro-verde fresco e sirva quente acompanhado do arroz integral.',
-        image: '/dishes/steps/carne-abobora/step-5.webp',
-        alt: 'Picadinho de carne moída com abóbora brilhante salpicado com cheiro-verde.',
-        tip: 'O cheiro-verde deve entrar sempre com o fogo apagado para manter aroma e cor viva.',
-        isKeyFrame: false,
-        timerSeconds: 60,
+        "stepNumber": 4,
+        "section": "Inclusão da Abóbora",
+        "text": "Adicione os cubos de abóbora, 1 colher de extrato de tomate e 150ml de água fervente.",
+        "image": "/dishes/rec-6.jpg",
+        "alt": "Cubos de abóbora adicionados ao picadinho.",
+        "tip": "Use água quente para não interromper a cocção.",
+        "isKeyFrame": true,
+        "timerSeconds": 60
       },
-    ],
+      {
+        "stepNumber": 5,
+        "section": "Cocção em Fogo Brando",
+        "text": "Abaixe o fogo, tampe a panela e cozinhe por 12 a 15 minutos até a abóbora amaciar e o molho reduzir encorpado.",
+        "image": "/dishes/rec-6.jpg",
+        "alt": "Picadinho apurando com tampa semiaberta.",
+        "tip": "A abóbora deve ficar macia sem virar purê.",
+        "isKeyFrame": false,
+        "timerSeconds": 720
+      },
+      {
+        "stepNumber": 6,
+        "section": "Finalização Fresca",
+        "text": "Acerte o sal, salpique cheiro-verde fresco picado e sirva fumegante com arroz integral soltinho.",
+        "image": "/dishes/rec-6.jpg",
+        "alt": "Prato finalizado com cheiro-verde e arroz integral.",
+        "tip": "Colocar o cheiro-verde com o fogo desligado mantém a cor viva.",
+        "isKeyFrame": true,
+        "timerSeconds": 60
+      }
+    ]
   },
-
-  // 7. ESCONDIDINHO DE MANDIOCA
   {
-    id: 'rec-7',
-    title: 'Escondidinho de Mandioca com Frango Desfiado',
-    category: 'Almoço',
-    prepTime: 40,
-    servings: 3,
-    calories: 460,
-    protein: 38,
-    carbs: 46,
-    fat: 14,
-    tags: ['Para Família', 'Sem Glúten', 'Conforto', 'Congela Bem', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-7.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '380g por porção',
-    platingInstructions:
-      'Servir em refratário individual de cerâmica ou travessa gratinada, destacando a crosta dourada de queijo e cheiro-verde.',
-    specificInstructions:
-      'Amassar a mandioca ainda bem quente logo após o cozimento para garantir purê aveludado e uniforme.',
-    sections: [
-      { name: 'Purê de Mandioca Aveludado', stepRange: [1, 2] },
-      { name: 'Recheio de Frango e Montagem', stepRange: [3, 4] },
+    "id": "rec-7",
+    "title": "Escondidinho de Frango",
+    "category": "Almoço",
+    "prepTime": 35,
+    "servings": 2,
+    "calories": 420,
+    "protein": 36,
+    "carbs": 44,
+    "fat": 12,
+    "tags": [
+      "Tirzepatida",
+      "Para Família",
+      "Sem Glúten",
+      "Conforto",
+      "Alta Proteína",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'O escondidinho pode ser montado na véspera e mantido na geladeira coberto com filme plástico, bastando levar ao forno 25 minutos antes do almoço.',
-      storage: 'Pode ser congelado montado (antes ou depois de assar) por até 90 dias em porções individuais ou travessa descartável de alumínio.',
-      secret: 'Ao fazer o purê de mandioca, utilize uma concha da própria água do cozimento com um toque de manteiga e noz-moscada; ela contém o amido natural que confere textura sedosa sem precisar de creme de leite.',
+    "image": "/dishes/rec-7.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "380g por porção",
+    "platingInstructions": "Servir gratinado com queijo dourado em travessa de cerâmica borbulhante e cheiro-verde salpicado.",
+    "specificInstructions": "Amassar a mandioca ainda bem quente para garantir purê sedoso e liso.",
+    "sections": [
+      {
+        "name": "Purê de Mandioca",
+        "stepRange": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "Refogado de Frango",
+        "stepRange": [
+          3,
+          4
+        ]
+      },
+      {
+        "name": "Montagem e Forno",
+        "stepRange": [
+          5,
+          6
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "O escondidinho com purê de mandioca e frango desfiado é um ícone reconfortante da cozinha afetiva brasileira.",
+      "storage": "Pode ser congelado por até 60 dias montado cru ou já gratinado.",
+      "secret": "Um toque de noz-moscada ralada no purê de mandioca eleva o perfil sensorial do prato."
     },
-    ingredients: [
-      { section: 'Purê', name: 'Mandioca descascada cozida', amount: 500, unit: 'g', aisle: 'Hortifruti', basePrice: 4.50 },
-      { section: 'Purê', name: 'Manteiga', amount: 20, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 1.40 },
-      { section: 'Recheio', name: 'Peito de frango cozido e desfiado', amount: 350, unit: 'g', aisle: 'Açougue', basePrice: 7.90 },
-      { section: 'Recheio', name: 'Cebola picada', amount: 80, unit: 'g', aisle: 'Hortifruti', basePrice: 0.60 },
-      { section: 'Recheio', name: 'Molho de tomate', amount: 150, unit: 'g', aisle: 'Mercearia', basePrice: 1.60 },
-      { section: 'Cobertura', name: 'Queijo muçarela ralado', amount: 100, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 4.20 },
+    "ingredients": [
+      {
+        "section": "Massa",
+        "name": "Mandioca cozida",
+        "amount": 350,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 2.2
+      },
+      {
+        "section": "Recheio",
+        "name": "Peito de frango cozido e desfiado",
+        "amount": 260,
+        "unit": "g",
+        "aisle": "Açougue",
+        "basePrice": 5.9
+      },
+      {
+        "section": "Recheio",
+        "name": "Molho de tomate caseiro",
+        "amount": 100,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 0.9
+      },
+      {
+        "section": "Gratinado",
+        "name": "Queijo muçarela ou queijo minas",
+        "amount": 40,
+        "unit": "g",
+        "aisle": "Laticínios e Ovos",
+        "basePrice": 2.4
+      },
+      {
+        "section": "Aromáticos",
+        "name": "Alho, cebola e azeite",
+        "amount": 20,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 0.7
+      }
     ],
-    steps: [
-      'Cozinhe a mandioca até desmanchar. Escorra reservando um pouco da água e amasse com garfo ou espremedor, juntando a manteiga e uma concha da água do cozimento até formar um purê macio.',
-      'Em uma frigideira, refogue a cebola no azeite, adicione o frango desfiado, o molho de tomate, sal e cheiro-verde, cozinhando por 5 minutos até encorpar.',
-      'Em uma travessa que possa ir ao forno, faça uma camada de base com metade do purê de mandioca, espalhe todo o recheio de frango e cubra com o restante do purê.',
-      'Distribua o queijo muçarela ralado por cima e leve ao forno preaquecido a 200°C por cerca de 20 minutos até gratinar e borbulhar nas bordas.',
+    "steps": [
+      "Cozinhe a mandioca descascada na água com sal por 20 minutos até amaciar totalmente a ponto de desmanchar.",
+      "Escorra a mandioca, retire o fio central rígido e passe pelo espremedor ainda quente com 40ml de leite morno até obter purê aveludado.",
+      "Em uma panela, aqueça o azeite e refogue cebola e alho picados até dourarem.",
+      "Junte o frango desfiado, o molho de tomate, sal e cheiro-verde, cozinhando por 5 minutos até apurar e secar o excesso de líquido.",
+      "Em um refratário médio, espalhe todo o frango refogado no fundo e cubra com o purê de mandioca nivelando com as costas da colher.",
+      "Polvilhe o queijo ralado por cima e asse em forno a 200°C por 15 minutos até gratinar em crosta dourada."
     ],
-    stepDetails: [
+    "stepDetails": [
       {
-        stepNumber: 1,
-        section: 'Purê de Mandioca Aveludado',
-        text: 'Cozinhe a mandioca até desmanchar. Escorra reservando um pouco da água e amasse com garfo ou espremedor, juntando a manteiga e uma concha da água do cozimento até formar um purê macio.',
-        image: '/dishes/steps/escondidinho/step-4.webp',
-        alt: 'Mandioca cozida amassada com manteiga formando um purê liso e macio.',
-        tip: 'Retire as fibras centrais da mandioca antes de amassar para não sobrar fios duros no purê.',
-        isKeyFrame: true,
-        timerSeconds: 480,
+        "stepNumber": 1,
+        "section": "Cozimento da Mandioca",
+        "text": "Cozinhe a mandioca descascada na água com sal por 20 minutos até amaciar totalmente a ponto de desmanchar.",
+        "image": "/dishes/rec-7.jpg",
+        "alt": "Mandioca cozinhando na água fervente.",
+        "tip": "A mandioca deve estar muito macia para espremer fácil.",
+        "isKeyFrame": true,
+        "timerSeconds": 1200
       },
       {
-        stepNumber: 2,
-        section: 'Recheio de Frango e Montagem',
-        text: 'Em uma frigideira, refogue a cebola no azeite, adicione o frango desfiado, o molho de tomate, sal e cheiro-verde, cozinhando por 5 minutos até encorpar.',
-        image: '/dishes/steps/escondidinho/step-3.webp',
-        alt: 'Frango desfiado refogado no molho de tomate aromático e cheiro-verde.',
-        tip: 'O recheio deve ser úmido porém sem caldo em excesso para não encharcar a base.',
-        isKeyFrame: true,
-        timerSeconds: 300,
+        "stepNumber": 2,
+        "section": "Purê Sedoso",
+        "text": "Escorra a mandioca, retire o fio central rígido e passe pelo espremedor ainda quente com 40ml de leite morno até obter purê aveludado.",
+        "image": "/dishes/rec-7.jpg",
+        "alt": "Mandioca espremida com leite morno formando purê liso.",
+        "tip": "Retirar o fio central evita fibras duras no purê.",
+        "isKeyFrame": true,
+        "timerSeconds": 180
       },
       {
-        stepNumber: 3,
-        section: 'Recheio de Frango e Montagem',
-        text: 'Em uma travessa que possa ir ao forno, faça uma camada de base com metade do purê de mandioca, espalhe todo o recheio de frango e cubra com o restante do purê.',
-        image: '/dishes/steps/escondidinho/step-7.webp',
-        alt: 'Montagem do escondidinho na travessa refratária com camadas de purê e frango.',
-        tip: 'Alise o topo do purê com as costas de uma colher molhada para espalhar uniformemente.',
-        isKeyFrame: true,
-        timerSeconds: 180,
+        "stepNumber": 3,
+        "section": "Refogado Aromático",
+        "text": "Em uma panela, aqueça o azeite e refogue cebola e alho picados até dourarem.",
+        "image": "/dishes/rec-7.jpg",
+        "alt": "Alho e cebola dourando no azeite.",
+        "tip": "Deixe o alho dourar sem queimar para dar aroma.",
+        "isKeyFrame": false,
+        "timerSeconds": 120
       },
       {
-        stepNumber: 4,
-        section: 'Recheio de Frango e Montagem',
-        text: 'Distribua o queijo muçarela ralado por cima e leve ao forno preaquecido a 200°C por cerca de 20 minutos até gratinar e borbulhar nas bordas.',
-        image: '/dishes/steps/escondidinho/step-10.webp',
-        alt: 'Escondidinho coberto com queijo gratinado dourado borbulhante saindo do forno.',
-        tip: 'Ligue o dourador do forno nos últimos 3 minutos para criar manchas douradas irresistíveis.',
-        isKeyFrame: true,
-        timerSeconds: 1200,
+        "stepNumber": 4,
+        "section": "Recheio de Frango Suculento",
+        "text": "Junte o frango desfiado, o molho de tomate, sal e cheiro-verde, cozinhando por 5 minutos até apurar e secar o excesso de líquido.",
+        "image": "/dishes/rec-7.jpg",
+        "alt": "Frango desfiado refogado no molho de tomate.",
+        "tip": "O recheio deve ficar úmido, mas sem caldo líquido solto.",
+        "isKeyFrame": true,
+        "timerSeconds": 300
       },
-    ],
+      {
+        "stepNumber": 5,
+        "section": "Montagem em Camadas",
+        "text": "Em um refratário médio, espalhe todo o frango refogado no fundo e cubra com o purê de mandioca nivelando com as costas da colher.",
+        "image": "/dishes/rec-7.jpg",
+        "alt": "Purê de mandioca cobrindo o recheio de frango no refratário.",
+        "tip": "Alise com as costas de uma colher molhada para acabamento plano.",
+        "isKeyFrame": false,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 6,
+        "section": "Gratinado ao Forno",
+        "text": "Polvilhe o queijo ralado por cima e asse em forno a 200°C por 15 minutos até gratinar em crosta dourada.",
+        "image": "/dishes/rec-7.jpg",
+        "alt": "Escondidinho dourado gratinado com queijo borbulhante.",
+        "tip": "Ligue o grill nos últimos 3 minutos para tostar o queijo.",
+        "isKeyFrame": true,
+        "timerSeconds": 900
+      }
+    ]
   },
-
-  // 8. STROGONOFF ECONÔMICO DE GRÃO-DE-BICO
   {
-    id: 'rec-8',
-    title: 'Strogonoff Econômico de Grão-de-Bico e Cogumelos com Batata Assada',
-    category: 'Almoço',
-    prepTime: 35,
-    servings: 2,
-    calories: 410,
-    protein: 16,
-    carbs: 56,
-    fat: 14,
-    tags: ['Vegetariano', 'Econômico', 'Sem Glúten', 'Conforto', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-8.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '400g por porção',
-    platingInstructions:
-      'Dispor o strogonoff cremoso ao lado do arroz branco soltinho e finalizar com as batatas assadas rústicas douradas por cima.',
-    specificInstructions:
-      'Desligar o fogo antes de incorporar o creme de leite para manter a emulsão estável e não talhar.',
-    sections: [
-      { name: 'Batatas Rústicas Assadas', stepRange: [1, 1] },
-      { name: 'Strogonoff e Emulsão', stepRange: [2, 3] },
+    "id": "rec-8",
+    "title": "Strogonoff de Grão-de-Bico",
+    "category": "Almoço",
+    "prepTime": 25,
+    "servings": 2,
+    "calories": 390,
+    "protein": 17,
+    "carbs": 46,
+    "fat": 14,
+    "tags": [
+      "Vegetariano",
+      "Econômico",
+      "Sem Glúten",
+      "Conforto",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'O grão-de-bico cozido tem textura firme e mastigável que absorve com perfeição o molho de mostarda, tomate e cogumelos.',
-      storage: 'O strogonoff pode ser guardado na geladeira por até 4 dias. Reaqueça em fogo brando mexendo devagar; adicione uma colher de leite se o molho engrossar demais.',
-      secret: 'Para as batatas ficarem crocantes como batata frita sem fritura por imersão, seque-as muito bem com pano de prato limpo antes de besuntar com azeite e sal e asse em assadeira bem espaçada a 220°C.',
+    "image": "/dishes/rec-8.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "360g por porção",
+    "platingInstructions": "Servir com arroz branco em meia-lua, o strogonoff cremoso no centro e a batata assada crocante ao lado.",
+    "specificInstructions": "Secar bem os palitos de batata antes de assar com azeite para garantir crocância máxima sem fritura.",
+    "sections": [
+      {
+        "name": "Batata Palha Assada Crocante",
+        "stepRange": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "Refogado e Cogumelos",
+        "stepRange": [
+          3,
+          4
+        ]
+      },
+      {
+        "name": "Molho Aveludado & Serviço",
+        "stepRange": [
+          5,
+          6
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "O strogonoff vegetariano de grão-de-bico com cogumelos surpreende pela textura aveludada e saciedade profunda.",
+      "storage": "Conserve em pote fechado por até 3 dias na geladeira.",
+      "secret": "O toque de mostarda dijon e noz-moscada confere a complexidade do strogonoff tradicional."
     },
-    ingredients: [
-      { section: 'Strogonoff', name: 'Grão-de-bico cozido', amount: 300, unit: 'g', aisle: 'Mercearia', basePrice: 4.80 },
-      { section: 'Strogonoff', name: 'Cogumelos champignon', amount: 100, unit: 'g', aisle: 'Mercearia', basePrice: 5.50 },
-      { section: 'Strogonoff', name: 'Cebola picada', amount: 80, unit: 'g', aisle: 'Hortifruti', basePrice: 0.60 },
-      { section: 'Strogonoff', name: 'Molho de tomate', amount: 120, unit: 'g', aisle: 'Mercearia', basePrice: 1.40 },
-      { section: 'Strogonoff', name: 'Mostarda amarela', amount: 15, unit: 'g', aisle: 'Mercearia', basePrice: 0.60 },
-      { section: 'Strogonoff', name: 'Creme de leite', amount: 150, unit: 'g', aisle: 'Mercearia', basePrice: 2.80 },
-      { section: 'Batatas', name: 'Batata inglesa', amount: 300, unit: 'g', aisle: 'Hortifruti', basePrice: 2.20 },
-      { section: 'Base', name: 'Arroz branco cozido', amount: 200, unit: 'g', aisle: 'Mercearia', basePrice: 1.20 },
-    ],
-    steps: [
-      'Corte as batatas em palitos finos com casca, seque com pano de prato, misture com 1 colher de azeite e sal, e asse a 220°C por 25 minutos até dourarem crocantes.',
-      'Em uma panela, refogue a cebola no azeite, junte o grão-de-bico cozido, os cogumelos laminados, o molho de tomate e a mostarda, cozinhando em fogo baixo por 6 minutos.',
-      'Desligue o fogo, misture o creme de leite homogeneizando o molho aveludado e sirva com o arroz e as batatas crocantes por cima.',
-    ],
-    stepDetails: [
+    "ingredients": [
       {
-        stepNumber: 1,
-        section: 'Batatas Rústicas Assadas',
-        text: 'Corte as batatas em palitos finos com casca, seque com pano de prato, misture com 1 colher de azeite e sal, e asse a 220°C por 25 minutos até dourarem crocantes.',
-        image: '/dishes/steps/strogonoff/step-1.webp',
-        alt: 'Batatas palito com casca temperadas no azeite assando no forno crocantes.',
-        tip: 'Vire as batatas na metade do tempo para dourar os dois lados por igual.',
-        isKeyFrame: true,
-        timerSeconds: 1500,
+        "section": "Principal",
+        "name": "Grão-de-bico cozido",
+        "amount": 250,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 2.8
       },
       {
-        stepNumber: 2,
-        section: 'Strogonoff e Emulsão',
-        text: 'Em uma panela, refogue a cebola no azeite, junte o grão-de-bico cozido, os cogumelos laminados, o molho de tomate e a mostarda, cozinhando em fogo baixo por 6 minutos.',
-        image: '/dishes/steps/strogonoff/step-5.webp',
-        alt: 'Grão-de-bico, cogumelos fatiados e molho de tomate cozinhando na panela.',
-        tip: 'A mostarda traz a acidez essencial que equilibra o adocicado do tomate e a gordura do creme.',
-        isKeyFrame: true,
-        timerSeconds: 360,
+        "section": "Principal",
+        "name": "Cogumelos frescos ou champignon",
+        "amount": 120,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 3.5
       },
       {
-        stepNumber: 3,
-        section: 'Strogonoff e Emulsão',
-        text: 'Desligue o fogo, misture o creme de leite homogeneizando o molho aveludado e sirva com o arroz e as batatas crocantes por cima.',
-        image: '/dishes/steps/strogonoff/step-9.webp',
-        alt: 'Strogonoff cremoso aveludado servido com arroz branco e batata assada.',
-        tip: 'Nunca ferva o creme de leite tradicional para não separar a gordura.',
-        isKeyFrame: true,
-        timerSeconds: 60,
+        "section": "Molho",
+        "name": "Molho de tomate caseiro",
+        "amount": 100,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 0.9
       },
+      {
+        "section": "Molho",
+        "name": "Creme de leite leve",
+        "amount": 150,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 2.5
+      },
+      {
+        "section": "Crocante",
+        "name": "Batata palha assada",
+        "amount": 40,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 1.2
+      }
     ],
+    "steps": [
+      "Higienize e corte 200g de batata em palitos finos com casca. Seque com pano, envolva com azeite e sal e asse a 220°C por 20 minutos até ficarem crocantes.",
+      "Escorra e lave 250g de grão-de-bico cozido. Lamine 120g de cogumelos frescos e pique meia cebola fina.",
+      "Aqueça uma panela funda com azeite em fogo médio e refogue a cebola picada até ficar translúcida e aromática.",
+      "Junte os cogumelos laminados e salteie por 3 minutos até dourarem suavemente e liberarem seus aromas terrosos.",
+      "Adicione o grão-de-bico cozido, 100g de molho de tomate caseiro e 1 colher de mostarda, cozinhando em fogo brando por 6 minutos para apurar.",
+      "Desligue o fogo, misture 150g de creme de leite homogeneizando o molho aveludado e sirva quente com arroz branco e batata palha assada."
+    ],
+    "stepDetails": [
+      {
+        "stepNumber": 1,
+        "section": "Batata Palha Assada",
+        "text": "Higienize e corte 200g de batata em palitos finos com casca. Seque com pano, envolva com azeite e sal e asse a 220°C por 20 minutos até ficarem crocantes.",
+        "image": "/dishes/rec-8.jpg",
+        "alt": "Batatas finas assando douradas e crocantes no forno.",
+        "tip": "Secar bem os palitos com pano de prato limpo é o segredo da crocância sem óleo.",
+        "isKeyFrame": true,
+        "timerSeconds": 1200
+      },
+      {
+        "stepNumber": 2,
+        "section": "Mise en Place dos Insumos",
+        "text": "Escorra e lave 250g de grão-de-bico cozido. Lamine 120g de cogumelos frescos e pique meia cebola fina.",
+        "image": "/dishes/rec-8.jpg",
+        "alt": "Grão-de-bico escorrido, cogumelos laminados e cebola picada.",
+        "tip": "Lavar o grão-de-bico em conserva remove o excesso de sódio.",
+        "isKeyFrame": false,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 3,
+        "section": "Base Aromática",
+        "text": "Aqueça uma panela funda com azeite em fogo médio e refogue a cebola picada até ficar translúcida e aromática.",
+        "image": "/dishes/rec-8.jpg",
+        "alt": "Cebola refogando suavemente no azeite.",
+        "tip": "Não deixe queimar a cebola para não amargar o molho claro.",
+        "isKeyFrame": false,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 4,
+        "section": "Salteado de Cogumelos",
+        "text": "Junte os cogumelos laminados e salteie por 3 minutos até dourarem suavemente e liberarem seus aromas terrosos.",
+        "image": "/dishes/rec-8.jpg",
+        "alt": "Cogumelos frescos salteando na panela.",
+        "tip": "Saltear em fogo alto evita que soltem água demais.",
+        "isKeyFrame": true,
+        "timerSeconds": 180
+      },
+      {
+        "stepNumber": 5,
+        "section": "Apuramento do Grão-de-Bico",
+        "text": "Adicione o grão-de-bico cozido, 100g de molho de tomate caseiro e 1 colher de mostarda, cozinhando em fogo brando por 6 minutos para apurar.",
+        "image": "/dishes/rec-8.jpg",
+        "alt": "Grão-de-bico cozinhando no molho de tomate aromático.",
+        "tip": "Cozinhar alguns minutos faz o grão-de-bico absorver o tempero.",
+        "isKeyFrame": false,
+        "timerSeconds": 360
+      },
+      {
+        "stepNumber": 6,
+        "section": "Molho Aveludado & Serviço",
+        "text": "Desligue o fogo, misture 150g de creme de leite homogeneizando o molho aveludado e sirva quente com arroz branco e batata palha assada.",
+        "image": "/dishes/rec-8.jpg",
+        "alt": "Strogonoff cremoso aveludado servido com arroz e batata palha crocante.",
+        "tip": "Adicione o creme de leite sempre com o fogo apagado para não talhar.",
+        "isKeyFrame": true,
+        "timerSeconds": 60
+      }
+    ]
   },
-
-  // 9. TILÁPIA GRELHADA AO LIMÃO COM PURÊ
   {
-    id: 'rec-9',
-    title: 'Tilápia Grelhada ao Limão com Purê de Batata e Brócolis',
-    category: 'Almoço',
-    prepTime: 25,
-    servings: 2,
-    calories: 390,
-    protein: 38,
-    carbs: 35,
-    fat: 9,
-    tags: ['Peixes & Frutos do Mar', 'Leve', 'Sem Glúten', 'Alta Proteína', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-9.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '410g por porção',
-    platingInstructions:
-      'Base de purê de batata sedoso, filé de tilápia grelhado e brilhante repousado no centro com meia rodela de limão tostada, e floretes verde-vivos de brócolis ao lado.',
-    specificInstructions:
-      'Peixes delicados não devem ser virados repetidamente. Grelhe 3 minutos de um lado e 2 do outro em frigideira quente.',
-    sections: [
-      { name: 'Purê de Batata e Brócolis no Vapor', stepRange: [1, 2] },
-      { name: 'Grelha Rápida da Tilápia & Montagem', stepRange: [3, 3] },
+    "id": "rec-9",
+    "title": "Tilápia com Purê e Brócolis",
+    "category": "Almoço",
+    "prepTime": 25,
+    "servings": 2,
+    "calories": 340,
+    "protein": 36,
+    "carbs": 26,
+    "fat": 9,
+    "tags": [
+      "Tirzepatida",
+      "Peixes & Frutos do Mar",
+      "Leve",
+      "Sem Glúten",
+      "Alta Proteína",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'A tilápia é uma das proteínas mais leves e de mais fácil digestão, excelente para quem busca refeições com alto teor proteico e baixas calorias.',
-      storage: 'Peixe grelhado é melhor consumido fresco. Se sobrar, guarde na geladeira por no máximo 24 horas; use as sobras desfiadas em saladas frias sem precisar esquentar no micro-ondas para não ressecar.',
-      secret: 'O brócolis atinge o ponto perfeito em apenas 4 minutos de vapor; retire e passe imediatamente em água fria para interromper a cocção (choque térmico) e manter a cor verde brilhante de restaurante.',
+    "image": "/dishes/rec-9.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "320g por porção",
+    "platingInstructions": "Dispor o purê de batatas sedoso na base, o filé de tilápia com crosta dourada por cima e os floretes de brócolis ao lado.",
+    "specificInstructions": "Secar bem os filés de peixe antes de grelhar e cozinhar o brócolis no vapor apenas até ficar al dente.",
+    "sections": [
+      {
+        "name": "Purê de Batata Sedoso",
+        "stepRange": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "Brócolis no Vapor",
+        "stepRange": [
+          3,
+          3
+        ]
+      },
+      {
+        "name": "Grelhado da Tilápia & Montagem",
+        "stepRange": [
+          4,
+          6
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "A tilápia grelhada é uma das proteínas mais digestíveis e magras, ideal para quem precisa de saciedade sem peso gástrico.",
+      "storage": "Consumir fresco preferencialmente; se sobrar, guardar por até 24h na geladeira.",
+      "secret": "Grelhar em frigideira bem quente com fio de azeite sem mexer por 3 minutos sela os sucos internos e cria crosta dourada."
     },
-    ingredients: [
-      { section: 'Peixe', name: 'Filé de tilápia fresco', amount: 300, unit: 'g', aisle: 'Peixaria', basePrice: 12.90 },
-      { section: 'Peixe', name: 'Limão tahiti', amount: 1, unit: 'un', aisle: 'Hortifruti', basePrice: 0.50 },
-      { section: 'Purê', name: 'Batata inglesa', amount: 350, unit: 'g', aisle: 'Hortifruti', basePrice: 2.40 },
-      { section: 'Purê', name: 'Leite integral', amount: 50, unit: 'ml', aisle: 'Laticínios e Ovos', basePrice: 0.40 },
-      { section: 'Legumes', name: 'Brócolis ninja em floretes', amount: 180, unit: 'g', aisle: 'Hortifruti', basePrice: 2.80 },
-      { section: 'Geral', name: 'Azeite de oliva', amount: 15, unit: 'ml', aisle: 'Mercearia', basePrice: 0.80 },
-    ],
-    steps: [
-      'Cozinhe as batatas em água com sal até ficarem macias. Escorra, amasse ainda quentes e incorpore o leite morno e um fio de azeite até obter purê liso.',
-      'Cozinhe os floretes de brócolis no vapor sobre a panela por 4 a 5 minutos até ficarem al dente e reserve.',
-      'Tempere os filés de tilápia com suco de meio limão, sal e pimenta. Grelhe no azeite em frigideira antiaderente bem quente por 3 minutos de um lado, vire e doure por mais 2 minutos. Sirva com o purê e o brócolis.',
-    ],
-    stepDetails: [
+    "ingredients": [
       {
-        stepNumber: 1,
-        section: 'Purê de Batata e Brócolis no Vapor',
-        text: 'Cozinhe as batatas em água com sal até ficarem macias. Escorra, amasse ainda quentes e incorpore o leite morno e um fio de azeite até obter purê liso.',
-        image: '/dishes/steps/tilapia/step-2.webp',
-        alt: 'Batatas cozidas amassadas e emulsionadas com leite morno até formar purê liso.',
-        tip: 'Usar o leite levemente aquecido impede que o purê fique com aspecto pegajoso.',
-        isKeyFrame: false,
-        timerSeconds: 900,
+        "section": "Peixe",
+        "name": "Filés de tilápia fresca",
+        "amount": 300,
+        "unit": "g",
+        "aisle": "Peixaria",
+        "basePrice": 8.5
       },
       {
-        stepNumber: 2,
-        section: 'Purê de Batata e Brócolis no Vapor',
-        text: 'Cozinhe os floretes de brócolis no vapor sobre a panela por 4 a 5 minutos até ficarem al dente e reserve.',
-        image: '/dishes/steps/tilapia/step-6.webp',
-        alt: 'Floretes frescos de brócolis cozinhando no vapor até atingirem ponto al dente.',
-        tip: 'Retire do fogo enquanto ainda estiver firme para não amarelar.',
-        isKeyFrame: true,
-        timerSeconds: 270,
+        "section": "Guarnição",
+        "name": "Batata inglesa cozida",
+        "amount": 250,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 1.5
       },
       {
-        stepNumber: 3,
-        section: 'Grelha Rápida da Tilápia & Montagem',
-        text: 'Tempere os filés de tilápia com suco de meio limão, sal e pimenta. Grelhe no azeite em frigideira antiaderente bem quente por 3 minutos de um lado, vire e doure por mais 2 minutos. Sirva com o purê e o brócolis.',
-        image: '/dishes/steps/tilapia/step-7.webp',
-        alt: 'Filés de tilápia grelhando na frigideira com azeite até dourarem por igual.',
-        tip: 'Seque a umidade superficial do peixe com papel toalha antes de grelhar para dourar sem soltar água.',
-        isKeyFrame: true,
-        timerSeconds: 300,
+        "section": "Legumes",
+        "name": "Brócolis frescos em floretes",
+        "amount": 150,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 2.1
       },
+      {
+        "section": "Aromáticos",
+        "name": "Azeite, limão e sal refinado",
+        "amount": 15,
+        "unit": "ml",
+        "aisle": "Mercearia",
+        "basePrice": 0.8
+      }
     ],
+    "steps": [
+      "Descasque 250g de batata e cozinhe em água fervente com sal por 15 minutos até ficar bem macia ao toque do garfo.",
+      "Escorra a batata, passe pelo espremedor ainda quente e incorpore 50ml de leite morno e um fio de azeite até obter purê sedoso e liso.",
+      "Cozinhe 150g de floretes de brócolis no vapor sobre água fervente por 4 minutos até ficarem verde-vivos e crocantes ao dente.",
+      "Tempere 300g de filés de tilápia fresca com suco de limão, sal, pimenta-branca e uma pitada de raspas de limão siciliano.",
+      "Aqueça uma frigideira antiaderente com um fio de azeite em fogo alto e grelhe os filés por 3 minutos de um lado até dourar.",
+      "Vire com espátula delicadamente e doure o outro lado por mais 2 minutos sem deixar ressecar as fibras macias do peixe, montando o prato em seguida."
+    ],
+    "stepDetails": [
+      {
+        "stepNumber": 1,
+        "section": "Cozimento da Batata",
+        "text": "Descasque 250g de batata e cozinhe em água fervente com sal por 15 minutos até ficar bem macia ao toque do garfo.",
+        "image": "/dishes/rec-9.jpg",
+        "alt": "Batatas cozinhando em água com sal.",
+        "tip": "Cozinhe com sal para temperar a batata desde o interior.",
+        "isKeyFrame": true,
+        "timerSeconds": 900
+      },
+      {
+        "stepNumber": 2,
+        "section": "Purê Sedoso",
+        "text": "Escorra a batata, passe pelo espremedor ainda quente e incorpore 50ml de leite morno e um fio de azeite até obter purê sedoso e liso.",
+        "image": "/dishes/rec-9.jpg",
+        "alt": "Purê de batata sendo trabalhado com espátula até ficar aveludado.",
+        "tip": "Usar leite morno mantém a temperatura e evita textura pegajosa.",
+        "isKeyFrame": false,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 3,
+        "section": "Brócolis no Vapor",
+        "text": "Cozinhe 150g de floretes de brócolis no vapor sobre água fervente por 4 minutos até ficarem verde-vivos e crocantes ao dente.",
+        "image": "/dishes/rec-9.jpg",
+        "alt": "Brócolis verde-esmeralda cozinhando no vapor.",
+        "tip": "O cozimento rápido no vapor preserva os nutrientes e a cor vibrante.",
+        "isKeyFrame": true,
+        "timerSeconds": 240
+      },
+      {
+        "stepNumber": 4,
+        "section": "Tempero Cítrico da Tilápia",
+        "text": "Tempere 300g de filés de tilápia fresca com suco de limão, sal, pimenta-branca e uma pitada de raspas de limão siciliano.",
+        "image": "/dishes/rec-9.jpg",
+        "alt": "Filés de tilápia temperados com raspas de limão.",
+        "tip": "Tempere o peixe apenas minutos antes de grelhar para o limão não cozinhar a carne a frio.",
+        "isKeyFrame": false,
+        "timerSeconds": 60
+      },
+      {
+        "stepNumber": 5,
+        "section": "Grelhado em Alta Temperatura",
+        "text": "Aqueça uma frigideira antiaderente com um fio de azeite em fogo alto e grelhe os filés por 3 minutos de um lado até dourar.",
+        "image": "/dishes/rec-9.jpg",
+        "alt": "Filé de tilápia dourando na frigideira antiaderente.",
+        "tip": "Não mexa o peixe nos primeiros minutos para não quebrar a crosta.",
+        "isKeyFrame": true,
+        "timerSeconds": 180
+      },
+      {
+        "stepNumber": 6,
+        "section": "Finalização & Montagem",
+        "text": "Vire com espátula delicadamente e doure o outro lado por mais 2 minutos sem deixar ressecar as fibras macias do peixe, montando o prato em seguida.",
+        "image": "/dishes/rec-9.jpg",
+        "alt": "Prato montado com filé de tilápia dourado, purê sedoso e floretes de brócolis.",
+        "tip": "Finalize com um fio leve de azeite extra virgem sobre o peixe e os legumes.",
+        "isKeyFrame": true,
+        "timerSeconds": 120
+      }
+    ]
   },
-
-  // 10. OMELETE DE FORNO COM LEGUMES
   {
-    id: 'rec-10',
-    title: 'Omelete de Forno com Abobrinha, Cenoura e Queijo',
-    category: 'Jantar',
-    prepTime: 25,
-    servings: 2,
-    calories: 310,
-    protein: 24,
-    carbs: 12,
-    fat: 18,
-    tags: ['Low Carb', 'Vegetariano', 'Rápido', 'Econômico', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-10.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '270g por porção',
-    platingInstructions:
-      'Cortar em quadrados altos e servir acompanhado de salada de rúcula ou tomatinhos com molho de azeite.',
-    specificInstructions:
-      'Espremer a abobrinha ralada em um pano limpo para retirar o excesso de líquido antes de misturar aos ovos.',
-    sections: [
-      { name: 'Preparo dos Legumes e Massa', stepRange: [1, 2] },
-      { name: 'Forno e Gratinado', stepRange: [3, 3] },
+    "id": "rec-10",
+    "title": "Omelete de Forno com Legumes",
+    "category": "Jantar",
+    "prepTime": 25,
+    "servings": 2,
+    "calories": 270,
+    "protein": 24,
+    "carbs": 8,
+    "fat": 15,
+    "tags": [
+      "Tirzepatida",
+      "Low Carb",
+      "Vegetariano",
+      "Rápido",
+      "Econômico",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'Receita coringa para o jantar leve ou para aproveitar sobras de legumes que estejam na gaveta da geladeira.',
-      storage: 'Dura até 3 dias na geladeira em pote fechado e pode ser consumida tanto quente quanto em temperatura ambiente ou fria.',
-      secret: 'A abobrinha crua é 95% água. Salpique uma pitada de sal na abobrinha ralada e deixe escorrer por 5 minutos antes de espremer: esse passo garante uma omelete firme e fofa em vez de encharcada.',
+    "image": "/dishes/rec-10.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "260g por porção",
+    "platingInstructions": "Cortar em fatias quadradas altas e firmes decoradas com folhas de manjericão fresco e fio de azeite.",
+    "specificInstructions": "Bater os ovos até espumar bem para dar aeração ao suflê de forno.",
+    "sections": [
+      {
+        "name": "Mise en Place dos Legumes",
+        "stepRange": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "Batimento dos Ovos e Emulsão",
+        "stepRange": [
+          3,
+          4
+        ]
+      },
+      {
+        "name": "Forno e Gratinado",
+        "stepRange": [
+          5,
+          6
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "A omelete de forno é prática para refeições leves à noite e permite reaproveitar sobras de legumes da geladeira.",
+      "storage": "Guarde na geladeira por até 3 dias em pote hermético. Reaqueça no forno ou micro-ondas.",
+      "secret": "Uma colher de café de fermento em pó faz a omelete estufar alta e fofa como um suflê."
     },
-    ingredients: [
-      { section: 'Massa', name: 'Ovo', amount: 5, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 4.50 },
-      { section: 'Legumes', name: 'Abobrinha italiana ralada', amount: 150, unit: 'g', aisle: 'Hortifruti', basePrice: 1.10 },
-      { section: 'Legumes', name: 'Cenoura ralada fininha', amount: 100, unit: 'g', aisle: 'Hortifruti', basePrice: 0.80 },
-      { section: 'Massa', name: 'Queijo minas padrão ou muçarela', amount: 80, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 3.40 },
-      { section: 'Massa', name: 'Fermento químico em pó', amount: 5, unit: 'g', aisle: 'Mercearia', basePrice: 0.30 },
-      { section: 'Temperos', name: 'Orégano e sal', amount: 3, unit: 'g', aisle: 'Temperos', basePrice: 0.20 },
-    ],
-    steps: [
-      'Rale a abobrinha e a cenoura no ralo grosso. Esprema a abobrinha com as mãos para remover o excesso de líquido vegetal.',
-      'Bata os ovos com sal, pimenta, orégano e o fermento químico em pó até espumar levemente. Junte os legumes ralados e metade do queijo picado.',
-      'Transfira para refratário untado, cubra com o restante do queijo e asse em forno a 180°C por cerca de 20 minutos até inflar e dourar a superfície.',
-    ],
-    stepDetails: [
+    "ingredients": [
       {
-        stepNumber: 1,
-        section: 'Preparo dos Legumes e Massa',
-        text: 'Rale a abobrinha e a cenoura no ralo grosso. Esprema a abobrinha com as mãos para remover o excesso de líquido vegetal.',
-        image: '/dishes/steps/omelete/step-1.webp',
-        alt: 'Abobrinha e cenoura raladas no ralo grosso espremidas para retirar a água.',
-        tip: 'Retirar a água dos legumes é o segredo para a omelete não soltar líquido na assadeira.',
-        isKeyFrame: true,
-        timerSeconds: 180,
+        "section": "Ovos",
+        "name": "Ovos frescos",
+        "amount": 4,
+        "unit": "un",
+        "aisle": "Laticínios e Ovos",
+        "basePrice": 3.6
       },
       {
-        stepNumber: 2,
-        section: 'Preparo dos Legumes e Massa',
-        text: 'Bata os ovos com sal, pimenta, orégano e o fermento químico em pó até espumar levemente. Junte os legumes ralados e metade do queijo picado.',
-        image: '/dishes/steps/omelete/step-3.webp',
-        alt: 'Ovos batidos incorporados aos legumes ralados e queijo com orégano.',
-        tip: 'A pontinha de fermento químico deixa a massa fofa e inflada como um suflê.',
-        isKeyFrame: false,
-        timerSeconds: 120,
+        "section": "Legumes",
+        "name": "Abobrinha e cenoura raladas",
+        "amount": 160,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 1.4
       },
       {
-        stepNumber: 3,
-        section: 'Forno e Gratinado',
-        text: 'Transfira para refratário untado, cubra com o restante do queijo e asse em forno a 180°C por cerca de 20 minutos até inflar e dourar a superfície.',
-        image: '/dishes/steps/omelete/step-6.webp',
-        alt: 'Omelete de forno alta e fofa dourada na superfície após assar a 180°C.',
-        tip: 'Espete um palito no centro: deve sair seco e limpo.',
-        isKeyFrame: true,
-        timerSeconds: 1200,
+        "section": "Queijo",
+        "name": "Queijo minas frescal em cubos",
+        "amount": 60,
+        "unit": "g",
+        "aisle": "Laticínios e Ovos",
+        "basePrice": 2.5
       },
+      {
+        "section": "Aromáticos",
+        "name": "Orégano, azeite e sal",
+        "amount": 10,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 0.5
+      }
     ],
+    "steps": [
+      "Lave e rale meia abobrinha e meia cenoura no ralo grosso. Corte o queijo minas em cubinhos pequenos.",
+      "Refogue os legumes ralados em uma frigideira com gotas de azeite por 2 minutos apenas para evaporar o excesso de líquido.",
+      "Em uma tigela média, quebre os 4 ovos, adicione sal fino, orégano e 1 colher de café de fermento em pó.",
+      "Bata com fouet vigorosamente por 1 minuto até a mistura dobrar de volume e ficar bem espumosa.",
+      "Misture delicadamente os legumes refogados e o queijo minas aos ovos batidos e despeje em refratário untado.",
+      "Leve ao forno pré-aquecido a 190°C por 18 a 20 minutos até estufar dourada e firme ao toque."
+    ],
+    "stepDetails": [
+      {
+        "stepNumber": 1,
+        "section": "Mise en Place dos Legumes",
+        "text": "Lave e rale meia abobrinha e meia cenoura no ralo grosso. Corte o queijo minas em cubinhos pequenos.",
+        "image": "/dishes/rec-10.jpg",
+        "alt": "Abobrinha e cenoura raladas com cubos de queijo.",
+        "tip": "Ralar no lado grosso mantém pedaços visíveis e textura no corte.",
+        "isKeyFrame": true,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 2,
+        "section": "Secagem dos Legumes",
+        "text": "Refogue os legumes ralados em uma frigideira com gotas de azeite por 2 minutos apenas para evaporar o excesso de líquido.",
+        "image": "/dishes/rec-10.jpg",
+        "alt": "Legumes ralados salteando rapidamente na frigideira.",
+        "tip": "Evaporar a água da abobrinha evita que o fundo da omelete fique mole.",
+        "isKeyFrame": false,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 3,
+        "section": "Tempero dos Ovos",
+        "text": "Em uma tigela média, quebre os 4 ovos, adicione sal fino, orégano e 1 colher de café de fermento em pó.",
+        "image": "/dishes/rec-10.jpg",
+        "alt": "Ovos na tigela temperados com orégano e fermento.",
+        "tip": "O fermento garante crescimento uniforme sem desmanchar.",
+        "isKeyFrame": false,
+        "timerSeconds": 30
+      },
+      {
+        "stepNumber": 4,
+        "section": "Aeração dos Ovos",
+        "text": "Bata com fouet vigorosamente por 1 minuto até a mistura dobrar de volume e ficar bem espumosa.",
+        "image": "/dishes/rec-10.jpg",
+        "alt": "Ovos batidos espumosos e aerados.",
+        "tip": "Quanto mais ar incorporar, mais fofo será o resultado final.",
+        "isKeyFrame": true,
+        "timerSeconds": 60
+      },
+      {
+        "stepNumber": 5,
+        "section": "Incorporação Delicada",
+        "text": "Misture delicadamente os legumes refogados e o queijo minas aos ovos batidos e despeje em refratário untado.",
+        "image": "/dishes/rec-10.jpg",
+        "alt": "Mistura transferida para o refratário untado com azeite.",
+        "tip": "Incorpore com espátula de silicone em movimentos suaves.",
+        "isKeyFrame": false,
+        "timerSeconds": 60
+      },
+      {
+        "stepNumber": 6,
+        "section": "Forno & Crescimento",
+        "text": "Leve ao forno pré-aquecido a 190°C por 18 a 20 minutos até estufar dourada e firme ao toque.",
+        "image": "/dishes/rec-10.jpg",
+        "alt": "Omelete de forno alta e dourada saindo do forno.",
+        "tip": "Espete um palito no centro: se sair limpo, está no ponto exato.",
+        "isKeyFrame": true,
+        "timerSeconds": 1100
+      }
+    ]
   },
-
-  // 11. CALDO VERDE FIT
   {
-    id: 'rec-11',
-    title: 'Caldo Verde Fit de Mandioquinha com Frango Desfiado e Couve',
-    category: 'Jantar',
-    prepTime: 30,
-    servings: 2,
-    calories: 320,
-    protein: 30,
-    carbs: 32,
-    fat: 7,
-    tags: ['Conforto', 'Sopas & Caldos', 'Sem Glúten', 'Econômico', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-11.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '450ml por porção',
-    platingInstructions:
-      'Servir em bowl fundo bem quente com fio de azeite extra virgem desenhando a superfície e folhas de couve verde viva no topo.',
-    specificInstructions:
-      'Adicionar a couve cortada fininha nos últimos 2 minutos com a panela já fora do fogo para preservar cor verde viva e clorofila.',
-    sections: [
-      { name: 'Creme Aveludado de Mandioquinha', stepRange: [1, 2] },
-      { name: 'Incorporação do Frango e Couve', stepRange: [3, 3] },
+    "id": "rec-11",
+    "title": "Caldo Verde com Frango",
+    "category": "Jantar",
+    "prepTime": 25,
+    "servings": 2,
+    "calories": 280,
+    "protein": 29,
+    "carbs": 26,
+    "fat": 7,
+    "tags": [
+      "Tirzepatida",
+      "Conforto",
+      "Sopas & Caldos",
+      "Sem Glúten",
+      "Econômico",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'Versão leve e nutritiva do tradicional caldo verde português, substituindo a calabresa rica em sódio por peito de frango desfiado suculento.',
-      storage: 'Congela perfeitamente por até 90 dias em potes de vidro ou potes livres de BPA com 2 dedos de margem para expansão do líquido no freezer.',
-      secret: 'Bater a mandioquinha cozida com dentes de alho assados no azeite cria um aroma defumado natural sem precisar de embutidos.',
+    "image": "/dishes/rec-11.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "360g por porção",
+    "platingInstructions": "Servir bem quente em cumbuca funda regado com fio generoso de azeite extra virgem.",
+    "specificInstructions": "Adicionar a couve fina apenas nos minutos finais de cozimento para manter a tonalidade verde-viva.",
+    "sections": [
+      {
+        "name": "Base Aveludada de Mandioquinha",
+        "stepRange": [
+          1,
+          3
+        ]
+      },
+      {
+        "name": "Frango Dourado & Couve Chiffonade",
+        "stepRange": [
+          4,
+          6
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "O caldo verde reconfortante na versão com peito de frango desfiado é levíssimo, aquecedor e muito rico em proteínas.",
+      "storage": "Dura 3 dias refrigerado e congela perfeitamente por até 30 dias.",
+      "secret": "Bater a mandioquinha cozida no liquidificador cria uma emulsão sedosa sem precisar de creme de leite."
     },
-    ingredients: [
-      { section: 'Creme', name: 'Mandioquinha (batata-baroa)', amount: 400, unit: 'g', aisle: 'Hortifruti', basePrice: 4.80 },
-      { section: 'Proteína', name: 'Peito de frango cozido e desfiado', amount: 250, unit: 'g', aisle: 'Açougue', basePrice: 5.80 },
-      { section: 'Verdura', name: 'Couve-manteiga fatiada em tiras finas', amount: 80, unit: 'g', aisle: 'Hortifruti', basePrice: 1.50 },
-      { section: 'Base', name: 'Alho picado', amount: 15, unit: 'g', aisle: 'Hortifruti', basePrice: 0.40 },
-      { section: 'Base', name: 'Cebola picada', amount: 60, unit: 'g', aisle: 'Hortifruti', basePrice: 0.50 },
-      { section: 'Geral', name: 'Azeite de oliva', amount: 15, unit: 'ml', aisle: 'Mercearia', basePrice: 0.80 },
-    ],
-    steps: [
-      'Cozinhe a mandioquinha descascada em água com sal até ficar bem macia. Transfira para o liquidificador com parte da água do cozimento e bata até obter um creme sedoso.',
-      'Em uma panela, refogue o alho e a cebola no azeite até dourarem. Junte o frango desfiado temperado e refogue por 3 minutos.',
-      'Despeje o creme de mandioquinha sobre o frango, ajuste o sal e deixe ferver por 3 minutos. Desligue o fogo, adicione a couve fatiada e mexa por 1 minuto antes de servir.',
-    ],
-    stepDetails: [
+    "ingredients": [
       {
-        stepNumber: 1,
-        section: 'Creme Aveludado de Mandioquinha',
-        text: 'Cozinhe a mandioquinha descascada em água com sal até ficar bem macia. Transfira para o liquidificador com parte da água do cozimento e bata até obter um creme sedoso.',
-        image: '/dishes/steps/caldo-verde/step-3.webp',
-        alt: 'Mandioquinha cozida batida no liquidificador até obter creme denso e sedoso.',
-        tip: 'Coloque a água aos poucos no liquidificador até atingir a densidade de creme desejada.',
-        isKeyFrame: true,
-        timerSeconds: 900,
+        "section": "Base",
+        "name": "Mandioquinha ou batata cozida",
+        "amount": 300,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 2.4
       },
       {
-        stepNumber: 2,
-        section: 'Creme Aveludado de Mandioquinha',
-        text: 'Em uma panela, refogue o alho e a cebola no azeite até dourarem. Junte o frango desfiado temperado e refogue por 3 minutos.',
-        image: '/dishes/steps/caldo-verde/step-4.webp',
-        alt: 'Alho e cebola dourados no azeite com frango desfiado bem temperado.',
-        tip: 'Deixe o alho dourar bem para trazer notas marcantes ao caldo.',
-        isKeyFrame: false,
-        timerSeconds: 180,
+        "section": "Proteína",
+        "name": "Peito de frango cozido e desfiado",
+        "amount": 200,
+        "unit": "g",
+        "aisle": "Açougue",
+        "basePrice": 4.8
       },
       {
-        stepNumber: 3,
-        section: 'Incorporação do Frango e Couve',
-        text: 'Despeje o creme de mandioquinha sobre o frango, ajuste o sal e deixe ferver por 3 minutos. Desligue o fogo, adicione a couve fatiada e mexa por 1 minuto antes de servir.',
-        image: '/dishes/steps/caldo-verde/step-7.webp',
-        alt: 'Creme de mandioquinha fervido com o frango e finalizado com a couve fatiada.',
-        tip: 'O calor residual do caldo cozinha a couve na medida certa sem amargar.',
-        isKeyFrame: true,
-        timerSeconds: 180,
+        "section": "Verdura",
+        "name": "Couve-manteiga fatiada fina",
+        "amount": 100,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 1.2
       },
+      {
+        "section": "Aromáticos",
+        "name": "Alho, cebola, azeite e sal",
+        "amount": 20,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 0.7
+      }
     ],
+    "steps": [
+      "Descasque e corte 300g de mandioquinha em rodelas médias. Pique o alho e fatie a couve finíssima em tiras chiffonade.",
+      "Cozinhe a mandioquinha em 600ml de água fervente com sal e 1 dente de alho por 15 minutos até ficar bem macia.",
+      "Transfira a mandioquinha com o líquido para o liquidificador e bata por 1 minuto até formar um caldo liso e aveludado.",
+      "Em uma panela funda, doure o alho e a cebola picada no azeite e acrescente o peito de frango desfiado, salteando por 2 minutos.",
+      "Despeje o caldo de mandioquinha sobre o frango refogado e deixe levantar fervura suave em fogo brando por 3 minutos.",
+      "Junte a couve-manteiga fatiada fina, mexa por apenas 2 minutos para amaciar mantendo a cor verde-viva e sirva fumegante."
+    ],
+    "stepDetails": [
+      {
+        "stepNumber": 1,
+        "section": "Mise en Place",
+        "text": "Descasque e corte 300g de mandioquinha em rodelas médias. Pique o alho e fatie a couve finíssima em tiras chiffonade.",
+        "image": "/dishes/rec-11.jpg",
+        "alt": "Mandioquinha fatiada e couve em tiras finas.",
+        "tip": "Enrolar as folhas de couve como um charuto facilita o corte fino.",
+        "isKeyFrame": true,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 2,
+        "section": "Cozimento da Mandioquinha",
+        "text": "Cozinhe a mandioquinha em 600ml de água fervente com sal e 1 dente de alho por 15 minutos até ficar bem macia.",
+        "image": "/dishes/rec-11.jpg",
+        "alt": "Mandioquinha fervendo na panela com dente de alho.",
+        "tip": "O alho cozido junto com a mandioquinha suaviza o sabor e perfuma o caldo.",
+        "isKeyFrame": false,
+        "timerSeconds": 900
+      },
+      {
+        "stepNumber": 3,
+        "section": "Emulsão Sedosa no Liquidificador",
+        "text": "Transfira a mandioquinha com o líquido para o liquidificador e bata por 1 minuto até formar um caldo liso e aveludado.",
+        "image": "/dishes/rec-11.jpg",
+        "alt": "Caldo de mandioquinha batido amarelo e cremoso.",
+        "tip": "Retire a tampa central do liquidificador para deixar o vapor escapar com segurança.",
+        "isKeyFrame": true,
+        "timerSeconds": 60
+      },
+      {
+        "stepNumber": 4,
+        "section": "Refogado do Frango",
+        "text": "Em uma panela funda, doure o alho e a cebola picada no azeite e acrescente o peito de frango desfiado, salteando por 2 minutos.",
+        "image": "/dishes/rec-11.jpg",
+        "alt": "Frango desfiado refogando no alho e azeite.",
+        "tip": "Dourar o frango no alho dá sabor profundo à sopa.",
+        "isKeyFrame": false,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 5,
+        "section": "União do Caldo",
+        "text": "Despeje o caldo de mandioquinha sobre o frango refogado e deixe levantar fervura suave em fogo brando por 3 minutos.",
+        "image": "/dishes/rec-11.jpg",
+        "alt": "Caldo e frango unindo fervura na panela.",
+        "tip": "Mexa com colher de pau raspando o fundo.",
+        "isKeyFrame": false,
+        "timerSeconds": 180
+      },
+      {
+        "stepNumber": 6,
+        "section": "Couve & Empratamento",
+        "text": "Junte a couve-manteiga fatiada fina, mexa por apenas 2 minutos para amaciar mantendo a cor verde-viva e sirva fumegante.",
+        "image": "/dishes/rec-11.jpg",
+        "alt": "Caldo verde finalizado fumegante na tigela com fio de azeite.",
+        "tip": "Sirva com um fio de azeite extra virgem fresco no prato.",
+        "isKeyFrame": true,
+        "timerSeconds": 120
+      }
+    ]
   },
-
-  // 12. MACARRÃO AO ALHO E ÓLEO COM BRÓCOLIS E FRANGO
   {
-    id: 'rec-12',
-    title: 'Macarrão ao Alho, Óleo, Brócolis e Iscas de Frango',
-    category: 'Jantar',
-    prepTime: 20,
-    servings: 2,
-    calories: 460,
-    protein: 36,
-    carbs: 52,
-    fat: 12,
-    tags: ['Rápido', 'Alta Proteína', 'Prato Único', 'Econômico', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-12.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '390g por porção',
-    platingInstructions:
-      'Girar a massa com pegador formando um ninho no centro do prato, distribuir as iscas de frango douradas e os floretes de brócolis por cima e regar com a emulsão de azeite e alho.',
-    specificInstructions:
-      'Guardar 1 concha da água do cozimento da massa para emulsionar o azeite na frigideira, criando um molho aveludado sem gordura em excesso.',
-    sections: [
-      { name: 'Cozimento da Massa & Brócolis', stepRange: [1, 1] },
-      { name: 'Iscas de Frango, Alho Laminado & Emulsão', stepRange: [2, 3] },
+    "id": "rec-12",
+    "title": "Macarrão com Frango e Brócolis",
+    "category": "Almoço",
+    "prepTime": 20,
+    "servings": 2,
+    "calories": 430,
+    "protein": 34,
+    "carbs": 48,
+    "fat": 12,
+    "tags": [
+      "Alta Proteína",
+      "Prato Único",
+      "Econômico",
+      "Rápido",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'Prato clássico de bistrô italiano adaptado para refeição funcional rápida de semana com bastante fibra e proteína.',
-      storage: 'Conserve em recipiente fechado na geladeira por até 3 dias. Reaqueça na frigideira com 2 colheres de água morna em fogo médio.',
-      secret: 'O segredo dos restaurantes italianos (Mantecatura): misture a massa escorrida direto na frigideira do frango com fogo ligado e adicione 4 colheres da água rica em amido do cozimento; o azeite e a água emulsionam formando um molho cremoso que abraça o macarrão.',
+    "image": "/dishes/rec-12.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "380g por porção",
+    "platingInstructions": "Servir o macarrão brilhante ao alho e óleo com as iscas de frango douradas e floretes de brócolis integrados e queijo ralado.",
+    "specificInstructions": "Cozinhar a massa 1 minuto a menos que a embalagem para terminar de saltear junto com o frango no azeite.",
+    "sections": [
+      {
+        "name": "Cozimento da Massa & Brócolis",
+        "stepRange": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "Grelhado das Iscas de Frango",
+        "stepRange": [
+          3,
+          4
+        ]
+      },
+      {
+        "name": "Alho, Óleo e Salteado Final",
+        "stepRange": [
+          5,
+          6
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "A clássica massa alho e óleo ganha equilíbrio nutricional perfeito com a adição de peito de frango grelhado e brócolis.",
+      "storage": "Conservar na geladeira por até 2 dias em pote fechado.",
+      "secret": "Adicionar 2 colheres da água do cozimento da massa ao saltear o azeite com alho cria uma emulsão brilhante que envolve o macarrão."
     },
-    ingredients: [
-      { section: 'Massa', name: 'Macarrão espaguete ou penne', amount: 160, unit: 'g', aisle: 'Mercearia', basePrice: 1.60 },
-      { section: 'Proteína', name: 'Peito de frango em iscas', amount: 250, unit: 'g', aisle: 'Açougue', basePrice: 5.90 },
-      { section: 'Legumes', name: 'Brócolis em floretes', amount: 150, unit: 'g', aisle: 'Hortifruti', basePrice: 2.30 },
-      { section: 'Molho', name: 'Alho fatiado em lâminas', amount: 20, unit: 'g', aisle: 'Hortifruti', basePrice: 0.50 },
-      { section: 'Molho', name: 'Azeite de oliva', amount: 25, unit: 'ml', aisle: 'Mercearia', basePrice: 1.30 },
-      { section: 'Molho', name: 'Pimenta calabresa e sal', amount: 2, unit: 'g', aisle: 'Temperos', basePrice: 0.15 },
-    ],
-    steps: [
-      'Cozinhe o macarrão em bastante água fervente com sal até ficar al dente. Nos últimos 3 minutos de cozimento da massa, junte os floretes de brócolis na mesma panela. Escorra reservando 1 concha da água.',
-      'Em uma frigideira grande, doure as iscas de frango no azeite quente com sal e pimenta até ficarem douradas por fora e suculentas por dentro. Adicione as lâminas de alho dourando por 1 minuto sem queimar.',
-      'Despeje o macarrão e o brócolis na frigideira, junte a concha de água do cozimento e salteie vigorosamente em fogo alto por 1 minuto para emulsionar o molho. Sirva imediatamente.',
-    ],
-    stepDetails: [
+    "ingredients": [
       {
-        stepNumber: 1,
-        section: 'Cozimento da Massa & Brócolis',
-        text: 'Cozinhe o macarrão em bastante água fervente com sal até ficar al dente. Nos últimos 3 minutos de cozimento da massa, junte os floretes de brócolis na mesma panela. Escorra reservando 1 concha da água.',
-        image: '/dishes/steps/macarrao-alho-oleo/step-2.webp',
-        alt: 'Macarrão cozido em água fervente com floretes de brócolis escorridos al dente.',
-        tip: 'Cozinhar o brócolis junto com a massa economiza gás e tempo de bancada.',
-        isKeyFrame: false,
-        timerSeconds: 480,
+        "section": "Massa",
+        "name": "Macarrão penne ou espaguete",
+        "amount": 160,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 1.6
       },
       {
-        stepNumber: 2,
-        section: 'Iscas de Frango, Alho Laminado & Emulsão',
-        text: 'Em uma frigideira grande, doure as iscas de frango no azeite quente com sal e pimenta até ficarem douradas por fora e suculentas por dentro. Adicione as lâminas de alho dourando por 1 minuto sem queimar.',
-        image: '/dishes/steps/macarrao-alho-oleo/step-4.webp',
-        alt: 'Iscas de frango dourando no azeite quente com lâminas perfumadas de alho.',
-        tip: 'O alho fatiado em lâminas doura melhor e não amarga como alho triturado.',
-        isKeyFrame: true,
-        timerSeconds: 300,
+        "section": "Proteína",
+        "name": "Peito de frango em iscas",
+        "amount": 260,
+        "unit": "g",
+        "aisle": "Açougue",
+        "basePrice": 5.9
       },
       {
-        stepNumber: 3,
-        section: 'Iscas de Frango, Alho Laminado & Emulsão',
-        text: 'Despeje o macarrão e o brócolis na frigideira, junte a concha de água do cozimento e salteie vigorosamente em fogo alto por 1 minuto para emulsionar o molho. Sirva imediatamente.',
-        image: '/dishes/steps/macarrao-alho-oleo/step-6.webp',
-        alt: 'Macarrão e brócolis salteados no alho e óleo emulsionados com água do cozimento.',
-        tip: 'Mexa sem parar com uma pinça culinária para emulsionar o amido com o azeite.',
-        isKeyFrame: true,
-        timerSeconds: 60,
+        "section": "Vegetal",
+        "name": "Brócolis frescos em floretes",
+        "amount": 140,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 1.9
       },
+      {
+        "section": "Aromáticos",
+        "name": "Alho laminado e azeite",
+        "amount": 20,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 0.9
+      }
     ],
+    "steps": [
+      "Coloque 2 litros de água para ferver com 1 colher de sopa de sal grosso em panela grande.",
+      "Corte o peito de frango em iscas finas e tempere com sal fino, alho picado e pimenta-do-reino.",
+      "Cozinhe o macarrão na água fervente e, nos últimos 3 minutos de cozimento da massa, adicione os floretes de brócolis na mesma água.",
+      "Enquanto isso, aqueça uma frigideira ampla com azeite em fogo alto e doure as iscas de frango por 4 minutos até dourarem intensamente.",
+      "Junte o alho laminado ao frango e refogue por 1 minuto até perfumar dourado sem queimar.",
+      "Escorra a massa e os brócolis preservando 3 colheres da água, transfira para a frigideira do frango e salteie vigorosamente até o azeite emulsionar brilhante."
+    ],
+    "stepDetails": [
+      {
+        "stepNumber": 1,
+        "section": "Água do Cozimento",
+        "text": "Coloque 2 litros de água para ferver com 1 colher de sopa de sal grosso em panela grande.",
+        "image": "/dishes/rec-12.jpg",
+        "alt": "Água fervendo em abundância.",
+        "tip": "A água do macarrão deve ser salgada como a água do mar.",
+        "isKeyFrame": false,
+        "timerSeconds": 300
+      },
+      {
+        "stepNumber": 2,
+        "section": "Mise en Place das Iscas",
+        "text": "Corte o peito de frango em iscas finas e tempere com sal fino, alho picado e pimenta-do-reino.",
+        "image": "/dishes/rec-12.jpg",
+        "alt": "Iscas de frango fatiadas e temperadas.",
+        "tip": "Cortar em iscas finas faz o frango dourar rápido sem ressecar.",
+        "isKeyFrame": true,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 3,
+        "section": "Cozimento Inteligente Massa + Brócolis",
+        "text": "Cozinhe o macarrão na água fervente e, nos últimos 3 minutos de cozimento da massa, adicione os floretes de brócolis na mesma água.",
+        "image": "/dishes/rec-12.jpg",
+        "alt": "Macarrão e brócolis cozinhando na mesma panela.",
+        "tip": "Cozinhar os brócolis na mesma panela economiza gás e tempo.",
+        "isKeyFrame": true,
+        "timerSeconds": 480
+      },
+      {
+        "stepNumber": 4,
+        "section": "Selagem das Iscas",
+        "text": "Enquanto isso, aqueça uma frigideira ampla com azeite em fogo alto e doure as iscas de frango por 4 minutos até dourarem intensamente.",
+        "image": "/dishes/rec-12.jpg",
+        "alt": "Iscas de frango dourando na frigideira bem quente.",
+        "tip": "Mantenha fogo alto para não juntar água.",
+        "isKeyFrame": true,
+        "timerSeconds": 240
+      },
+      {
+        "stepNumber": 5,
+        "section": "Alho Dourado Perfumado",
+        "text": "Junte o alho laminado ao frango e refogue por 1 minuto até perfumar dourado sem queimar.",
+        "image": "/dishes/rec-12.jpg",
+        "alt": "Lâminas de alho dourando no azeite com o frango.",
+        "tip": "O alho laminado frita suavemente e perfuma todo o azeite.",
+        "isKeyFrame": false,
+        "timerSeconds": 60
+      },
+      {
+        "stepNumber": 6,
+        "section": "Emulsão & Salteado Final",
+        "text": "Escorra a massa e os brócolis preservando 3 colheres da água, transfira para a frigideira do frango e salteie vigorosamente até o azeite emulsionar brilhante.",
+        "image": "/dishes/rec-12.jpg",
+        "alt": "Massa brilhante envolvida no alho e azeite com frango e brócolis.",
+        "tip": "O amido da água do cozimento forma um molho sedoso em volta da massa.",
+        "isKeyFrame": true,
+        "timerSeconds": 120
+      }
+    ]
   },
-
-  // 13. BOWL MEXICANO BRASILEIRO
   {
-    id: 'rec-13',
-    title: 'Bowl Mexicano Brasileiro (Arroz, Feijão Preto, Carne Moída e Abacate)',
-    category: 'Jantar',
-    prepTime: 20,
-    servings: 2,
-    calories: 480,
-    protein: 34,
-    carbs: 52,
-    fat: 16,
-    tags: ['Gorduras Boas', 'Equilibrado', 'Bowl Funcional', 'Colorido', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-13.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '430g por porção',
-    platingInstructions:
-      'Montar o bowl em setores definidos e coloridos: arroz em um canto, feijão preto temperado no outro, carne moída picante, cubos de tomate fresco e fatias de abacate regadas com limão.',
-    specificInstructions:
-      'Temperar o abacate com suco de limão imediatamente após cortar para evitar oxidação e escurecimento da fruta.',
-    sections: [
-      { name: 'Carne Moída Aromática Mexicana', stepRange: [1, 1] },
-      { name: 'Montagem dos Setores no Bowl', stepRange: [2, 3] },
+    "id": "rec-13",
+    "title": "Bowl Mexicano com Carne",
+    "category": "Almoço",
+    "prepTime": 20,
+    "servings": 2,
+    "calories": 460,
+    "protein": 34,
+    "carbs": 48,
+    "fat": 15,
+    "tags": [
+      "Gorduras Boas",
+      "Equilibrado",
+      "Bowl Funcional",
+      "Colorido",
+      "Alta Proteína",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'O bowl reúne os grupos alimentares de maneira visualmente atraente e permite montar marmitas frias ou quentes separadas com facilidade.',
-      storage: 'Mantenha os itens quentes (arroz, feijão e carne) juntos e o abacate/tomate em pote separado. O abacate dura 24 horas na geladeira se coberto com suco de limão e filme plástico encostado na polpa.',
-      secret: 'O toque de cominho e páprica defumada na carne moída confere a identidade aromática latina que harmoniza perfeitamente com a cremosidade do abacate nacional.',
+    "image": "/dishes/rec-13.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "390g por porção",
+    "platingInstructions": "Disposição em quadrantes coloridos: arroz em um lado, feijão preto ao lado, carne moída temperada, fatias de abacate fresco e cubinhos de tomate.",
+    "specificInstructions": "Temperar a carne com páprica defumada e cominho para garantir o aroma autêntico.",
+    "sections": [
+      {
+        "name": "Refogado da Carne com Especiarias",
+        "stepRange": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "Preparo dos Vegetais Frescos",
+        "stepRange": [
+          3,
+          4
+        ]
+      },
+      {
+        "name": "Montagem em Quadrantes",
+        "stepRange": [
+          5,
+          6
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "O bowl reúne fibras do feijão preto, carboidrato de baixo índice glicêmico e gorduras monoinsaturadas saudáveis do abacate.",
+      "storage": "Montar com o abacate fresco na hora de consumir.",
+      "secret": "Umas gotas de limão fresco sobre o abacate realçam o sabor e evitam a oxidação escura."
     },
-    ingredients: [
-      { section: 'Proteína', name: 'Carne moída bovina', amount: 260, unit: 'g', aisle: 'Açougue', basePrice: 8.50 },
-      { section: 'Base', name: 'Arroz branco ou integral cozido', amount: 200, unit: 'g', aisle: 'Mercearia', basePrice: 1.20 },
-      { section: 'Base', name: 'Feijão preto cozido e escorrido', amount: 160, unit: 'g', aisle: 'Mercearia', basePrice: 1.50 },
-      { section: 'Frescos', name: 'Abacate maduro fatiado', amount: 100, unit: 'g', aisle: 'Hortifruti', basePrice: 1.80 },
-      { section: 'Frescos', name: 'Tomate em cubinhos', amount: 100, unit: 'g', aisle: 'Hortifruti', basePrice: 1.00 },
-      { section: 'Tempero', name: 'Cominho, páprica e limão', amount: 5, unit: 'g', aisle: 'Temperos', basePrice: 0.40 },
-    ],
-    steps: [
-      'Refogue a carne moída em fogo alto com azeite, cebola, alho, cominho em pó, páprica e sal até secar e dourar intensamente.',
-      'Aqueça o arroz e o feijão preto com tempero alho e louro.',
-      'Em duas tigelas fundas (bowls), distribua o arroz em um quarto, o feijão preto ao lado, a carne moída no terceiro quadrante e complete com o tomate em cubos e as fatias de abacate regadas com gotas de limão.',
-    ],
-    stepDetails: [
+    "ingredients": [
       {
-        stepNumber: 1,
-        section: 'Carne Moída Aromática Mexicana',
-        text: 'Refogue a carne moída em fogo alto com azeite, cebola, alho, cominho em pó, páprica e sal até secar e dourar intensamente.',
-        image: '/dishes/steps/bowl-mexicano/step-6.webp',
-        alt: 'Carne moída refogando em fogo alto com azeite, cominho, páprica e alho.',
-        tip: 'Fogo bem alto para a carne dourar rapidamente sem juntar líquido.',
-        isKeyFrame: true,
-        timerSeconds: 300,
+        "section": "Proteína",
+        "name": "Carne moída magra (patinho)",
+        "amount": 260,
+        "unit": "g",
+        "aisle": "Açougue",
+        "basePrice": 6.8
       },
       {
-        stepNumber: 2,
-        section: 'Montagem dos Setores no Bowl',
-        text: 'Aqueça o arroz e o feijão preto com tempero alho e louro.',
-        image: '/dishes/steps/bowl-mexicano/step-4.webp',
-        alt: 'Arroz branco e feijão preto aquecidos e temperados no capricho.',
-        tip: 'Use o feijão com pouco caldo para manter os setores bem definidos na tigela.',
-        isKeyFrame: false,
-        timerSeconds: 120,
+        "section": "Base",
+        "name": "Arroz branco cozido",
+        "amount": 150,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 1.2
       },
       {
-        stepNumber: 3,
-        section: 'Montagem dos Setores no Bowl',
-        text: 'Em duas tigelas fundas (bowls), distribua o arroz em um quarto, o feijão preto ao lado, a carne moída no terceiro quadrante e complete com o tomate em cubos e as fatias de abacate regadas com gotas de limão.',
-        image: '/dishes/steps/bowl-mexicano/step-10.webp',
-        alt: 'Bowl mexicano montado em 4 quadrantes com fatias de abacate regadas com limão.',
-        tip: 'Finalize com sementes de gergelim ou coentro fresco para valorizar a apresentação.',
-        isKeyFrame: true,
-        timerSeconds: 120,
+        "section": "Base",
+        "name": "Feijão preto cozido",
+        "amount": 150,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 1.4
       },
+      {
+        "section": "Fresco",
+        "name": "Abacate maduro fatiado",
+        "amount": 80,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 1.6
+      },
+      {
+        "section": "Fresco",
+        "name": "Tomate e cebola picados",
+        "amount": 80,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 0.9
+      }
     ],
+    "steps": [
+      "Pese 260g de patinho moído e separe os temperos: cominho em pó, páprica defumada, sal e alho picado.",
+      "Aqueça uma frigideira com fio de azeite em fogo alto e refogue a carne moída temperada até secar e dourar intensamente.",
+      "Aqueça 150g de arroz branco cozido soltinho e 150g de feijão preto temperado com louro e alho.",
+      "Corte 1 tomate maduro em cubinhos e fatie meio abacate maduro em lâminas finas, regando com gotas de limão fresco.",
+      "Em dois bowls fundos, disponha o arroz em um quadrante e o feijão preto com caldo no quadrante oposto.",
+      "Acomode a carne moída refogada e finalize com os cubinhos de tomate e as fatias de abacate temperadas com flor de sal."
+    ],
+    "stepDetails": [
+      {
+        "stepNumber": 1,
+        "section": "Mise en Place Aromático",
+        "text": "Pese 260g de patinho moído e separe os temperos: cominho em pó, páprica defumada, sal e alho picado.",
+        "image": "/dishes/rec-13.jpg",
+        "alt": "Carne moída e especiarias organizadas.",
+        "tip": "A combinação de cominho e páprica dá a assinatura latina.",
+        "isKeyFrame": true,
+        "timerSeconds": 60
+      },
+      {
+        "stepNumber": 2,
+        "section": "Refogado da Carne",
+        "text": "Aqueça uma frigideira com fio de azeite em fogo alto e refogue a carne moída temperada até secar e dourar intensamente.",
+        "image": "/dishes/rec-13.jpg",
+        "alt": "Carne moída dourando intensamente na frigideira.",
+        "tip": "Deixe dourar bem para criar sabor profundo.",
+        "isKeyFrame": true,
+        "timerSeconds": 300
+      },
+      {
+        "stepNumber": 3,
+        "section": "Base Quente",
+        "text": "Aqueça 150g de arroz branco cozido soltinho e 150g de feijão preto temperado com louro e alho.",
+        "image": "/dishes/rec-13.jpg",
+        "alt": "Arroz e feijão preto aquecidos.",
+        "tip": "Um feijão preto bem temperado com alho amarrado ancora o prato.",
+        "isKeyFrame": false,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 4,
+        "section": "Frescor & Cortes",
+        "text": "Corte 1 tomate maduro em cubinhos e fatie meio abacate maduro em lâminas finas, regando com gotas de limão fresco.",
+        "image": "/dishes/rec-13.jpg",
+        "alt": "Tomate em cubinhos e abacate fatiado em lâminas.",
+        "tip": "O limão evita que o abacate oxide e mantém sua cor verde-clara.",
+        "isKeyFrame": true,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 5,
+        "section": "Montagem dos Quadrantes",
+        "text": "Em dois bowls fundos, disponha o arroz em um quadrante e o feijão preto com caldo no quadrante oposto.",
+        "image": "/dishes/rec-13.jpg",
+        "alt": "Base de arroz e feijão montada no bowl.",
+        "tip": "Organizar por cores cria contraste visual apetitoso.",
+        "isKeyFrame": false,
+        "timerSeconds": 60
+      },
+      {
+        "stepNumber": 6,
+        "section": "Finalização & Empratamento",
+        "text": "Acomode a carne moída refogada e finalize com os cubinhos de tomate e as fatias de abacate temperadas com flor de sal.",
+        "image": "/dishes/rec-13.jpg",
+        "alt": "Bowl mexicano colorido completo com abacate, carne e tomate.",
+        "tip": "Sirva com folhas frescas de coentro ou salsa por cima.",
+        "isKeyFrame": true,
+        "timerSeconds": 60
+      }
+    ]
   },
-
-  // 14. FRIGIDEIRA LOW CARB DE FRANGO E ABOBRINHA
   {
-    id: 'rec-14',
-    title: 'Frigideira Low Carb de Frango, Abobrinha e Tomate Cereja',
-    category: 'Jantar',
-    prepTime: 15,
-    servings: 2,
-    calories: 290,
-    protein: 34,
-    carbs: 8,
-    fat: 12,
-    tags: ['Low Carb', 'Rápido', 'Sem Glúten', 'Econômico', 'One-Pan', 'Passo a Passo com Fotos'],
-    image: '/dishes/rec-14.jpg',
-    source: 'Ficha Técnica NeatEat Brasil',
-    portionWeight: '320g por porção',
-    platingInstructions:
-      'Servir diretamente na travessa ou frigideira de ferro/antiaderente, com os tomatinhos estourados brilhantes e folhas frescas de manjericão no topo.',
-    specificInstructions:
-      'Saltear em fogo alto em panela ampla para que a abobrinha doure sem cozinhar no próprio vapor.',
-    sections: [
-      { name: 'Douramento dos Cubos de Frango', stepRange: [1, 1] },
-      { name: 'Salteado dos Legumes & Estalo dos Tomatinhos', stepRange: [2, 3] },
+    "id": "rec-14",
+    "title": "Frigideira de Frango e Legumes",
+    "category": "Jantar",
+    "prepTime": 18,
+    "servings": 2,
+    "calories": 320,
+    "protein": 36,
+    "carbs": 12,
+    "fat": 14,
+    "tags": [
+      "Tirzepatida",
+      "Low Carb",
+      "Rápido",
+      "Sem Glúten",
+      "Econômico",
+      "One-Pan",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'Prato de uma panela só (One-Pan): quase nenhuma louça para lavar após o jantar e preparo concluído em menos de 15 minutos.',
-      storage: 'Conservar em pote fechado na geladeira por até 3 dias. Reaqueça na frigideira quente por 2 minutos para devolver a textura crocante da abobrinha.',
-      secret: 'Os tomates-cereja devem entrar inteiros e permanecer na frigideira até que a pele comece a estalar e caramelizar levemente; eles soltam um néctar adocicado concentrado que cria o molho do prato.',
+    "image": "/dishes/rec-14.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "320g por porção",
+    "platingInstructions": "Servir diretamente na frigideira rústica ou em prato raso aquecido, com folhas de manjericão fresco salpicadas no topo.",
+    "specificInstructions": "Selar o frango em fogo alto para criar crosta sem mexer antes de adicionar a abobrinha e os tomates-cereja.",
+    "sections": [
+      {
+        "name": "Cortes e Mise en Place",
+        "stepRange": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "Selagem do Frango",
+        "stepRange": [
+          3,
+          4
+        ]
+      },
+      {
+        "name": "Salteado de Legumes & Finalização",
+        "stepRange": [
+          5,
+          6
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "O método one-pan (uma só panela) concentra os açúcares naturais dos legumes e reduz a louça pós-refeição a zero.",
+      "storage": "Conservar na geladeira por até 3 dias em pote vedado.",
+      "secret": "Adicionar os tomates-cereja inteiros nos últimos minutos faz com que estourem na boca liberando suco doce e ácido."
     },
-    ingredients: [
-      { section: 'Frango', name: 'Peito de frango em cubos', amount: 300, unit: 'g', aisle: 'Açougue', basePrice: 6.90 },
-      { section: 'Legumes', name: 'Abobrinha italiana em meias-luas', amount: 200, unit: 'g', aisle: 'Hortifruti', basePrice: 1.40 },
-      { section: 'Legumes', name: 'Tomate-cereja inteiro', amount: 120, unit: 'g', aisle: 'Hortifruti', basePrice: 2.20 },
-      { section: 'Aromáticos', name: 'Alho picado', amount: 15, unit: 'g', aisle: 'Hortifruti', basePrice: 0.40 },
-      { section: 'Aromáticos', name: 'Azeite de oliva', amount: 20, unit: 'ml', aisle: 'Mercearia', basePrice: 1.00 },
-      { section: 'Aromáticos', name: 'Orégano ou manjericão fresco', amount: 5, unit: 'g', aisle: 'Temperos', basePrice: 0.30 },
-    ],
-    steps: [
-      'Corte o frango em cubos de 2cm, tempere com sal e pimenta e doure no azeite quente em frigideira grande por 5 minutos até criar casquinha dourada.',
-      'Afaste o frango para as laterais, coloque o alho no centro para dourar por 30 segundos e junte as meias-luas de abobrinha.',
-      'Adicione os tomates-cereja inteiros e salteie tudo junto em fogo alto por mais 4 minutos até a abobrinha ficar macia e os tomates estalarem. Finalize com orégano e sirva quente.',
-    ],
-    stepDetails: [
+    "ingredients": [
       {
-        stepNumber: 1,
-        section: 'Douramento dos Cubos de Frango',
-        text: 'Corte o frango em cubos de 2cm, tempere com sal e pimenta e doure no azeite quente em frigideira grande por 5 minutos até criar casquinha dourada.',
-        image: '/dishes/steps/frango-legumes/step-6.webp',
-        alt: 'Cubos de filé de frango dourando na frigideira grande em azeite bem quente.',
-        tip: 'Não encha a panela; deixe espaço entre os cubos para dourarem sem cozinhar na água.',
-        isKeyFrame: true,
-        timerSeconds: 300,
+        "section": "Proteína",
+        "name": "Peito de frango em cubos",
+        "amount": 300,
+        "unit": "g",
+        "aisle": "Açougue",
+        "basePrice": 6.9
       },
       {
-        stepNumber: 2,
-        section: 'Salteado dos Legumes & Estalo dos Tomatinhos',
-        text: 'Afaste o frango para as laterais, coloque o alho no centro para dourar por 30 segundos e junte as meias-luas de abobrinha.',
-        image: '/dishes/steps/frango-legumes/step-7.webp',
-        alt: 'Meias-luas de abobrinha e alho laminado salteando no centro da frigideira.',
-        tip: 'Corte a abobrinha com pelo menos 0,5cm de espessura para não desmanchar.',
-        isKeyFrame: false,
-        timerSeconds: 60,
+        "section": "Legumes",
+        "name": "Abobrinha média em meias-luas",
+        "amount": 150,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 1.2
       },
       {
-        stepNumber: 3,
-        section: 'Salteado dos Legumes & Estalo dos Tomatinhos',
-        text: 'Adicione os tomates-cereja inteiros e salteie tudo junto em fogo alto por mais 4 minutos até a abobrinha ficar macia e os tomates estalarem. Finalize com orégano e sirva quente.',
-        image: '/dishes/steps/frango-legumes/step-10.webp',
-        alt: 'Tomates-cereja estalados salteados com o frango e a abobrinha salpicados de orégano.',
-        tip: 'Quando os tomates começarem a estourar, a acidez natural emulsiona com o azeite.',
-        isKeyFrame: true,
-        timerSeconds: 240,
+        "section": "Legumes",
+        "name": "Tomates-cereja inteiros",
+        "amount": 100,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 1.6
       },
+      {
+        "section": "Aromáticos",
+        "name": "Azeite de oliva e alho",
+        "amount": 15,
+        "unit": "ml",
+        "aisle": "Mercearia",
+        "basePrice": 0.9
+      },
+      {
+        "section": "Ervas",
+        "name": "Manjericão e orégano frescos",
+        "amount": 10,
+        "unit": "g",
+        "aisle": "Hortifruti",
+        "basePrice": 0.4
+      }
     ],
+    "steps": [
+      "Corte 300g de peito de frango em cubos regulares de 2 cm e tempere com alho picado, sal fino e pimenta-do-reino.",
+      "Lave 1 abobrinha média e corte em meias-luas de 0,5 cm. Higienize 100g de tomates-cereja mantendo inteiros.",
+      "Aqueça uma frigideira ampla com 15ml de azeite em fogo alto e acomode os cubos de frango em camada única.",
+      "Grelhe por 4 minutos sem mexer no início até formar crosta dourada e selar a umidade interna.",
+      "Afaste o frango para as bordas da frigideira, coloque as meias-luas de abobrinha no centro e salteie por 3 minutos em fogo médio.",
+      "Junte os tomates-cereja inteiros e o orégano fresco, salteando tudo junto por mais 2 minutos até os tomates estalarem a pele."
+    ],
+    "stepDetails": [
+      {
+        "stepNumber": 1,
+        "section": "Mise en Place & Cortes",
+        "text": "Corte 300g de peito de frango em cubos regulares de 2 cm e tempere com alho picado, sal fino e pimenta-do-reino.",
+        "image": "/dishes/rec-14.jpg",
+        "alt": "Cubos de frango temperados na tigela.",
+        "tip": "Cubos regulares cozinham por igual sem ressecar.",
+        "isKeyFrame": true,
+        "timerSeconds": 120
+      },
+      {
+        "stepNumber": 2,
+        "section": "Corte dos Legumes",
+        "text": "Lave 1 abobrinha média e corte em meias-luas de 0,5 cm. Higienize 100g de tomates-cereja mantendo inteiros.",
+        "image": "/dishes/rec-14.jpg",
+        "alt": "Abobrinha em meias-luas e tomates-cereja lavados.",
+        "tip": "Manter os tomates inteiros evita que soltem água excessiva na frigideira.",
+        "isKeyFrame": false,
+        "timerSeconds": 60
+      },
+      {
+        "stepNumber": 3,
+        "section": "Aquecimento & Selagem",
+        "text": "Aqueça uma frigideira ampla com 15ml de azeite em fogo alto e acomode os cubos de frango em camada única.",
+        "image": "/dishes/rec-14.jpg",
+        "alt": "Frango acomodado em camada única na frigideira quente.",
+        "tip": "Não sobreponha os cubos para que dourem em vez de cozinhar no vapor.",
+        "isKeyFrame": false,
+        "timerSeconds": 60
+      },
+      {
+        "stepNumber": 4,
+        "section": "Crosta Dourada",
+        "text": "Grelhe por 4 minutos sem mexer no início até formar crosta dourada e selar a umidade interna.",
+        "image": "/dishes/rec-14.jpg",
+        "alt": "Cubos de frango dourados por baixo.",
+        "tip": "A crosta dourada caramelizada é onde está todo o sabor.",
+        "isKeyFrame": true,
+        "timerSeconds": 240
+      },
+      {
+        "stepNumber": 5,
+        "section": "Salteado da Abobrinha",
+        "text": "Afaste o frango para as bordas da frigideira, coloque as meias-luas de abobrinha no centro e salteie por 3 minutos em fogo médio.",
+        "image": "/dishes/rec-14.jpg",
+        "alt": "Abobrinha salteando no centro da frigideira quente.",
+        "tip": "A abobrinha doura rapidamente no calor residual do frango.",
+        "isKeyFrame": true,
+        "timerSeconds": 180
+      },
+      {
+        "stepNumber": 6,
+        "section": "Tomates Estalados & Finalização",
+        "text": "Junte os tomates-cereja inteiros e o orégano fresco, salteando tudo junto por mais 2 minutos até os tomates estalarem a pele.",
+        "image": "/dishes/rec-14.jpg",
+        "alt": "Frigideira completa e colorida fumegante pronta para servir.",
+        "tip": "Finalize com folhas de manjericão fresco imediatamente antes de servir.",
+        "isKeyFrame": true,
+        "timerSeconds": 120
+      }
+    ]
   },
-
-  // 15. ARROZ DE FORNO COM CARNE MOÍDA — RECEITERIA CARLOS LOPES
   {
-    id: 'rec-15',
-    title: 'Arroz de Forno com Carne Moída',
-    category: 'Almoço',
-    prepTime: 60,
-    servings: 8,
-    calories: 460,
-    protein: 26,
-    carbs: 48,
-    fat: 18,
-    tags: ['Para Família', 'Prato Único', 'Forno', 'Econômico', 'Passo a Passo com Fotos'],
-    image: '/dishes/arroz-de-forno-carne-moida.webp',
-    source: 'Receiteria Brasil • Chef Carlos Lopes',
-    portionWeight: '380g por porção',
-    platingInstructions:
-      'Cortar em porções quadradas generosas com espátula e servir em prato fundo ou raso aquecido, destacando o gratinado dourado de queijo e orégano. Acompanhar com salada verde crocante.',
-    specificInstructions:
-      'Pode ser montado com antecedência de até 24 horas e mantido na geladeira antes de assar. Não congelar com o queijo cru; asse antes se for congelar a refeição pronta.',
-    sections: [
-      { name: 'Modo de preparo da carne moída', stepRange: [1, 5] },
-      { name: 'Arroz cremoso e montagem', stepRange: [6, 12] },
+    "id": "rec-15",
+    "title": "Arroz de Forno com Carne Moída",
+    "category": "Almoço",
+    "prepTime": 35,
+    "servings": 3,
+    "calories": 450,
+    "protein": 32,
+    "carbs": 48,
+    "fat": 14,
+    "tags": [
+      "Para Família",
+      "Prato Único",
+      "Forno",
+      "Econômico",
+      "Passo a Passo com Fotos"
     ],
-    chefTips: {
-      intro: 'Usando a mesma receita da base de arroz cremoso é possível adaptar para outros recheios a sua escolha como frango desfiado, atum sólido ou legumes salteados.',
-      storage: 'Sempre que for sobrando um pouco de arroz das refeições da semana, é possível ir congelando em pote hermético até ter o suficiente (4 xícaras) para esta receita sem desperdício.',
-      secret: 'O segredo da textura aveludada sem talhar é emulsionar o requeijão com os ovos antes de envolver no arroz morno, garantindo cremosidade uniforme após os 30 minutos de forno.',
+    "image": "/dishes/rec-15.jpg",
+    "source": "Ficha Técnica NeatEat Brasil",
+    "portionWeight": "410g por porção",
+    "platingInstructions": "Cortar em porções quadradas generosas exibindo as camadas úmidas de arroz, carne moída e queijo gratinado.",
+    "specificInstructions": "Umedecer o arroz com molho de tomate antes de levar ao forno para não ressecar durante o gratinado.",
+    "sections": [
+      {
+        "name": "Refogado da Carne Moída",
+        "stepRange": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "Montagem em Camadas",
+        "stepRange": [
+          3,
+          4
+        ]
+      },
+      {
+        "name": "Forno e Gratinado",
+        "stepRange": [
+          5,
+          6
+        ]
+      }
+    ],
+    "chefTips": {
+      "intro": "O arroz de forno é o maior campeão contra o desperdício alimentar, transformando sobras em um banquete de restaurante.",
+      "storage": "Conservar por até 3 dias na geladeira em pote fechado ou congelar por 30 dias.",
+      "secret": "Colocar fatias de queijo muçarela entre as camadas de arroz e no topo garante queijo fundido por toda a fatia."
     },
-    ingredients: [
-      { section: 'Ingredientes da carne moída', name: 'Azeite de oliva', amount: 30, unit: 'ml', aisle: 'Mercearia', basePrice: 1.50 },
-      { section: 'Ingredientes da carne moída', name: 'Cebola pequena picada', amount: 80, unit: 'g', aisle: 'Hortifruti', basePrice: 0.70 },
-      { section: 'Ingredientes da carne moída', name: 'Alho picado', amount: 15, unit: 'g', aisle: 'Hortifruti', basePrice: 0.50 },
-      { section: 'Ingredientes da carne moída', name: 'Carne moída (acém ou patinho)', amount: 500, unit: 'g', aisle: 'Açougue', basePrice: 18.90 },
-      { section: 'Ingredientes da carne moída', name: 'Curry em pó', amount: 5, unit: 'g', aisle: 'Temperos', basePrice: 0.40 },
-      { section: 'Ingredientes da carne moída', name: 'Páprica doce ou defumada', amount: 5, unit: 'g', aisle: 'Temperos', basePrice: 0.40 },
-      { section: 'Ingredientes da carne moída', name: 'Sal e pimenta-do-reino', amount: 5, unit: 'g', aisle: 'Temperos', basePrice: 0.20 },
-      { section: 'Ingredientes da carne moída', name: 'Salsinha desidratada', amount: 3, unit: 'g', aisle: 'Temperos', basePrice: 0.30 },
-      { section: 'Ingredientes da carne moída', name: 'Pimentão picado', amount: 40, unit: 'g', aisle: 'Hortifruti', basePrice: 0.60 },
-      { section: 'Ingredientes da carne moída', name: 'Tomate médio picado', amount: 120, unit: 'g', aisle: 'Hortifruti', basePrice: 1.10 },
-      { section: 'Ingredientes da carne moída', name: 'Azeitonas verdes picadas', amount: 50, unit: 'g', aisle: 'Mercearia', basePrice: 1.80 },
-      { section: 'Ingredientes da carne moída', name: 'Sachê de molho de tomate', amount: 300, unit: 'g', aisle: 'Mercearia', basePrice: 2.80 },
-      { section: 'Ingredientes da carne moída', name: 'Cheiro verde fresco', amount: 20, unit: 'g', aisle: 'Hortifruti', basePrice: 0.80 },
-      { section: 'Ingredientes do arroz', name: 'Requeijão cremoso', amount: 400, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 9.90 },
-      { section: 'Ingredientes do arroz', name: 'Ovo', amount: 2, unit: 'un', aisle: 'Laticínios e Ovos', basePrice: 1.80 },
-      { section: 'Ingredientes do arroz', name: 'Queijo parmesão ralado', amount: 40, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 3.20 },
-      { section: 'Ingredientes do arroz', name: 'Arroz branco cozido', amount: 600, unit: 'g', aisle: 'Mercearia', basePrice: 3.20 },
-      { section: 'Ingredientes do arroz', name: 'Presunto picado', amount: 200, unit: 'g', aisle: 'Frios e Embutidos', basePrice: 5.60 },
-      { section: 'Ingredientes do arroz', name: 'Queijo ralado para finalizar', amount: 100, unit: 'g', aisle: 'Laticínios e Ovos', basePrice: 4.50 },
-      { section: 'Ingredientes do arroz', name: 'Orégano a gosto', amount: 3, unit: 'g', aisle: 'Temperos', basePrice: 0.20 },
+    "ingredients": [
+      {
+        "section": "Base",
+        "name": "Arroz branco cozido",
+        "amount": 300,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 2.2
+      },
+      {
+        "section": "Carne",
+        "name": "Carne moída refogada",
+        "amount": 300,
+        "unit": "g",
+        "aisle": "Açougue",
+        "basePrice": 7.8
+      },
+      {
+        "section": "Molho",
+        "name": "Molho de tomate caseiro",
+        "amount": 150,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 1.3
+      },
+      {
+        "section": "Cobertura",
+        "name": "Queijo muçarela fatiado",
+        "amount": 80,
+        "unit": "g",
+        "aisle": "Laticínios e Ovos",
+        "basePrice": 4.8
+      },
+      {
+        "section": "Legumes",
+        "name": "Milho e ervilha frescos",
+        "amount": 80,
+        "unit": "g",
+        "aisle": "Mercearia",
+        "basePrice": 1.2
+      }
     ],
-    steps: [
-      'Em uma panela, adicione o azeite e refogue a cebola até ela murchar;',
-      'Acrescente o alho e refogue até dourar;',
-      'Coloque a carne moída e deixe cozinhar bem até ela ficar marronzinha;',
-      'Tempere com o curry, páprica, sal, pimenta, salsinha e misture bem;',
-      'Acrescente o pimentão, o tomate, as azeitonas, o molho de tomate, o cheiro verde, misture e deixe cozinhar até engrossar o molho.',
-      'Em um recipiente, adicione o requeijão, os ovos, o parmesão ralado e misture;',
-      'Junte o arroz, o presunto e misture bem;',
-      'Em um refratário (que possa ir ao forno), forre o fundo com o arroz e depois faça uma camada de carne moída;',
-      'Repita o processo até encher a sua travessa com uma última camada de carne moída;',
-      'Salpique o queijo ralado e o orégano por cima;',
-      'Leve ao forno preaquecido a 180º graus por cerca de 30 minutos;',
-      'Agora é só servir. Bom apetite!',
+    "steps": [
+      "Refogue a carne moída com cebola, alho, molho de tomate e milho em uma panela funda por 8 minutos até virar molho espesso.",
+      "Separe o arroz branco cozido em uma tigela e misture 2 colheres do molho para umedecer os grãos.",
+      "Unte um refratário médio com umas gotas de azeite e espalhe metade do arroz umedecido no fundo.",
+      "Distribua todo o refogado de carne moída com milho sobre o arroz, cobrindo com fatias de queijo muçarela.",
+      "Cubra com o restante do arroz e finalize com mais queijo muçarela e orégano por cima.",
+      "Asse em forno a 200°C por 15 a 18 minutos até o queijo borbulhar e dourar formando crosta crocante."
     ],
-    stepDetails: [
+    "stepDetails": [
       {
-        stepNumber: 1,
-        section: 'Modo de preparo da carne moída',
-        text: 'Em uma panela, adicione o azeite e refogue a cebola até ela murchar;',
-        image: '/dishes/steps/arroz-forno/step-1.webp',
-        alt: 'Cebola murchando no azeite sendo refogada na panela.',
-        tip: 'Fogo brando: a cebola deve murchar e ficar translúcida, sem queimar.',
-        isKeyFrame: true,
-        timerSeconds: 180,
+        "stepNumber": 1,
+        "section": "Refogado da Carne",
+        "text": "Refogue a carne moída com cebola, alho, molho de tomate e milho em uma panela funda por 8 minutos até virar molho espesso.",
+        "image": "/dishes/rec-15.jpg",
+        "alt": "Carne moída refogada no molho com milho.",
+        "tip": "O molho deve ser denso para não encharcar o fundo do refratário.",
+        "isKeyFrame": true,
+        "timerSeconds": 480
       },
       {
-        stepNumber: 2,
-        section: 'Modo de preparo da carne moída',
-        text: 'Acrescente o alho e refogue até dourar;',
-        image: '/dishes/steps/arroz-forno/step-2.webp',
-        alt: 'Alho dourando com a cebola refogada no azeite na panela.',
-        tip: 'O alho doura muito rápido; 40 a 60 segundos são suficientes.',
-        isKeyFrame: false,
-        timerSeconds: 60,
+        "stepNumber": 2,
+        "section": "Umedecimento do Arroz",
+        "text": "Separe o arroz branco cozido em uma tigela e misture 2 colheres do molho para umedecer os grãos.",
+        "image": "/dishes/rec-15.jpg",
+        "alt": "Arroz branco misturado suavemente com molho.",
+        "tip": "Misturar um pouco de molho evita que o arroz fique seco após assar.",
+        "isKeyFrame": false,
+        "timerSeconds": 60
       },
       {
-        stepNumber: 3,
-        section: 'Modo de preparo da carne moída',
-        text: 'Coloque a carne moída e deixe cozinhar bem até ela ficar marronzinha;',
-        image: '/dishes/steps/arroz-forno/step-3.webp',
-        alt: 'Carne moída dourando com o alho refogado.',
-        tip: 'Quebre os grumos com as costas da colher para o refogado ficar uniforme.',
-        isKeyFrame: true,
-        timerSeconds: 360,
+        "stepNumber": 3,
+        "section": "Primeira Camada",
+        "text": "Unte um refratário médio com umas gotas de azeite e espalhe metade do arroz umedecido no fundo.",
+        "image": "/dishes/rec-15.jpg",
+        "alt": "Camada de arroz no fundo do refratário.",
+        "tip": "Espalhe uniformemente sem apertar os grãos.",
+        "isKeyFrame": false,
+        "timerSeconds": 60
       },
       {
-        stepNumber: 4,
-        section: 'Modo de preparo da carne moída',
-        text: 'Tempere com o curry, páprica, sal, pimenta, salsinha e misture bem;',
-        image: '/dishes/steps/arroz-forno/step-4.webp',
-        alt: 'Carne moída dourada sendo temperada com especiarias.',
-        tip: 'O curry e a páprica soltam sabor e aroma intensos quando entram em contato com o fundo quente.',
-        isKeyFrame: false,
-        timerSeconds: 60,
+        "stepNumber": 4,
+        "section": "Recheio Farto & Queijo",
+        "text": "Distribua todo o refogado de carne moída com milho sobre o arroz, cobrindo com fatias de queijo muçarela.",
+        "image": "/dishes/rec-15.jpg",
+        "alt": "Camada generosa de carne moída e queijo.",
+        "tip": "O queijo no meio cria uma camada cremosa ao cortar.",
+        "isKeyFrame": true,
+        "timerSeconds": 120
       },
       {
-        stepNumber: 5,
-        section: 'Modo de preparo da carne moída',
-        text: 'Acrescente o pimentão, o tomate, as azeitonas, o molho de tomate, o cheiro verde, misture e deixe cozinhar até engrossar o molho.',
-        image: '/dishes/steps/arroz-forno/step-5.webp',
-        alt: 'Molho encorpado com legumes e carne moída cozinhando na panela.',
-        tip: 'Deixe o molho apurar até ficar cremoso e denso para não aguar a base do arroz no forno.',
-        isKeyFrame: true,
-        timerSeconds: 420,
+        "stepNumber": 5,
+        "section": "Fechamento & Cobertura",
+        "text": "Cubra com o restante do arroz e finalize com mais queijo muçarela e orégano por cima.",
+        "image": "/dishes/rec-15.jpg",
+        "alt": "Topo do arroz de forno coberto com queijo e orégano.",
+        "tip": "O orégano confere aroma irresistível de forno de pizza.",
+        "isKeyFrame": false,
+        "timerSeconds": 60
       },
       {
-        stepNumber: 6,
-        section: 'Arroz cremoso e montagem',
-        text: 'Em um recipiente, adicione o requeijão, os ovos, o parmesão ralado e misture;',
-        image: '/dishes/steps/arroz-forno/step-6.webp',
-        alt: 'Requeijão, ovos e parmesão misturados em tigela de vidro.',
-        tip: 'Bata com garfo ou fouet até formar um creme uniforme e brilhante.',
-        isKeyFrame: true,
-        timerSeconds: 120,
-      },
-      {
-        stepNumber: 7,
-        section: 'Arroz cremoso e montagem',
-        text: 'Junte o arroz, o presunto e misture bem;',
-        image: '/dishes/steps/arroz-forno/step-7.webp',
-        alt: 'Arroz cozido envolvido no creme com presunto picado.',
-        tip: 'Misture com movimentos envolventes para cobrir todos os grãos com o requeijão temperado.',
-        isKeyFrame: true,
-        timerSeconds: 90,
-      },
-      {
-        stepNumber: 8,
-        section: 'Arroz cremoso e montagem',
-        text: 'Em um refratário (que possa ir ao forno), forre o fundo com o arroz e depois faça uma camada de carne moída;',
-        image: '/dishes/steps/arroz-forno/step-8.webp',
-        alt: 'Refratário com primeira camada de arroz e carne moída espalhada.',
-        tip: 'Espalhe com as costas da colher sem pressionar excessivamente para o arroz manter leveza.',
-        isKeyFrame: true,
-        timerSeconds: 120,
-      },
-      {
-        stepNumber: 9,
-        section: 'Arroz cremoso e montagem',
-        text: 'Repita o processo até encher a sua travessa com uma última camada de carne moída;',
-        image: '/dishes/steps/arroz-forno/step-9.webp',
-        alt: 'Travessa completa com camadas alternadas e topo de carne.',
-        tip: 'Finalizar com a carne moída garante contraste de cor vibrante sob o queijo derretido.',
-        isKeyFrame: false,
-        timerSeconds: 120,
-      },
-      {
-        stepNumber: 10,
-        section: 'Arroz cremoso e montagem',
-        text: 'Salpique o queijo ralado e o orégano por cima;',
-        image: '/dishes/steps/arroz-forno/step-10.webp',
-        alt: 'Queijo ralado e orégano salpicados generosamente sobre a travessa.',
-        tip: 'Distribua o queijo até as bordas para criar casquinha crocante gratinada.',
-        isKeyFrame: true,
-        timerSeconds: 60,
-      },
-      {
-        stepNumber: 11,
-        section: 'Arroz cremoso e montagem',
-        text: 'Leve ao forno preaquecido a 180º graus por cerca de 30 minutos;',
-        image: '/dishes/steps/arroz-forno/step-11.webp',
-        alt: 'Travessa no forno assando até borbulhar e dourar o queijo.',
-        tip: 'Quando começar a borbulhar nas bordas e dourar o queijo por cima, está no ponto ideal.',
-        isKeyFrame: true,
-        timerSeconds: 1800,
-      },
-      {
-        stepNumber: 12,
-        section: 'Arroz cremoso e montagem',
-        text: 'Agora é só servir. Bom apetite!',
-        image: '/dishes/steps/arroz-forno/step-12.webp',
-        alt: 'Arroz de forno com carne moída borbulhante e gratinado pronto para servir.',
-        tip: 'Aguarde 5 minutos antes de cortar: isso assenta as camadas facilitando servir fatias perfeitas.',
-        isKeyFrame: true,
-        timerSeconds: 0,
-      },
-    ],
-  },
+        "stepNumber": 6,
+        "section": "Gratinado ao Forno",
+        "text": "Asse em forno a 200°C por 15 a 18 minutos até o queijo borbulhar e dourar formando crosta crocante.",
+        "image": "/dishes/rec-15.jpg",
+        "alt": "Arroz de forno borbulhante e dourado saindo do forno.",
+        "tip": "Deixe descansar 5 minutos antes de cortar as fatias quadradas.",
+        "isKeyFrame": true,
+        "timerSeconds": 1000
+      }
+    ]
+  }
 ];

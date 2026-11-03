@@ -20,7 +20,8 @@ import { CURRENT_VERSION, RELEASE_NOTES } from './changelog.js';
 import { CACHE_DIR } from './imageCache.js';
 import { parseSefazUrl, parseSefazHtml, parseSefazText, getDemoSefazInvoice } from './sefazParser.js';
 import { CANONICAL_INGREDIENTS, computeCulinaryPortionCost } from './ingredientMatcher.js';
-import { ROBUST_RECIPE_VAULT } from './suggestionEngine.js';
+import { ROBUST_RECIPE_VAULT, isDishTooSimilarToExisting } from './suggestionEngine.js';
+import { runFullCatalogUpgrade } from './fullCatalogUpgrade.js';
 import { parseRecipeWithGemini } from './geminiService.js';
 import { searchOpenFoodFacts } from './openFoodFactsService.js';
 import { searchHighResDishPhotos } from './foodImageService.js';
@@ -378,24 +379,32 @@ async function syncDailyDiscoveryBatchOncePerDay() {
   const existingToday = db
     .prepare('SELECT COUNT(*) as count FROM daily_discovered_recipes WHERE date_added = ?')
     .get(todayKey).count;
-  if (existingToday > 0) {
+  if (existingToday >= 5) {
     syncingDailyDate = todayKey;
     return;
   }
 
   syncingDailyDate = todayKey;
   const daySeed = Number(todayKey.replace(/-/g, '')) || 1;
-  const vaultPool = ROBUST_RECIPE_VAULT.length > 0 ? ROBUST_RECIPE_VAULT : DAILY_ROTATION_THEMES;
-  const idx1 = daySeed % vaultPool.length;
-  const idx2 = (daySeed + 7) % vaultPool.length;
-  const idx3 = (daySeed + 13) % vaultPool.length;
-  const picks = [vaultPool[idx1], vaultPool[idx2], vaultPool[idx3]];
+  const vaultPool = ROBUST_RECIPE_VAULT;
+  const existingRecipes = getAllRecipes();
+  const catalogTitles = existingRecipes.map((r) => r.title);
+
+  const picks = [];
+  for (let offset = 0; offset < vaultPool.length && picks.length < 6; offset++) {
+    const candidate = vaultPool[(daySeed + offset * 7) % vaultPool.length];
+    if (
+      !isDishTooSimilarToExisting(candidate.title, catalogTitles) &&
+      !isDishTooSimilarToExisting(candidate.title, picks.map((p) => p.title))
+    ) {
+      picks.push(candidate);
+    }
+  }
 
   for (let i = 0; i < picks.length; i++) {
     const item = picks[i];
     const id = `sug-daily-${todayKey}-${i + 1}`;
-    const photos = await searchExactDishPhotos(item.title, item.ingredients);
-    const heroImage = photos[0] || item.image || '/dishes/rec-5.jpg';
+    const heroImage = item.image || '/dishes/rec-5.jpg';
 
     const finalStepDetails = await ensureRecipeStepDetails(
       item.title,
@@ -418,7 +427,7 @@ async function syncDailyDiscoveryBatchOncePerDay() {
       tags: item.tags,
       image: heroImage,
       source: `Ficha Técnica — Descoberta do Dia (${todayKey.split('-').reverse().join('/')})`,
-      portionWeight: item.portionWeight,
+      portionWeight: item.portionWeight || '320g por porção',
       platingInstructions:
         item.platingInstructions ||
         'Dispor a porção centralizada em prato aquecido garantindo apresentação limpa e finalizar com ervas frescas.',
@@ -428,6 +437,15 @@ async function syncDailyDiscoveryBatchOncePerDay() {
       ingredients: item.ingredients,
       steps: item.steps,
       stepDetails: finalStepDetails,
+      sections: item.sections || [
+        { name: 'Mise en Place & Pré-preparo', stepRange: [1, 2] },
+        { name: 'Preparo & Cocção', stepRange: [3, Math.max(3, item.steps.length)] },
+      ],
+      chefTips: item.chefTips || {
+        intro: `Ficha técnica padronizada de ${item.title}.`,
+        storage: 'Manter refrigerado por até 3 dias em pote hermeticamente fechado.',
+        secret: 'O controle atento da temperatura do fogo preserva a umidade dos insumos.',
+      },
     };
 
     db.prepare(`
@@ -439,6 +457,12 @@ async function syncDailyDiscoveryBatchOncePerDay() {
 
 export async function startServer(options = {}) {
   initDb();
+  try {
+    const dbPath = path.join(process.env.NEATEAT_DATA_DIR || __dirname, 'neateat.sqlite');
+    runFullCatalogUpgrade(dbPath);
+  } catch (err) {
+    console.warn('Aviso no auto-upgrade de catálogo:', err.message);
+  }
   syncDailyDiscoveryBatchOncePerDay().catch(() => {});
 
   const {
@@ -613,13 +637,29 @@ export async function startServer(options = {}) {
     `).run(suggestion.id, direction, JSON.stringify(suggestion));
 
     if (direction === 'right') {
+      const stepDetailsJson = JSON.stringify(suggestion.stepDetails || []);
+      const sectionsJson = JSON.stringify(
+        suggestion.sections || [
+          { name: 'Mise en Place & Pré-preparo', stepRange: [1, 2] },
+          { name: 'Preparo & Cocção', stepRange: [3, Math.max(3, (suggestion.steps || []).length)] },
+        ]
+      );
+      const chefTipsJson = JSON.stringify(
+        suggestion.chefTips || {
+          intro: `Ficha técnica padronizada de ${suggestion.title}.`,
+          storage: 'Armazenar sob refrigeração por até 3 dias em pote vedado.',
+          secret: 'Respeitar a temperatura do fogo e a ordem do mise en place.',
+        }
+      );
+
       db.prepare(`
         INSERT OR REPLACE INTO recipes (
           id, title, category, prep_time, servings, calories, protein, carbs, fat,
           tags_json, image, source, ingredients_json, steps_json,
-          portion_weight, plating_instructions, specific_instructions
+          portion_weight, plating_instructions, specific_instructions,
+          sections_json, step_details_json, chef_tips_json
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         suggestion.id,
         suggestion.title,
@@ -637,7 +677,10 @@ export async function startServer(options = {}) {
         JSON.stringify(suggestion.steps || []),
         suggestion.portionWeight || '350g por porção',
         suggestion.platingInstructions || 'Servir em prato aquecido com montagem centralizada.',
-        suggestion.specificInstructions || 'Respeitar as gramaturas e temperaturas da ficha técnica.'
+        suggestion.specificInstructions || 'Respeitar as gramaturas e temperaturas da ficha técnica.',
+        sectionsJson,
+        stepDetailsJson,
+        chefTipsJson
       );
     }
 
@@ -1321,13 +1364,23 @@ export async function startServer(options = {}) {
       }
     }
 
-    if (importSteps.length === 0) {
+    const hasGenericOrFewSteps =
+      importSteps.length < 4 ||
+      importSteps.some(
+        (s) =>
+          s.includes('Separe e pese todos os insumos conforme a ficha técnica') ||
+          s.includes('Prepare o insumo principal em fogo médio')
+      );
+
+    if (hasGenericOrFewSteps) {
+      const topIngs = rawIngs.map((i) => i.name).slice(0, 3).join(', ') || 'principais insumos';
       importSteps = [
-        `Pese e higienize cuidadosamente todos os insumos selecionados (${rawIngs.map((i) => i.name).slice(0, 3).join(', ')}), deixando organizados na bancada de trabalho.`,
-        'Aqueça uma frigideira ou panela de fundo grosso em fogo médio com o azeite de oliva e sele os ingredientes principais até dourarem por igual.',
-        'Acrescente os temperos aromáticos (cebola, alho e ervas), refogando em fogo brando até liberarem seus aromas característicos.',
-        'Cozinhe em temperatura controlada, ajustando o ponto de sal e textura até que todos os insumos atinjam consistência macia e aveludada.',
-        'Desligue o fogo, verifique a acidez e os temperos, e finalize o empratamento com ervas frescas servindo imediatamente.',
+        `Mise en place profissional: pese e higienize cuidadosamente todos os insumos selecionados (${topIngs}), organizando tudo na bancada de trabalho com utensílios higienizados.`,
+        `Preparo dos aromáticos: pique a cebola em cubos regulares e lamine o alho fino para liberar os óleos essenciais que servem de base gastronômica ao prato.`,
+        `Selagem em temperatura controlada: aqueça uma panela ou frigideira de fundo grosso com azeite em fogo médio-alto e sele a proteína ou insumo principal até formar crosta dourada saborosa.`,
+        `Incorporação de sabores: adicione os aromáticos e legumes, refogando em fogo brando até dourarem e absorverem os sucos caramelizados do fundo da panela.`,
+        `Cocção e apuramento: cozinhe em temperatura moderada com a panela semitampada, ajustando o ponto de sal e pimenta até que a textura fique suculenta e aveludada.`,
+        `Finalização gastronômica: desligue o fogo, salpique ervas frescas picadas na hora (cheiro-verde ou manjericão) e sirva imediatamente bem quente com empratamento harmonioso.`,
       ];
     }
 

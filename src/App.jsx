@@ -85,8 +85,9 @@ const AISLES = [
 ];
 const DIETARY_OPTIONS = [
   'Todas',
-  'Econômico',
+  'Tirzepatida',
   'Alta Proteína',
+  'Econômico',
   'Vegetariano',
   'Low Carb',
   'Sem Glúten',
@@ -275,7 +276,7 @@ function createEmptyFichaTecnica() {
       { name: 'Arroz branco', amount: 150, unit: 'g', aisle: 'Mercearia', basePrice: 1.20 },
     ],
     stepsText:
-      'Realize o mise en place pesando e higienizando todos os insumos.\nTempere e grelhe o insumo principal até atingir 74°C no centro.\nPrepare os acompanhamentos e realize a montagem conforme padrão da ficha técnica.',
+      '1. Realize o mise en place pesando, higienizando e cortando todos os insumos com precisão na bancada.\n2. Aqueça a frigideira ou panela em fogo médio com azeite de oliva até estalar suavemente.\n3. Sele o ingrediente principal em fogo alto para criar crosta dourada e preservar a suculência interna.\n4. Adicione os vegetais e temperos aromáticos, refogando em fogo brando até liberarem seus aromas característicos.\n5. Acerte o ponto de sal, finalize com ervas frescas e realize o empratamento aquecido com apresentação impecável.',
   };
 }
 
@@ -1863,6 +1864,15 @@ export default function App() {
                 </div>
               </div>
 
+              {user.dietary_filter === 'Tirzepatida' && (
+                <div className="mt-3 p-3 rounded-xl bg-teal-950/40 border border-teal-500/30 flex items-start gap-2.5 text-teal-200 text-xs">
+                  <Sparkles className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Aliado Tirzepatida / Mounjaro ativo:</strong> Cardápio calibrado com alta densidade de proteína magra (24g–38g), porções de fácil digestão (220g–320g), rica saciedade com fibras e teor controlado de gorduras pesadas para preservar a massa magra durante o tratamento.
+                  </span>
+                </div>
+              )}
+
               {/* ZONA 2: RESUMO FINANCEIRO & STATUS CONSOLIDADO */}
               <div
                 className={`p-4 rounded-2xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
@@ -3022,6 +3032,18 @@ export default function App() {
                 </div>
               </div>
             </div>
+
+            {tagFilter === 'Tirzepatida' && (
+              <div className="mb-5 p-4 rounded-2xl bg-teal-950/40 border border-teal-500/30 flex items-start gap-3 text-teal-200 text-xs">
+                <Sparkles className="w-5 h-5 text-teal-400 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-sm text-white mb-0.5">Cardápio Aliado Tirzepatida / Mounjaro</h4>
+                  <p className="text-teal-300/90 leading-relaxed">
+                    Receitas criteriosamente selecionadas com alta concentração de proteína magra (24g a 38g por refeição), porções equilibradas de digestão fácil (220g a 320g) e teor moderado de gorduras para prevenir náuseas, garantir saciedade prolongada e preservar a massa muscular durante o emagrecimento.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Recipe Cards Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

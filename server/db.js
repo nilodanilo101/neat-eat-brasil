@@ -17,6 +17,7 @@ import {
   ROBUST_RECIPE_VAULT,
   computeUserTasteProfile,
   enrichAndRankSuggestions,
+  isDishTooSimilarToExisting,
 } from "./suggestionEngine.js";
 
 export function initDb() {
@@ -348,6 +349,12 @@ export function generateSmartMealPlan(weeklyBudget, dietaryFilter, householdSize
 
   const matchesDiet = (r) => {
     if (!dietaryFilter || dietaryFilter === 'Todas') return true;
+    if (dietaryFilter === 'Tirzepatida') {
+      return (
+        r.tags.includes('Tirzepatida') ||
+        (r.protein >= 24 && (!r.portionWeight || parseInt(r.portionWeight) <= 350))
+      );
+    }
     return r.tags.includes(dietaryFilter);
   };
 
@@ -430,6 +437,7 @@ export function getSuggestionsState(fridgeItems = [], marketPrices = []) {
   const { todayKey } = ensureDailyDiscoveryRefresh();
 
   const existingRecipes = getAllRecipes();
+  const catalogTitles = existingRecipes.map((r) => r.title);
   const existingTitles = new Set(existingRecipes.map((r) => r.title.toLowerCase().trim()));
   const existingIds = new Set(existingRecipes.map((r) => r.id));
 
@@ -470,12 +478,35 @@ export function getSuggestionsState(fridgeItems = [], marketPrices = []) {
     if (
       swipe?.action === 'right' ||
       existingIds.has(sug.id) ||
-      existingTitles.has(sug.title.toLowerCase().trim())
+      existingTitles.has(sug.title.toLowerCase().trim()) ||
+      isDishTooSimilarToExisting(sug.title, catalogTitles) ||
+      isDishTooSimilarToExisting(sug.title, available.map((a) => a.title))
     ) {
       continue;
     }
 
     available.push(sug);
+  }
+
+  // Garantia estrita de ao menos 5 sugestões distintas por dia (completando do acervo culinário)
+  if (available.length < 5) {
+    for (const vaultItem of ROBUST_RECIPE_VAULT) {
+      if (available.length >= 5) break;
+      if (seenPoolIds.has(vaultItem.id)) continue;
+      seenPoolIds.add(vaultItem.id);
+
+      const swipe = swipedMap.get(vaultItem.id);
+      if (swipe) continue;
+      if (
+        existingIds.has(vaultItem.id) ||
+        isDishTooSimilarToExisting(vaultItem.title, catalogTitles) ||
+        isDishTooSimilarToExisting(vaultItem.title, available.map((a) => a.title))
+      ) {
+        continue;
+      }
+
+      available.push(vaultItem);
+    }
   }
 
   // Constrói mapa de preços médios calibrados
