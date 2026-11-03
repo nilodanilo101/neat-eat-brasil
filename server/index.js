@@ -14,6 +14,8 @@ import {
   saveGroceryInvoice,
   calibrateMarketPrices,
   updateMarketPrice,
+  resetMarketPricesToDefault,
+  addOrUpsertMarketPrice,
   recalcRecipesCost,
   stockFridgeFromInvoice,
 } from './db.js';
@@ -894,6 +896,42 @@ export async function startServer(options = {}) {
       ...fullState,
       currentVersion: appVersion || CURRENT_VERSION,
     });
+  });
+
+  // 5.1 Adicionar Novo Insumo Personalizado
+  app.post('/api/market-prices', (req, res) => {
+    const { name, aisle, std_unit, price } = req.body;
+    if (!name || !price) {
+      return res.status(400).json({ error: 'Nome e preço são obrigatórios.' });
+    }
+    const updatedPrices = addOrUpsertMarketPrice({ name, aisle, std_unit, price });
+    const fullState = getFullState();
+    res.json({
+      success: true,
+      message: `Ingrediente "${name}" cadastrado e fichas técnicas calibradas.`,
+      prices: updatedPrices,
+      fullState,
+      ...fullState,
+      currentVersion: appVersion || CURRENT_VERSION,
+    });
+  });
+
+  // 5.2 Restaurar Preços Padrão CEASA/PROCON
+  app.post('/api/market-prices/reset', (_req, res) => {
+    try {
+      const updatedPrices = resetMarketPricesToDefault();
+      const fullState = getFullState();
+      res.json({
+        success: true,
+        message: 'Preços de referência restaurados para os padrões oficiais CEASA/PROCON.',
+        prices: updatedPrices,
+        fullState,
+        ...fullState,
+        currentVersion: appVersion || CURRENT_VERSION,
+      });
+    } catch (err) {
+      res.status(500).json({ error: 'Erro ao restaurar preços padrão: ' + err.message });
+    }
   });
 
   // 6. Forçar Recálculo de Custos em Lote

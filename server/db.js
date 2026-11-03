@@ -644,7 +644,25 @@ export function getSuggestionsState(fridgeItems = [], marketPrices = []) {
 // ============================================================================
 
 export function getMarketPrices() {
-  return db.prepare('SELECT * FROM ingredient_market_prices ORDER BY display_name ASC').all();
+  const rows = db.prepare('SELECT * FROM ingredient_market_prices ORDER BY aisle ASC, display_name ASC').all();
+  return rows.map((r) => ({
+    ...r,
+    id: r.id,
+    key: r.ingredient_key,
+    ingredient_key: r.ingredient_key,
+    name: r.display_name,
+    display_name: r.display_name,
+    aisle: r.aisle,
+    unit: r.std_unit,
+    std_unit: r.std_unit,
+    price: r.avg_unit_price,
+    last_unit_price: r.last_unit_price,
+    avg_unit_price: r.avg_unit_price,
+    sample_count: r.sample_count || 0,
+    supermarket: r.last_supermarket || 'Referência Oficial NeatEat',
+    last_supermarket: r.last_supermarket || 'Referência Oficial NeatEat',
+    updated_at: r.updated_at,
+  }));
 }
 
 export function saveGroceryInvoice({ supermarket, purchaseDate, totalValue, items }) {
@@ -728,14 +746,83 @@ export function updateMarketPrice(key, newPrice, supermarket = 'Ajuste Manual do
         sample_count = CASE WHEN sample_count <= 0 THEN 1 ELSE sample_count + 1 END,
         last_supermarket = ?,
         updated_at = CURRENT_TIMESTAMP
-    WHERE ingredient_key = ?
+    WHERE ingredient_key = ? OR id = ?
   `);
-  stmt.run(price, price, supermarket, key);
+  stmt.run(price, price, supermarket, String(key), isNaN(Number(key)) ? -1 : Number(key));
 
   try {
     recalcRecipesCost();
   } catch (err) {
     console.error('Erro ao recalcular receitas após ajuste:', err);
+  }
+
+  return getMarketPrices();
+}
+
+export function resetMarketPricesToDefault() {
+  const updatePrice = db.prepare(`
+    INSERT INTO ingredient_market_prices (
+      ingredient_key, display_name, aisle, std_unit, last_unit_price, avg_unit_price, sample_count, last_supermarket, updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, 0, 'Referência Oficial NeatEat', CURRENT_TIMESTAMP)
+    ON CONFLICT(ingredient_key) DO UPDATE SET
+      last_unit_price = excluded.last_unit_price,
+      avg_unit_price = excluded.avg_unit_price,
+      sample_count = 0,
+      last_supermarket = 'Referência Oficial NeatEat',
+      updated_at = CURRENT_TIMESTAMP
+  `);
+
+  for (const item of CANONICAL_INGREDIENTS) {
+    updatePrice.run(
+      item.key,
+      item.name,
+      item.aisle,
+      item.stdUnit,
+      item.defaultPricePerKg,
+      item.defaultPricePerKg
+    );
+  }
+
+  try {
+    recalcRecipesCost();
+  } catch (err) {
+    console.error('Erro ao recalcular receitas após reset de preços:', err);
+  }
+
+  return getMarketPrices();
+}
+
+export function addOrUpsertMarketPrice({ name, aisle = 'Mercearia', std_unit = 'kg', price }) {
+  const normKey = String(name || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+  const numPrice = Number(price);
+  if (!name || !normKey || isNaN(numPrice) || numPrice <= 0) return null;
+
+  const stmt = db.prepare(`
+    INSERT INTO ingredient_market_prices (
+      ingredient_key, display_name, aisle, std_unit, last_unit_price, avg_unit_price, sample_count, last_supermarket, updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, 1, 'Adicionado pelo Usuário', CURRENT_TIMESTAMP)
+    ON CONFLICT(ingredient_key) DO UPDATE SET
+      display_name = excluded.display_name,
+      aisle = excluded.aisle,
+      std_unit = excluded.std_unit,
+      last_unit_price = excluded.last_unit_price,
+      avg_unit_price = excluded.avg_unit_price,
+      last_supermarket = 'Ajuste Manual do Usuário',
+      updated_at = CURRENT_TIMESTAMP
+  `);
+  stmt.run(normKey, String(name).trim(), aisle, std_unit, numPrice, numPrice);
+
+  try {
+    recalcRecipesCost();
+  } catch (err) {
+    console.error('Erro ao recalcular receitas após adicionar insumo:', err);
   }
 
   return getMarketPrices();

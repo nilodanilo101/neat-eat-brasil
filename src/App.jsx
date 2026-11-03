@@ -58,6 +58,7 @@ import {
   Coins,
   Smartphone,
   Share2,
+  ArrowUpDown,
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import {
@@ -138,13 +139,13 @@ function formatBRL(value) {
 }
 
 function getIngredientEmoji(name = '', aisle = '') {
-  const n = String(name).toLowerCase();
+  const n = String(name || '').toLowerCase();
   if (n.includes('ovo')) return '🥚';
-  if (n.includes('frango')) return '🍗';
-  if (n.includes('linguiça') || n.includes('calabresa') || n.includes('bacon') || n.includes('fiambre')) return '🥓';
-  if (n.includes('carne') || n.includes('patinho') || n.includes('acém') || n.includes('bife')) return '🥩';
-  if (n.includes('tilápia') || n.includes('peixe') || n.includes('salmão') || n.includes('atum') || n.includes('camarão')) return '🐟';
-  if (n.includes('queijo') || n.includes('muçarela') || n.includes('coalho') || n.includes('parmesão') || n.includes('requeijão') || n.includes('ricota')) return '🧀';
+  if (n.includes('frango') || n.includes('sassami') || n.includes('galinha')) return '🍗';
+  if (n.includes('linguiça') || n.includes('calabresa') || n.includes('bacon') || n.includes('fiambre') || n.includes('presunto')) return '🥓';
+  if (n.includes('tilápia') || n.includes('peixe') || n.includes('salmão') || n.includes('salmao') || n.includes('atum') || n.includes('camarão') || n.includes('camarao') || n.includes('merluza') || n.includes('pescada') || n.includes('sardinha') || n.includes('bacalhau')) return '🐟';
+  if (n.includes('carne') || n.includes('patinho') || n.includes('acém') || n.includes('acem') || n.includes('bife') || n.includes('alcatra') || n.includes('contrafilé') || n.includes('costela') || n.includes('músculo') || n.includes('musculo') || n.includes('lombo') || n.includes('bisteca') || n.includes('suína') || n.includes('suina')) return '🥩';
+  if (n.includes('queijo') || n.includes('muçarela') || n.includes('mussarela') || n.includes('coalho') || n.includes('parmesão') || n.includes('parmesao') || n.includes('requeijão') || n.includes('requeijao') || n.includes('ricota')) return '🧀';
   if (n.includes('manteiga')) return '🧈';
   if (n.includes('coco')) return '🥥';
   if (n.includes('leite') || n.includes('iogurte') || n.includes('creme de leite')) return '🥛';
@@ -153,12 +154,12 @@ function getIngredientEmoji(name = '', aisle = '') {
   if (n.includes('alho-poró') || n.includes('alho poro')) return '🥬';
   if (n.includes('alho')) return '🧄';
   if (n.includes('batata-doce') || n.includes('batata doce')) return '🍠';
-  if (n.includes('batata') || n.includes('mandioca') || n.includes('mandioquinha')) return '🥔';
+  if (n.includes('batata') || n.includes('mandioca') || n.includes('mandioquinha') || n.includes('aipim') || n.includes('macaxeira')) return '🥔';
   if (n.includes('cenoura')) return '🥕';
-  if (n.includes('brócolis') || n.includes('brocolis')) return '🥦';
+  if (n.includes('brócolis') || n.includes('brocolis') || n.includes('couve-flor')) return '🥦';
   if (n.includes('abobrinha') || n.includes('chuchu') || n.includes('pepino')) return '🥒';
-  if (n.includes('abóbora') || n.includes('abobora') || n.includes('cabotiá')) return '🎃';
-  if (n.includes('pimentão') || n.includes('pimenta')) return '🫑';
+  if (n.includes('abóbora') || n.includes('abobora') || n.includes('cabotiá') || n.includes('cabotia')) return '🎃';
+  if (n.includes('pimentão') || n.includes('pimentao') || n.includes('pimenta')) return '🫑';
   if (
     n.includes('couve') ||
     n.includes('alface') ||
@@ -167,50 +168,111 @@ function getIngredientEmoji(name = '', aisle = '') {
     n.includes('coentro') ||
     n.includes('salsinha') ||
     n.includes('manjericão') ||
-    n.includes('hortelã')
+    n.includes('hortelã') ||
+    n.includes('rúcula') ||
+    n.includes('rucula')
   )
     return '🥬';
-  if (n.includes('abacate')) return '🥑';
+  if (n.includes('abacate') || n.includes('avocado')) return '🥑';
   if (n.includes('banana')) return '🍌';
+  if (n.includes('maçã') || n.includes('maca')) return '🍎';
+  if (n.includes('laranja')) return '🍊';
+  if (n.includes('morango')) return '🍓';
+  if (n.includes('abacaxi')) return '🍍';
+  if (n.includes('manga') || n.includes('mamão') || n.includes('mamao')) return '🥭';
   if (n.includes('limão') || n.includes('limao')) return '🍋';
   if (n.includes('shitake') || n.includes('cogumelo') || n.includes('champignon')) return '🍄';
   if (n.includes('arroz')) return '🍚';
-  if (n.includes('feijão') || n.includes('feijao') || n.includes('grão-de-bico') || n.includes('lentilha')) return '🫘';
-  if (n.includes('macarrão') || n.includes('espaguete') || n.includes('penne') || n.includes('lasanha')) return '🍝';
-  if (n.includes('wrap') || n.includes('pão folha')) return '🌯';
-  if (n.includes('pão') || n.includes('torrada') || n.includes('crouton')) return '🍞';
+  if (n.includes('feijão') || n.includes('feijao') || n.includes('grão-de-bico') || n.includes('grao de bico') || n.includes('lentilha')) return '🫘';
+  if (n.includes('macarrão') || n.includes('macarrao') || n.includes('espaguete') || n.includes('penne') || n.includes('lasanha')) return '🍝';
+  if (n.includes('wrap') || n.includes('pão folha') || n.includes('pao folha')) return '🌯';
+  if (n.includes('pão') || n.includes('pao') || n.includes('torrada') || n.includes('crouton')) return '🍞';
   if (
     n.includes('aveia') ||
     n.includes('farinha') ||
     n.includes('polvilho') ||
     n.includes('tapioca') ||
     n.includes('flocão') ||
-    n.includes('cuscuz')
+    n.includes('flocao') ||
+    n.includes('cuscuz') ||
+    n.includes('quinoa')
   )
     return '🌾';
-  if (n.includes('azeite') || n.includes('óleo')) return '🫒';
-  if (n.includes('amendoim') || n.includes('castanha') || n.includes('nozes')) return '🥜';
+  if (n.includes('azeite') || n.includes('óleo') || n.includes('oleo')) return '🫒';
+  if (n.includes('amendoim') || n.includes('castanha') || n.includes('nozes') || n.includes('chia') || n.includes('linhaça') || n.includes('gergelim')) return '🥜';
   if (n.includes('cacau') || n.includes('chocolate')) return '🍫';
   if (n.includes('mel')) return '🍯';
   if (n.includes('gengibre')) return '🫚';
   if (
     n.includes('sal') ||
     n.includes('orégano') ||
+    n.includes('oregano') ||
     n.includes('canela') ||
     n.includes('açafrão') ||
+    n.includes('acafrao') ||
     n.includes('cúrcuma') ||
+    n.includes('curcuma') ||
     n.includes('shoyu') ||
+    n.includes('páprica') ||
+    n.includes('paprica') ||
+    n.includes('chimichurri') ||
+    n.includes('cominho') ||
+    n.includes('louro') ||
+    n.includes('curry') ||
+    n.includes('noz-moscada') ||
     n.includes('tempero')
   )
     return '🧂';
 
   if (aisle === 'Açougue') return '🥩';
   if (aisle === 'Peixaria') return '🐟';
-  if (aisle === 'Laticínios e Ovos') return '🧀';
-  if (aisle === 'Hortifruti') return '🥗';
+  if (aisle === 'Laticínios' || aisle === 'Laticínios e Ovos') return '🧀';
+  if (aisle === 'Hortifruti') return '🥦';
+  if (aisle === 'Grãos e Cereais') return '🍚';
   if (aisle === 'Padaria') return '🥖';
   if (aisle === 'Temperos') return '🧂';
-  return '🥣';
+  return '🛒';
+}
+
+const MARKET_PRICE_AISLES = [
+  { id: 'Todos', label: 'Todos', icon: '🍽️' },
+  { id: 'Açougue', label: 'Açougue & Peixes', icon: '🥩' },
+  { id: 'Hortifruti', label: 'Hortifruti', icon: '🥦' },
+  { id: 'Laticínios', label: 'Laticínios & Ovos', icon: '🧀' },
+  { id: 'Grãos e Cereais', label: 'Grãos & Massas', icon: '🍚' },
+  { id: 'Mercearia', label: 'Mercearia Básica', icon: '🧂' },
+  { id: 'Temperos', label: 'Temperos & Ervas', icon: '🧄' },
+  { id: 'Padaria', label: 'Padaria', icon: '🥖' },
+];
+
+function formatUnitDescription(unit = 'kg') {
+  const u = String(unit || 'kg').toLowerCase().trim();
+  if (u === 'kg') return '1 kg (quilo)';
+  if (u === 'l') return '1 Litro';
+  if (u === 'un') return '1 unidade / maço';
+  return `1 ${unit}`;
+}
+
+function getAisleBadgeStyle(aisle = '') {
+  switch (aisle) {
+    case 'Açougue':
+      return 'bg-rose-500/15 text-rose-300 border-rose-500/30';
+    case 'Hortifruti':
+      return 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
+    case 'Laticínios':
+    case 'Laticínios e Ovos':
+      return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
+    case 'Grãos e Cereais':
+      return 'bg-sky-500/15 text-sky-300 border-sky-500/30';
+    case 'Mercearia':
+      return 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30';
+    case 'Temperos':
+      return 'bg-teal-500/15 text-teal-300 border-teal-500/30';
+    case 'Padaria':
+      return 'bg-orange-500/15 text-orange-300 border-orange-500/30';
+    default:
+      return 'bg-slate-800 text-slate-300 border-white/10';
+  }
 }
 
 function extractStepSeconds(stepText = '') {
@@ -765,10 +827,20 @@ export default function App() {
   const [pricesModalOpen, setPricesModalOpen] = useState(false);
   const [priceSearchQuery, setPriceSearchQuery] = useState('');
   const [priceFilterAisle, setPriceFilterAisle] = useState('Todos');
+  const [priceSortOrder, setPriceSortOrder] = useState('aisle');
   const [editingPriceKey, setEditingPriceKey] = useState(null);
   const [editingPriceValue, setEditingPriceValue] = useState('');
   const [recalculatingPrices, setRecalculatingPrices] = useState(false);
   const [priceSuccessToast, setPriceSuccessToast] = useState('');
+  const [showPriceExplanation, setShowPriceExplanation] = useState(true);
+  const [newIngredientModalOpen, setNewIngredientModalOpen] = useState(false);
+  const [newIngredientForm, setNewIngredientForm] = useState({
+    name: '',
+    aisle: 'Hortifruti',
+    std_unit: 'kg',
+    price: '',
+  });
+  const [addingIngredient, setAddingIngredient] = useState(false);
 
   // APIs & Integrations (Gemini, Open Food Facts, Unsplash, TACO)
   const [apiKeysModalOpen, setApiKeysModalOpen] = useState(false);
@@ -1012,6 +1084,61 @@ export default function App() {
       console.error('Erro ao recalcular custos:', err);
     } finally {
       setRecalculatingPrices(false);
+    }
+  }
+
+  async function handleResetMarketPrices() {
+    if (!window.confirm('Deseja restaurar todos os preços para os padrões oficiais do CEASA/PROCON? Suas edições manuais serão redefinidas para a média nacional.')) {
+      return;
+    }
+    setRecalculatingPrices(true);
+    try {
+      const res = await fetch('/api/market-prices/reset', { method: 'POST' });
+      const json = await res.json();
+      if (json.fullState) {
+        setData(json.fullState);
+      }
+      playStockFridgeChime();
+      setPriceSuccessToast('Preços de referência restaurados com sucesso para os padrões CEASA!');
+      setTimeout(() => setPriceSuccessToast(''), 4000);
+    } catch (err) {
+      console.error('Erro ao restaurar preços padrão:', err);
+    } finally {
+      setRecalculatingPrices(false);
+    }
+  }
+
+  async function handleAddCustomIngredientPrice(e) {
+    if (e) e.preventDefault();
+    if (!newIngredientForm.name.trim() || !newIngredientForm.price) return;
+    const num = parseFloat(String(newIngredientForm.price).replace(',', '.'));
+    if (isNaN(num) || num <= 0) return;
+
+    setAddingIngredient(true);
+    try {
+      const res = await fetch('/api/market-prices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newIngredientForm.name.trim(),
+          aisle: newIngredientForm.aisle,
+          std_unit: newIngredientForm.std_unit,
+          price: num,
+        }),
+      });
+      const json = await res.json();
+      if (json.fullState) {
+        setData(json.fullState);
+      }
+      playStockFridgeChime();
+      setNewIngredientModalOpen(false);
+      setNewIngredientForm({ name: '', aisle: 'Hortifruti', std_unit: 'kg', price: '' });
+      setPriceSuccessToast(`Ingrediente "${newIngredientForm.name.trim()}" cadastrado com sucesso!`);
+      setTimeout(() => setPriceSuccessToast(''), 4000);
+    } catch (err) {
+      console.error('Erro ao adicionar ingrediente:', err);
+    } finally {
+      setAddingIngredient(false);
     }
   }
 
@@ -1460,6 +1587,50 @@ export default function App() {
     groceryHistory = [],
     tasteProfile = null,
   } = data;
+
+  const aisleCounts = useMemo(() => {
+    const counts = { Todos: marketPrices.length };
+    for (const item of marketPrices) {
+      const a = item.aisle || 'Mercearia';
+      counts[a] = (counts[a] || 0) + 1;
+    }
+    return counts;
+  }, [marketPrices]);
+
+  const calibratedCount = useMemo(() => {
+    return marketPrices.filter((p) => (p.sample_count || 0) > 0).length;
+  }, [marketPrices]);
+
+  const filteredMarketPrices = useMemo(() => {
+    const q = priceSearchQuery.trim().toLowerCase();
+    const list = marketPrices.filter((item) => {
+      const name = String(item.name || item.display_name || '').toLowerCase();
+      const key = String(item.key || item.ingredient_key || '').toLowerCase();
+      const aisle = item.aisle || '';
+      const matchQuery = !q || name.includes(q) || key.includes(q);
+      const matchAisle = priceFilterAisle === 'Todos' || aisle === priceFilterAisle;
+      return matchQuery && matchAisle;
+    });
+
+    if (priceSortOrder === 'name_asc') {
+      list.sort((a, b) => String(a.name || a.display_name || '').localeCompare(String(b.name || b.display_name || ''), 'pt-BR'));
+    } else if (priceSortOrder === 'price_desc') {
+      list.sort((a, b) => (Number(b.price || b.avg_unit_price) || 0) - (Number(a.price || a.avg_unit_price) || 0));
+    } else if (priceSortOrder === 'price_asc') {
+      list.sort((a, b) => (Number(a.price || a.avg_unit_price) || 0) - (Number(b.price || b.avg_unit_price) || 0));
+    } else if (priceSortOrder === 'calibrated') {
+      list.sort((a, b) => (b.sample_count || 0) - (a.sample_count || 0));
+    } else {
+      list.sort((a, b) => {
+        const aisleDiff = String(a.aisle || '').localeCompare(String(b.aisle || ''), 'pt-BR');
+        if (aisleDiff !== 0) return aisleDiff;
+        return String(a.name || a.display_name || '').localeCompare(String(b.name || b.display_name || ''), 'pt-BR');
+      });
+    }
+
+    return list;
+  }, [marketPrices, priceSearchQuery, priceFilterAisle, priceSortOrder]);
+
   const isOverBudget = totals.netToBuyTotal > user.weekly_budget;
   const budgetPct = Math.min(100, Math.round((totals.netToBuyTotal / Math.max(1, user.weekly_budget)) * 100));
 
@@ -2796,7 +2967,7 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Card Inteligência de Preços Médios dos Ingredientes */}
+                {/* Card Tabela de Preços do Supermercado */}
                 <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-white/10 flex items-center justify-between gap-3 shadow-md">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center border border-sky-500/30 shrink-0">
@@ -2804,15 +2975,15 @@ export default function App() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-xs font-bold text-white truncate">Preços Médios dos Ingredientes</p>
+                        <p className="text-xs font-bold text-white truncate">Tabela de Preços do Supermercado</p>
                         <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-sky-950/60 text-sky-300 border border-sky-500/30 shrink-0">
                           {marketPrices.length} Insumos
                         </span>
                       </div>
                       <p className="text-[11px] text-slate-400 font-medium truncate">
-                        {marketPrices.filter((p) => p.sample_count > 0).length > 0
-                          ? `${marketPrices.filter((p) => p.sample_count > 0).length} calibrados via cupom real • Base CEASA`
-                          : 'Calibrado com base CEASA/PROCON • Atualize com cupom'}
+                        {marketPrices.filter((p) => (p.sample_count || 0) > 0).length > 0
+                          ? `${marketPrices.filter((p) => (p.sample_count || 0) > 0).length} calibrados via cupom real • Base CEASA`
+                          : 'Cotações de referência usadas para calcular o custo por porção'}
                       </p>
                     </div>
                   </div>
@@ -2821,7 +2992,7 @@ export default function App() {
                     onClick={() => setPricesModalOpen(true)}
                     className="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 shadow-xs shrink-0 cursor-pointer transition flex items-center gap-1 active:scale-95"
                   >
-                    <span>Ver / Ajustar</span>
+                    <span>Ver / Ajustar Preços</span>
                   </button>
                 </div>
 
@@ -6390,36 +6561,42 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 8: INTELIGÊNCIA DE PREÇOS MÉDIOS & GESTÃO DE INSUMOS */}
+      {/* MODAL 8: TABELA DE PREÇOS DO SUPERMERCADO & CUSTOS CULINÁRIOS */}
       {pricesModalOpen && (
         <div
           onClick={() => {
             setPricesModalOpen(false);
             setEditingPriceKey(null);
           }}
-          className="fixed inset-0 z-60 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5"
+          className="fixed inset-0 z-60 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-slate-900/95 text-slate-100 rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-hidden flex flex-col shadow-2xl border border-white/10 backdrop-blur-2xl"
+            className="bg-slate-900/98 text-slate-100 rounded-3xl max-w-5xl w-full max-h-[94vh] overflow-hidden flex flex-col shadow-2xl border border-white/10 backdrop-blur-2xl animate-fade-in"
           >
             {/* Header */}
-            <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between gap-4 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-sky-600/25 shrink-0">
+            <div className="p-5 sm:p-6 border-b border-white/10 flex items-start justify-between gap-4 shrink-0 bg-slate-950/40">
+              <div className="flex items-start sm:items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-600 via-indigo-600 to-emerald-500 text-white flex items-center justify-center shadow-lg shadow-sky-600/25 shrink-0">
                   <Scale className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-lg sm:text-xl font-black text-white">
-                      Inteligência de Preços Médios dos Ingredientes
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
+                      Tabela de Preços do Supermercado
                     </h2>
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
-                      {marketPrices.length} Insumos
+                    <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                      {marketPrices.length} Ingredientes
                     </span>
+                    {calibratedCount > 0 && (
+                      <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        {calibratedCount} com Cupom Real
+                      </span>
+                    )}
                   </div>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Tabela base CEASA/PROCON calibrada dinamicamente via cupons fiscais (NFC-e). Define o custo real por porção de todas as receitas.
+                  <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                    Cotações de referência por quilo, litro ou unidade. O NeatEat utiliza esses valores para calcular centavo por centavo o custo das suas receitas e prever o valor total da lista de compras.
                   </p>
                 </div>
               </div>
@@ -6429,181 +6606,329 @@ export default function App() {
                   setPricesModalOpen(false);
                   setEditingPriceKey(null);
                 }}
-                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition cursor-pointer shrink-0 border border-white/10"
+                className="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition cursor-pointer shrink-0 border border-white/10"
+                title="Fechar"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
+            {/* Explanatory Collapsible Banner */}
+            <div className="px-5 pt-3 shrink-0">
+              <div className="p-3.5 rounded-2xl bg-gradient-to-r from-sky-950/40 via-indigo-950/30 to-slate-900 border border-sky-500/20 text-xs">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-300 flex items-center justify-center shrink-0">
+                      <Lightbulb className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="font-bold text-sky-200">
+                      Como funciona essa tabela no dia a dia?
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPriceExplanation(!showPriceExplanation)}
+                    className="text-[11px] font-bold text-sky-400 hover:text-sky-300 transition cursor-pointer"
+                  >
+                    {showPriceExplanation ? 'Ocultar Dica' : 'Ver Explicação'}
+                  </button>
+                </div>
+
+                {showPriceExplanation && (
+                  <div className="mt-2.5 pt-2.5 border-t border-sky-500/10 text-slate-300 grid grid-cols-1 md:grid-cols-3 gap-3 leading-relaxed animate-fade-in">
+                    <div>
+                      <strong className="text-white block mb-0.5">1. Custo por Porção:</strong>
+                      Se uma receita leva 150g de peito de frango a R$ 22,90/kg, o NeatEat calcula R$ 3,43 por prato.
+                    </div>
+                    <div>
+                      <strong className="text-white block mb-0.5">2. Orçamento Semanal:</strong>
+                      A lista de compras usa essas cotações para comparar sua previsão de gastos com o seu limite semanal.
+                    </div>
+                    <div>
+                      <strong className="text-white block mb-0.5">3. Seus Preços Reais:</strong>
+                      Paga mais barato no açougue ou feira? Clique no lápis ✏️ para colocar o preço real do seu bairro.
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Category Navigation Tabs */}
+            <div className="px-5 pt-3 pb-1 shrink-0 overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-2 min-w-max pb-1">
+                {MARKET_PRICE_AISLES.map((cat) => {
+                  const isActive = priceFilterAisle === cat.id;
+                  const count = aisleCounts[cat.id] || 0;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setPriceFilterAisle(cat.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border ${
+                        isActive
+                          ? 'bg-sky-600 text-white border-sky-400 shadow-md shadow-sky-600/30'
+                          : 'bg-slate-950/60 hover:bg-slate-800 text-slate-300 border-white/5 hover:border-white/10'
+                      }`}
+                    >
+                      <span>{cat.icon}</span>
+                      <span>{cat.label}</span>
+                      <span
+                        className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                          isActive
+                            ? 'bg-white/20 text-white'
+                            : 'bg-slate-800 text-slate-400'
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Quick Actions & Filters Bar */}
             <div className="p-4 sm:p-5 bg-slate-950/40 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 shrink-0">
-              <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-[260px]">
-                <div className="relative flex-1 min-w-[180px]">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
+                {/* Search */}
+                <div className="relative flex-1 min-w-[220px]">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5" />
                   <input
                     type="text"
-                    placeholder="Buscar insumo (ex: arroz, alho, peito de frango)..."
+                    placeholder="Buscar ingrediente (ex: alho, tomate, peito de frango, arroz)..."
                     value={priceSearchQuery}
                     onChange={(e) => setPriceSearchQuery(e.target.value)}
-                    className="w-full rounded-xl bg-slate-900 border border-white/10 pl-9 pr-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-sky-400"
+                    className="w-full rounded-xl bg-slate-900 border border-white/10 pl-10 pr-8 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-sky-400"
                   />
+                  {priceSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setPriceSearchQuery('')}
+                      className="absolute right-2.5 top-2.5 text-slate-400 hover:text-white"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
-                <select
-                  value={priceFilterAisle}
-                  onChange={(e) => setPriceFilterAisle(e.target.value)}
-                  className="rounded-xl bg-slate-900 border border-white/10 px-3 py-2 text-xs font-bold text-slate-200 focus:outline-none cursor-pointer"
-                >
-                  <option value="Todos">Todos os Setores</option>
-                  <option value="Açougue">Açougue</option>
-                  <option value="Laticínios">Laticínios</option>
-                  <option value="Hortifruti">Hortifruti</option>
-                  <option value="Grãos e Cereais">Grãos e Cereais</option>
-                  <option value="Mercearia">Mercearia</option>
-                  <option value="Temperos">Temperos</option>
-                </select>
+
+                {/* Sorter */}
+                <div className="flex items-center gap-1.5">
+                  <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <select
+                    value={priceSortOrder}
+                    onChange={(e) => setPriceSortOrder(e.target.value)}
+                    className="rounded-xl bg-slate-900 border border-white/10 px-3 py-2 text-xs font-bold text-slate-200 focus:outline-none cursor-pointer"
+                  >
+                    <option value="aisle">Organizar: Por Setor (Padrão)</option>
+                    <option value="name_asc">Ordem Alfabética (A-Z)</option>
+                    <option value="price_desc">Maior Preço Primeiro</option>
+                    <option value="price_asc">Menor Preço Primeiro</option>
+                    <option value="calibrated">Calibrados com Cupom</option>
+                  </select>
+                </div>
               </div>
 
-              <button
-                type="button"
-                onClick={handleRecalculatePrices}
-                disabled={recalculatingPrices}
-                className="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 active:scale-95 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md shadow-sky-600/25 cursor-pointer transition disabled:opacity-50"
-              >
-                <Sparkles className={`w-3.5 h-3.5 ${recalculatingPrices ? 'animate-spin' : ''}`} />
-                <span>{recalculatingPrices ? 'Recalculando Custos...' : 'Recalcular Receitas'}</span>
-              </button>
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setNewIngredientModalOpen(true)}
+                  className="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition active:scale-95"
+                  title="Cadastrar ingrediente personalizado com preço"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+ Insumo</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleResetMarketPrices}
+                  disabled={recalculatingPrices}
+                  className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center gap-1.5 border border-white/10 cursor-pointer transition disabled:opacity-50"
+                  title="Restaurar cotações padrão do CEASA"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Restaurar Padrões</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleRecalculatePrices}
+                  disabled={recalculatingPrices}
+                  className="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 active:scale-95 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md shadow-sky-600/25 cursor-pointer transition disabled:opacity-50"
+                  title="Recalcular custos em todas as fichas técnicas"
+                >
+                  <Sparkles className={`w-3.5 h-3.5 ${recalculatingPrices ? 'animate-spin' : ''}`} />
+                  <span>{recalculatingPrices ? 'Recalculando...' : 'Recalcular Receitas'}</span>
+                </button>
+              </div>
             </div>
 
             {/* Success Toast */}
             {priceSuccessToast && (
-              <div className="mx-4 mt-3 p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-xs font-bold flex items-center gap-2 animate-fade-in">
+              <div className="mx-5 mt-3 p-3 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-200 text-xs font-bold flex items-center gap-2 animate-fade-in shadow-md">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>{priceSuccessToast}</span>
               </div>
             )}
 
             {/* Insumos List */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 divide-y divide-white/5 space-y-1">
-              {marketPrices
-                .filter((item) => {
-                  const matchQuery =
-                    !priceSearchQuery.trim() ||
-                    item.name.toLowerCase().includes(priceSearchQuery.toLowerCase()) ||
-                    item.key.toLowerCase().includes(priceSearchQuery.toLowerCase());
-                  const matchAisle =
-                    priceFilterAisle === 'Todos' || item.aisle === priceFilterAisle;
-                  return matchQuery && matchAisle;
-                })
-                .map((item) => {
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-2.5">
+              {filteredMarketPrices.length === 0 ? (
+                <div className="py-16 text-center text-slate-400">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center mx-auto mb-3 text-2xl">
+                    🔍
+                  </div>
+                  <h4 className="font-bold text-white text-base">Nenhum ingrediente encontrado</h4>
+                  <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                    Não encontramos resultados para a busca atual nesta categoria.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPriceSearchQuery('');
+                      setPriceFilterAisle('Todos');
+                    }}
+                    className="mt-3 px-3 py-1.5 rounded-xl bg-sky-600/30 hover:bg-sky-600/40 text-sky-200 border border-sky-500/40 text-xs font-bold cursor-pointer transition"
+                  >
+                    Limpar Filtros e Ver Todos
+                  </button>
+                </div>
+              ) : (
+                filteredMarketPrices.map((item) => {
+                  const itemKey = item.key || item.ingredient_key;
+                  const itemName = item.name || item.display_name || 'Ingrediente';
+                  const itemUnit = item.unit || item.std_unit || 'kg';
+                  const itemPrice = Number(item.price || item.avg_unit_price || 0);
                   const isCalibrated = (item.sample_count || 0) > 0;
-                  const isEditing = editingPriceKey === item.key;
+                  const isEditing = editingPriceKey === itemKey;
 
                   return (
                     <div
-                      key={item.key}
-                      className="py-3 px-3 rounded-2xl hover:bg-slate-800/40 transition flex flex-wrap items-center justify-between gap-3"
+                      key={itemKey}
+                      className="p-3.5 sm:p-4 rounded-2xl bg-slate-950/40 hover:bg-slate-800/40 border border-white/5 hover:border-white/10 transition-all flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 group"
                     >
-                      <div className="flex items-center gap-3 min-w-[200px]">
-                        <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-lg shrink-0 border border-white/5">
-                          {getIngredientEmoji(item.name, item.aisle)}
+                      {/* Left: Emoji, Name, Aisle & Unit */}
+                      <div className="flex items-center gap-3.5 min-w-[240px] flex-1">
+                        <div className="w-11 h-11 rounded-2xl bg-slate-800/90 border border-white/10 flex items-center justify-center text-2xl shadow-inner shrink-0 group-hover:scale-105 transition-transform">
+                          {getIngredientEmoji(itemName, item.aisle)}
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-bold text-sm text-white">{item.name}</h4>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-white/5">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h4 className="font-extrabold text-sm sm:text-base text-white tracking-tight">
+                              {itemName}
+                            </h4>
+                            <span
+                              className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${getAisleBadgeStyle(
+                                item.aisle
+                              )}`}
+                            >
                               {item.aisle}
                             </span>
                           </div>
-                          <p className="text-[11px] text-slate-400">
-                            Unidade base:{' '}
-                            <span className="font-semibold text-slate-300">
-                              1 {item.unit}
+                          <div className="flex flex-wrap items-center gap-2 mt-0.5 text-xs text-slate-400">
+                            <span>
+                              Unidade base:{' '}
+                              <strong className="text-slate-300 font-semibold">
+                                {formatUnitDescription(itemUnit)}
+                              </strong>
                             </span>
                             {item.supermarket && (
-                              <span> • Último: {item.supermarket}</span>
-                            )}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <div className="text-right">
-                          {isEditing ? (
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-xs text-slate-400 font-bold">R$</span>
-                              <input
-                                type="number"
-                                step="0.01"
-                                min="0.05"
-                                value={editingPriceValue}
-                                onChange={(e) => setEditingPriceValue(e.target.value)}
-                                className="w-20 rounded-lg bg-slate-950 border border-sky-400 px-2 py-1 text-xs font-black text-emerald-400 focus:outline-none"
-                                autoFocus
-                              />
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  handleUpdateMarketPrice(item.key, editingPriceValue)
-                                }
-                                className="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold cursor-pointer"
-                              >
-                                Salvar
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setEditingPriceKey(null)}
-                                className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-bold cursor-pointer"
-                              >
-                                Cancelar
-                              </button>
-                            </div>
-                          ) : (
-                            <div>
-                              <span className="text-sm sm:text-base font-black text-emerald-400">
-                                R$ {Number(item.avg_unit_price).toFixed(2)}
-                              </span>
-                              <span className="text-[10px] text-slate-400">/{item.unit}</span>
-                            </div>
-                          )}
-
-                          <div>
-                            {isCalibrated ? (
-                              <span className="text-[10px] font-bold text-emerald-400 flex items-center justify-end gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                Calibrado Cupom ({item.sample_count}x)
-                              </span>
-                            ) : (
-                              <span className="text-[10px] font-semibold text-slate-400 flex items-center justify-end gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
-                                Referência CEASA
+                              <span className="text-[11px] text-slate-500 truncate max-w-[200px]">
+                                • {item.supermarket}
                               </span>
                             )}
                           </div>
                         </div>
+                      </div>
 
-                        {!isEditing && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingPriceKey(item.key);
-                              setEditingPriceValue(String(item.avg_unit_price));
-                            }}
-                            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-white/5 cursor-pointer transition active:scale-95"
-                            title="Editar preço de mercado"
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                          </button>
+                      {/* Right: Price & Actions */}
+                      <div className="flex items-center gap-3 shrink-0">
+                        {isEditing ? (
+                          <div className="flex items-center gap-1.5 bg-slate-900 p-1.5 rounded-xl border border-sky-400 shadow-xl animate-fade-in">
+                            <span className="text-xs text-slate-400 font-bold pl-1.5">R$</span>
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0.05"
+                              value={editingPriceValue}
+                              onChange={(e) => setEditingPriceValue(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleUpdateMarketPrice(itemKey, editingPriceValue);
+                                if (e.key === 'Escape') setEditingPriceKey(null);
+                              }}
+                              className="w-24 rounded-lg bg-slate-950 border border-white/10 px-2 py-1 text-sm font-black text-emerald-400 focus:outline-none"
+                              autoFocus
+                            />
+                            <span className="text-xs text-slate-400 font-bold pr-1">/{itemUnit}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateMarketPrice(itemKey, editingPriceValue)}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer transition shadow-sm"
+                            >
+                              Salvar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingPriceKey(null)}
+                              className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs font-bold cursor-pointer transition"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-3 text-right">
+                            <div>
+                              <div className="flex items-baseline justify-end gap-1">
+                                <span className="text-base sm:text-lg font-black text-emerald-400">
+                                  R$ {itemPrice.toFixed(2).replace('.', ',')}
+                                </span>
+                                <span className="text-xs font-bold text-slate-400">
+                                  /{itemUnit}
+                                </span>
+                              </div>
+                              <div>
+                                {isCalibrated ? (
+                                  <span className="text-[10px] font-bold text-emerald-400 flex items-center justify-end gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    Cupom ({item.sample_count}x)
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] font-semibold text-slate-400 flex items-center justify-end gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+                                    Ref. CEASA
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingPriceKey(itemKey);
+                                setEditingPriceValue(String(itemPrice));
+                              }}
+                              className="p-2.5 rounded-xl bg-slate-800/90 hover:bg-sky-600 hover:text-white text-slate-300 border border-white/5 cursor-pointer transition active:scale-95 shadow-xs"
+                              title="Editar preço deste ingrediente"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
                   );
-                })}
+                })
+              )}
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 sm:p-5 border-t border-white/10 bg-slate-950/60 flex items-center justify-between shrink-0">
-              <span className="text-xs text-slate-400">
-                Os preços são ponderados automaticamente a cada nova nota fiscal inserida.
+            <div className="p-4 sm:p-5 border-t border-white/10 bg-slate-950/60 flex flex-wrap items-center justify-between gap-3 shrink-0">
+              <span className="text-xs text-slate-400 flex items-center gap-1.5">
+                <Receipt className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>
+                  Ao importar cupons fiscais (SEFAZ), os preços são ajustados automaticamente com a média real do seu carrinho.
+                </span>
               </span>
               <button
                 type="button"
@@ -6611,11 +6936,131 @@ export default function App() {
                   setPricesModalOpen(false);
                   setEditingPriceKey(null);
                 }}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs cursor-pointer transition border border-white/10"
+                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs cursor-pointer transition border border-white/10 ml-auto"
               >
                 Concluir
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-MODAL: CADASTRAR NOVO INSUMO PERSONALIZADO */}
+      {newIngredientModalOpen && (
+        <div
+          onClick={() => setNewIngredientModalOpen(false)}
+          className="fixed inset-0 z-70 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-slate-900 border border-white/10 rounded-3xl max-w-md w-full p-6 shadow-2xl text-slate-100 space-y-4 animate-fade-in"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                  <Plus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-base text-white">Novo Ingrediente</h3>
+                  <p className="text-xs text-slate-400">Cadastre um insumo com seu preço de referência</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setNewIngredientModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddCustomIngredientPrice} className="space-y-3 pt-2">
+              <div>
+                <label className="text-xs font-bold text-slate-300 block mb-1">
+                  Nome do Ingrediente *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Farinha de Amêndoas, Salmão Fresco, Whey..."
+                  value={newIngredientForm.name}
+                  onChange={(e) => setNewIngredientForm({ ...newIngredientForm, name: e.target.value })}
+                  className="w-full rounded-xl bg-slate-950 border border-white/10 px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-300 block mb-1">
+                    Setor do Mercado
+                  </label>
+                  <select
+                    value={newIngredientForm.aisle}
+                    onChange={(e) => setNewIngredientForm({ ...newIngredientForm, aisle: e.target.value })}
+                    className="w-full rounded-xl bg-slate-950 border border-white/10 px-3 py-2 text-xs font-bold text-white focus:outline-none cursor-pointer"
+                  >
+                    <option value="Açougue">Açougue & Peixes</option>
+                    <option value="Hortifruti">Hortifruti</option>
+                    <option value="Laticínios">Laticínios & Ovos</option>
+                    <option value="Grãos e Cereais">Grãos & Cereais</option>
+                    <option value="Mercearia">Mercearia</option>
+                    <option value="Temperos">Temperos</option>
+                    <option value="Padaria">Padaria</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-300 block mb-1">
+                    Unidade Base
+                  </label>
+                  <select
+                    value={newIngredientForm.std_unit}
+                    onChange={(e) => setNewIngredientForm({ ...newIngredientForm, std_unit: e.target.value })}
+                    className="w-full rounded-xl bg-slate-950 border border-white/10 px-3 py-2 text-xs font-bold text-white focus:outline-none cursor-pointer"
+                  >
+                    <option value="kg">Quilo (kg)</option>
+                    <option value="un">Unidade (un / maço)</option>
+                    <option value="l">Litro (L)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-300 block mb-1">
+                  Preço de Referência (R$) *
+                </label>
+                <div className="relative">
+                  <span className="text-xs font-bold text-slate-400 absolute left-3 top-2.5">R$</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.10"
+                    required
+                    placeholder="25.00"
+                    value={newIngredientForm.price}
+                    onChange={(e) => setNewIngredientForm({ ...newIngredientForm, price: e.target.value })}
+                    className="w-full rounded-xl bg-slate-950 border border-white/10 pl-9 pr-3 py-2 text-xs font-bold text-emerald-400 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setNewIngredientModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={addingIngredient}
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs cursor-pointer transition shadow-md shadow-emerald-600/20 disabled:opacity-50"
+                >
+                  {addingIngredient ? 'Salvando...' : 'Salvar Ingrediente'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
